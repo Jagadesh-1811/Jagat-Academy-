@@ -185,7 +185,7 @@ const ChatWindow = ({ courseId, educatorName, onClose }) => {
                                             </p>
                                             {/* Show read status only for student's messages */}
                                             {msg.senderRole === 'student' && (
-                                                <p className={`text-[10px] ${msg.isRead ? 'text-green-400' : 'text-gray-400'}`}>
+                                                <p className={`text-[10px] ${msg.isRead ? 'text-gray-300' : 'text-gray-400'}`}>
                                                     {msg.isRead ? '✓ Read' : 'Unread'}
                                                 </p>
                                             )}
@@ -237,3 +237,4 @@ const ChatWindow = ({ courseId, educatorName, onClose }) => {
 };
 
 export default ChatWindow;
+

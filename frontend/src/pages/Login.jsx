@@ -93,7 +93,7 @@ function Login() {
     }
 
     return (
-        <div className='bg-[#dddbdb] w-[100vw] h-[100vh] flex items-center justify-center flex-col gap-3'>
+        <div className='bg-[#f5f5f5] w-[100vw] h-[100vh] flex items-center justify-center flex-col gap-3'>
             <form className='w-[90%] md:w-200 h-150 bg-[white] shadow-xl rounded-2xl flex' onSubmit={(e) => e.preventDefault()}>
                 <div className='md:w-[50%] w-[100%] h-[100%] flex flex-col items-center justify-center gap-4 '>
                     <div><h1 className='font-semibold text-[black] text-2xl'>Welcome back</h1>
@@ -128,7 +128,7 @@ function Login() {
 
                     <span className='text-[13px] cursor-pointer text-[#585757] hover:underline' onClick={() => navigate("/forgotpassword")}>Forget your password?</span>
 
-                    <div className='text-[#6f6f6f]'>Don't have an account? <span className='underline underline-offset-1 text-[black] hover:text-gray-700' onClick={() => navigate("/signup")}>Sign up</span></div>
+                    <div className='text-[#6f6f6f]'>Don't have an account? <span className='underline underline-offset-1 text-[black] hover:text-gray-600' onClick={() => navigate("/signup")}>Sign up</span></div>
 
                 </div>
                 <div className='w-[50%] h-[100%] rounded-r-2xl bg-[black] md:flex items-center justify-center flex-col hidden'><img src={logo} className='w-30 shadow-2xl' alt="" />
@@ -141,3 +141,4 @@ function Login() {
 }
 
 export default Login
+

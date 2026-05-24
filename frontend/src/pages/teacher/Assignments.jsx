@@ -85,7 +85,7 @@ function Assignments() {
                                     <FaEdit /> Edit
                                 </button>
                                 <button
-                                    className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 flex items-center gap-1 text-sm"
+                                    className="bg-gray-200 text-white px-3 py-1 rounded-md hover:bg-gray-200 flex items-center gap-1 text-sm"
                                     onClick={() => handleDeleteAssignment(assignment._id)}
                                 >
                                     <FaTrash /> Remove
@@ -100,3 +100,4 @@ function Assignments() {
 }
 
 export default Assignments;
+

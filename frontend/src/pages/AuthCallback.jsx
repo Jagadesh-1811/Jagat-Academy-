@@ -113,7 +113,7 @@ function AuthCallback() {
                         <div className='w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center'>
                             <span className='text-black text-2xl'><CloseIcon /></span>
                         </div>
-                        <h2 className='text-xl font-semibold text-red-600'>Verification Failed</h2>
+                        <h2 className='text-xl font-semibold text-gray-500'>Verification Failed</h2>
                         <p className='text-gray-500 text-center'>{error}</p>
                         <p className='text-sm text-gray-400'>Redirecting to login...</p>
                     </>
@@ -124,3 +124,4 @@ function AuthCallback() {
 }
 
 export default AuthCallback
+

@@ -22,31 +22,31 @@ function ExploreCourses() {
       </div>
       <div className='w-[720px] max-w-[90%] lg:h-[300px] md:min-h-[300px] flex items-center justify-center lg:gap-[60px] gap-[50px] flex-wrap mb-[50px] lg:mb-[0px]'>
         <div className='w-[100px] h-[130px] font-light text-[13px] flex flex-col gap-3 text-center '>
-          <div className='w-[100px] h-[90px] bg-[#fbd9fb] rounded-lg flex items-center justify-center '><ComputerOutlinedIcon sx={{ fontSize: 50, color: '#6d6c6c' }} /></div>
+          <div className='w-[100px] h-[90px] bg-[#f0f0f0] rounded-lg flex items-center justify-center border border-gray-200'><ComputerOutlinedIcon sx={{ fontSize: 50, color: '#111111' }} /></div>
           Web Devlopment
         </div>
         <div className='w-[100px] h-[130px] font-light text-[13px] flex flex-col gap-3 text-center '>
-          <div className='w-[100px] h-[90px] bg-[#d9fbe0] rounded-lg flex items-center justify-center '><DesignServicesOutlinedIcon sx={{ fontSize: 50, color: '#6d6c6c' }} /></div>
+          <div className='w-[100px] h-[90px] bg-[#e8e8e8] rounded-lg flex items-center justify-center border border-gray-200'><DesignServicesOutlinedIcon sx={{ fontSize: 50, color: '#111111' }} /></div>
           UI UX Designing
         </div>
         <div className='w-[100px] h-[130px] font-light text-[13px] flex flex-col gap-3 text-center'>
-          <div className='w-[100px] h-[90px] bg-[#fcb9c8] rounded-lg flex items-center justify-center '><PhoneIphoneOutlinedIcon sx={{ fontSize: 45, color: '#6d6c6c' }} /></div>
+          <div className='w-[100px] h-[90px] bg-[#f0f0f0] rounded-lg flex items-center justify-center border border-gray-200'><PhoneIphoneOutlinedIcon sx={{ fontSize: 45, color: '#111111' }} /></div>
           App Devlopment
         </div>
         <div className='w-[100px] h-[130px] font-light text-[13px] flex flex-col gap-3 text-center'>
-          <div className='w-[100px] h-[90px] bg-[#fbd9fb] rounded-lg flex items-center justify-center '><SecurityOutlinedIcon sx={{ fontSize: 45, color: '#6d6c6c' }} /></div>
+          <div className='w-[100px] h-[90px] bg-[#e8e8e8] rounded-lg flex items-center justify-center border border-gray-200'><SecurityOutlinedIcon sx={{ fontSize: 45, color: '#111111' }} /></div>
           Ethical Hacking
         </div>
         <div className='w-[100px] h-[130px] font-light text-[13px] flex flex-col gap-3 text-center'>
-          <div className='w-[100px] h-[90px] bg-[#d9fbe0] rounded-lg flex items-center justify-center '><PsychologyOutlinedIcon sx={{ fontSize: 50, color: '#6d6c6c' }} /></div>
+          <div className='w-[100px] h-[90px] bg-[#f0f0f0] rounded-lg flex items-center justify-center border border-gray-200'><PsychologyOutlinedIcon sx={{ fontSize: 50, color: '#111111' }} /></div>
           AI/ML
         </div>
         <div className='w-[100px] h-[130px] font-light text-[13px] flex flex-col gap-3 text-center '>
-          <div className='w-[100px] h-[90px] bg-[#fbd9fb] rounded-lg flex items-center justify-center '><AssessmentOutlinedIcon sx={{ fontSize: 45, color: '#6d6c6c' }} /></div>
+          <div className='w-[100px] h-[90px] bg-[#e8e8e8] rounded-lg flex items-center justify-center border border-gray-200'><AssessmentOutlinedIcon sx={{ fontSize: 45, color: '#111111' }} /></div>
           Data Analytics
         </div>
         <div className='w-[100px] h-[130px] font-light text-[13px] flex flex-col gap-3 text-center'>
-          <div className='w-[100px] h-[90px] bg-[#d9fbe0] rounded-lg flex items-center justify-center '><AutoAwesomeOutlinedIcon sx={{ fontSize: 45, color: '#6d6c6c' }} /></div>
+          <div className='w-[100px] h-[90px] bg-[#f0f0f0] rounded-lg flex items-center justify-center border border-gray-200'><AutoAwesomeOutlinedIcon sx={{ fontSize: 45, color: '#111111' }} /></div>
           AI Tools
         </div>
       </div>

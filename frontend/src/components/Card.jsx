@@ -39,7 +39,7 @@ console.log("Average Rating:", avgRating);
           <span className="font-semibold text-gray-800">₹{price}</span>
          
            <span className="flex items-center gap-1 ">
-            <FaStar className="text-yellow-500" /> {avgRating}
+            <FaStar className="text-black" /> {avgRating}
           </span>
           
         </div>

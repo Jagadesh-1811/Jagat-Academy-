@@ -115,3 +115,4 @@ setFilterCourses(courseData)
 }
 
 export default AllCourses;
+

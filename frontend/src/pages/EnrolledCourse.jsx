@@ -52,8 +52,8 @@ function EnrolledCourse() {
       <MonthlyQuiz />
 
       {averageGrade !== null && (
-        <div className="bg-blue-100 p-4 rounded-lg shadow-md mb-6 text-center">
-          <p className="text-xl font-semibold text-blue-800">Your Average Grade: {averageGrade}</p>
+        <div className="bg-black p-4 rounded-lg shadow-md mb-6 text-center">
+          <p className="text-xl font-semibold text-black">Your Average Grade: {averageGrade}</p>
         </div>
       )}
 
@@ -89,3 +89,4 @@ function EnrolledCourse() {
 }
 
 export default EnrolledCourse
+

@@ -89,8 +89,8 @@ function ResetPassword() {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
                 <div className="bg-white shadow-md rounded-xl p-8 max-w-md w-full text-center">
-                    <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-red-500 text-4xl">⚠️</span>
+                    <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-gray-500 text-4xl">⚠️</span>
                     </div>
                     <h2 className="text-2xl font-bold mb-4 text-gray-800">
                         Invalid or Expired Link
@@ -175,3 +175,4 @@ function ResetPassword() {
 }
 
 export default ResetPassword
+

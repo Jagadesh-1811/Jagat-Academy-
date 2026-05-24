@@ -267,8 +267,8 @@ const PrivacyPolicy = () => {
                                 <h2 className="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
                                     4. Data Sharing
                                 </h2>
-                                <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
-                                    <p className="text-green-800 font-medium flex items-center gap-2">
+                                <div className="bg-gray-800 border border-gray-600 rounded-xl p-4 mb-6">
+                                    <p className="text-gray-700 font-medium flex items-center gap-2">
                                         <FaCheck /> We never sell your personal data to third parties.
                                     </p>
                                 </div>
@@ -412,3 +412,4 @@ const PrivacyPolicy = () => {
 };
 
 export default PrivacyPolicy;
+

@@ -69,7 +69,7 @@ function CreateLecture() {
         <input
           type="text"
           placeholder="e.g. Introduction to Mern Stack"
-          className="w-full border border-gray-300 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
+          className="w-full border border-gray-300 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-gray-800 mb-4"
           onChange={(e) => setLectureTitle(e.target.value)}
           value={lectureTitle}
         />
@@ -101,3 +101,4 @@ function CreateLecture() {
 }
 
 export default CreateLecture
+

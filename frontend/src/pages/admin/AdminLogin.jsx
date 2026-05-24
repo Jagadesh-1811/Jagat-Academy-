@@ -176,7 +176,7 @@ const AdminLogin = () => {
                     {/* Footer */}
                     <div className="mt-10 text-center">
                         <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
-                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                            <div className="w-2 h-2 bg-gray-800 rounded-full animate-pulse" />
                             <span>Secure admin access</span>
                         </div>
                     </div>
@@ -210,3 +210,4 @@ const AdminLogin = () => {
 };
 
 export default AdminLogin;
+

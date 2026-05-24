@@ -195,7 +195,7 @@ function EducatorSignUp() {
                             <label htmlFor="invitationCode" className='flex items-center gap-2 text-sm font-semibold text-black mb-2'>
                                 <KeyIcon className='text-gray-600' />
                                 Invitation Code
-                                <span className='text-red-500'>*</span>
+                                <span className='text-gray-500'>*</span>
                             </label>
                             <div className='relative'>
                                 <input
@@ -357,3 +357,4 @@ function EducatorSignUp() {
 }
 
 export default EducatorSignUp
+

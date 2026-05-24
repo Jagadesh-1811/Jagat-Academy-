@@ -330,9 +330,9 @@ const ParticleSystem = ({
                 {isSpeaking && (
                     <span className="text-xs text-gray-300 flex items-center justify-center gap-2">
                         <span className="flex gap-1">
-                            <span className="w-1 h-3 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
-                            <span className="w-1 h-4 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
-                            <span className="w-1 h-2 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+                            <span className="w-1 h-3 bg-white rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
+                            <span className="w-1 h-4 bg-white rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+                            <span className="w-1 h-2 bg-white rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
                         </span>
                         Speaking...
                     </span>
@@ -340,11 +340,11 @@ const ParticleSystem = ({
                 {isListening && (
                     <span className="text-xs text-gray-300 flex items-center justify-center gap-2">
                         <span className="flex gap-1">
-                            <span className="w-1 h-2 bg-red-400 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
-                            <span className="w-1 h-4 bg-red-400 rounded-full animate-pulse" style={{ animationDelay: '100ms' }} />
-                            <span className="w-1 h-3 bg-red-400 rounded-full animate-pulse" style={{ animationDelay: '200ms' }} />
-                            <span className="w-1 h-4 bg-red-400 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
-                            <span className="w-1 h-2 bg-red-400 rounded-full animate-pulse" style={{ animationDelay: '400ms' }} />
+                            <span className="w-1 h-2 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
+                            <span className="w-1 h-4 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '100ms' }} />
+                            <span className="w-1 h-3 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '200ms' }} />
+                            <span className="w-1 h-4 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+                            <span className="w-1 h-2 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '400ms' }} />
                         </span>
                         Listening...
                     </span>
@@ -362,3 +362,4 @@ const ParticleSystem = ({
 };
 
 export default ParticleSystem;
+

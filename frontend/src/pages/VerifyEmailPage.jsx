@@ -51,7 +51,7 @@ const VerifyEmailPage = () => {
                 </div>
 
                 <div className="bg-white border-l-4 border-black p-4 mb-6 text-left w-full text-sm text-gray-800 shadow-md">
-                    <p className="font-bold mb-1 flex items-center gap-2"><FaExclamationTriangle className="text-yellow-500" /> Note:</p>
+                    <p className="font-bold mb-1 flex items-center gap-2"><FaExclamationTriangle className="text-black" /> Note:</p>
                     <p>You <strong>MUST verify your email first</strong> before you can login and access the platform.</p>
                 </div>
 
@@ -81,3 +81,4 @@ const VerifyEmailPage = () => {
 };
 
 export default VerifyEmailPage;
+

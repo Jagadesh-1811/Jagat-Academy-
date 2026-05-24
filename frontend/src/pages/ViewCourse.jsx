@@ -423,7 +423,7 @@ function ViewCourse() {
 
             {/* Rating & Price */}
             <div className="flex items-start flex-col justify-between">
-              <div className="text-yellow-500 font-medium flex items-center gap-1">
+              <div className="text-black font-medium flex items-center gap-1">
                 <FaStar /> {avgRating} <span className="text-gray-500">(1,200 reviews)</span>
               </div>
               <div>
@@ -434,8 +434,8 @@ function ViewCourse() {
 
             {/* Highlights */}
             <ul className="text-sm text-gray-700 space-y-1 pt-2">
-              <li className="flex items-center gap-2"><FaCheckCircle className="text-green-500" /> 10+ hours of video content</li>
-              <li className="flex items-center gap-2"><FaCheckCircle className="text-green-500" /> Lifetime access to course materials</li>
+              <li className="flex items-center gap-2"><FaCheckCircle className="text-gray-700" /> 10+ hours of video content</li>
+              <li className="flex items-center gap-2"><FaCheckCircle className="text-gray-700" /> Lifetime access to course materials</li>
             </ul>
 
             {/* Enroll Button */}
@@ -459,7 +459,7 @@ function ViewCourse() {
                     disabled={joiningRoom}
                     className="bg-black text-white px-6 py-2 rounded mt-3 ml-2 flex items-center gap-2 animate-pulse disabled:opacity-50 border border-black font-bold transition-none"
                   >
-                    {joiningRoom ? 'Joining...' : <><FaCircle className="text-red-500" /> Room is Live - Join Now! ({educatorLiveRoom.participantCount} students)</>}
+                    {joiningRoom ? 'Joining...' : <><FaCircle className="text-gray-500" /> Room is Live - Join Now! ({educatorLiveRoom.participantCount} students)</>}
                   </button>
                 ) : (
                   <button
@@ -526,9 +526,9 @@ function ViewCourse() {
                   {studentGrade ? (
                     studentGrade.status === 'rejected' ? (
                       <div className="mt-4">
-                        <div className="p-3 rounded-md bg-red-100 border border-red-300 mb-4">
-                          <p className="font-semibold text-red-700 flex items-center gap-2"><FaTimesCircle /> Submission Rejected</p>
-                          <p className="text-red-600 text-sm mt-1">Feedback from educator: {studentGrade.feedback}</p>
+                        <div className="p-3 rounded-md bg-gray-200 border border-red-300 mb-4">
+                          <p className="font-semibold text-gray-500 flex items-center gap-2"><FaTimesCircle /> Submission Rejected</p>
+                          <p className="text-gray-500 text-sm mt-1">Feedback from educator: {studentGrade.feedback}</p>
                         </div>
                         <p className="text-sm text-gray-600 mb-2">Please resubmit your assignment based on the feedback:</p>
                         <input
@@ -743,7 +743,7 @@ function ViewCourse() {
                       ? 'hover:bg-gray-100 cursor-pointer border-gray-300'
                       : 'cursor-not-allowed opacity-40 border-gray-200 bg-gray-50'
                       } ${selectedLecture?.lectureTitle === lecture.lectureTitle
-                        ? 'bg-purple-50 border-purple-400'
+                        ? 'bg-black border-purple-400'
                         : 'bg-white'
                       }`}
                   >
@@ -788,7 +788,7 @@ function ViewCourse() {
               {[1, 2, 3, 4, 5].map((star) => (
 
                 <FaStar key={star}
-                  onClick={() => setRating(star)} className={star <= rating ? "fill-yellow-500 text-yellow-500" : "fill-gray-300 text-gray-300"} />
+                  onClick={() => setRating(star)} className={star <= rating ? "fill-yellow-500 text-black" : "fill-gray-300 text-gray-300"} />
 
               ))}
             </div>
@@ -887,3 +887,4 @@ function ViewCourse() {
 }
 
 export default ViewCourse
+

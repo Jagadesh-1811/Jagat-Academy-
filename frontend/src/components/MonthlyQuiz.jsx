@@ -173,7 +173,7 @@ const MonthlyQuiz = () => {
                     </motion.button>
                 ) : (
                     <motion.button
-                        className={`font-bold py-3 px-8 rounded-full text-xl ${isQuizActive ? 'bg-green-500 hover:bg-green-600' : 'bg-yellow-500 cursor-not-allowed'}`}
+                        className={`font-bold py-3 px-8 rounded-full text-xl ${isQuizActive ? 'bg-black hover:bg-gray-800' : 'bg-gray-400 cursor-not-allowed'}`}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => isQuizActive && window.open(quiz?.quizLink, '_blank')}
@@ -196,7 +196,7 @@ const MonthlyQuiz = () => {
                         href={quiz?.liveSessionLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-300 hover:underline text-xl font-semibold"
+                        className="text-gray-300 hover:underline text-xl font-semibold"
                     >
                         Live Session Link
                     </a>
@@ -207,3 +207,4 @@ const MonthlyQuiz = () => {
 };
 
 export default MonthlyQuiz;
+

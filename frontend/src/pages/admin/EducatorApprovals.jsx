@@ -113,11 +113,11 @@ function EducatorApprovals() {
     const getStatusBadge = (status) => {
         switch (status) {
             case 'pending':
-                return <span className='px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium flex items-center gap-1'><AccessTimeIcon className="w-3 h-3" /> Pending</span>
+                return <span className='px-3 py-1 bg-gray-200 text-black rounded-full text-xs font-medium flex items-center gap-1'><AccessTimeIcon className="w-3 h-3" /> Pending</span>
             case 'approved':
-                return <span className='px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium flex items-center gap-1'><PersonAddOutlinedIcon className="w-3 h-3" /> Approved</span>
+                return <span className='px-3 py-1 bg-gray-800 text-gray-700 rounded-full text-xs font-medium flex items-center gap-1'><PersonAddOutlinedIcon className="w-3 h-3" /> Approved</span>
             case 'rejected':
-                return <span className='px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium flex items-center gap-1'><PersonAddDisabledIcon className="w-3 h-3" /> Rejected</span>
+                return <span className='px-3 py-1 bg-gray-200 text-gray-500 rounded-full text-xs font-medium flex items-center gap-1'><PersonAddDisabledIcon className="w-3 h-3" /> Rejected</span>
             default:
                 return <span className='px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium'>Unknown</span>
         }
@@ -238,7 +238,7 @@ function EducatorApprovals() {
                                 <div key={educator._id} className='p-4 hover:bg-gray-50 transition'>
                                     <div className='flex items-start justify-between gap-4'>
                                         <div className='flex items-start gap-4'>
-                                            <div className='w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-lg'>
+                                            <div className='w-12 h-12 rounded-full bg-black flex items-center justify-center text-black font-bold text-lg'>
                                                 {educator.name?.charAt(0).toUpperCase() || 'E'}
                                             </div>
                                             <div>
@@ -253,7 +253,7 @@ function EducatorApprovals() {
                                                     </p>
                                                 )}
                                                 {educator.approvedAt && (
-                                                    <p className='text-xs text-green-600 mt-1'>
+                                                    <p className='text-xs text-gray-700 mt-1'>
                                                         Approved: {formatDate(educator.approvedAt)}
                                                     </p>
                                                 )}
@@ -268,7 +268,7 @@ function EducatorApprovals() {
                                                     <button
                                                         onClick={() => handleApprove(educator._id)}
                                                         disabled={actionLoading === educator._id}
-                                                        className='p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition disabled:opacity-50'
+                                                        className='p-2 bg-gray-800 text-white rounded-lg hover:bg-gray-800 transition disabled:opacity-50'
                                                         title='Approve'
                                                     >
                                                         {actionLoading === educator._id ? <ClipLoader size={16} color='white' /> : <CheckIcon />}
@@ -276,7 +276,7 @@ function EducatorApprovals() {
                                                     <button
                                                         onClick={() => setShowRejectModal(educator._id)}
                                                         disabled={actionLoading === educator._id}
-                                                        className='p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition disabled:opacity-50'
+                                                        className='p-2 bg-gray-200 text-white rounded-lg hover:bg-gray-200 transition disabled:opacity-50'
                                                         title='Reject'
                                                     >
                                                         <CloseIcon />
@@ -287,7 +287,7 @@ function EducatorApprovals() {
                                             <button
                                                 onClick={() => handleDelete(educator._id)}
                                                 disabled={actionLoading === educator._id}
-                                                className='p-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-red-100 hover:text-red-600 transition disabled:opacity-50'
+                                                className='p-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-200 hover:text-gray-500 transition disabled:opacity-50'
                                                 title='Delete'
                                             >
                                                 <DeleteIcon />
@@ -327,7 +327,7 @@ function EducatorApprovals() {
                             <button
                                 onClick={() => handleReject(showRejectModal)}
                                 disabled={actionLoading === showRejectModal}
-                                className='flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition disabled:opacity-50'
+                                className='flex-1 px-4 py-2 bg-gray-200 text-white rounded-lg hover:bg-gray-200 transition disabled:opacity-50'
                             >
                                 {actionLoading === showRejectModal ? <ClipLoader size={20} color='white' /> : 'Reject'}
                             </button>
@@ -340,3 +340,4 @@ function EducatorApprovals() {
 }
 
 export default EducatorApprovals
+

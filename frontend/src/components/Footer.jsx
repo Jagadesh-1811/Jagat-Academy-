@@ -144,7 +144,7 @@ const Footer = () => {
               © {currentYear} Jagat Academy Integrated E-Learning Platform. All rights reserved.
             </p>
             <p className="text-gray-500 text-xs flex items-center">
-              Made with <FavoriteIcon sx={{ color: '#ef4444', fontSize: 14, mx: 0.5 }} /> for learners worldwide
+              Made with <FavoriteIcon sx={{ color: '#ffffff', fontSize: 14, mx: 0.5 }} /> for learners worldwide
             </p>
           </div>
         </div>

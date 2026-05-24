@@ -69,13 +69,13 @@ function Courses() {
                   </td>
                   {course?.price ? <td className="py-3 px-4">₹{course?.price}</td> : <td className="py-3 px-4">₹ NA</td>}
                   <td className="py-3 px-4">
-                    <span className={`px-3 py-1 rounded-full text-xs ${course?.isPublished ? "text-green-600 bg-green-100" : "text-red-600 bg-red-100"}`}>
+                    <span className={`px-3 py-1 rounded-full text-xs ${course?.isPublished ? "text-gray-700 bg-gray-800" : "text-gray-500 bg-gray-200"}`}>
                       {course?.isPublished ? "Published" : "Draft"}
                     </span>
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-2">
-                      <EditIcon className="text-gray-600 hover:text-blue-600 cursor-pointer" onClick={() => navigate(`/addcourses/${course?._id}`)} />
+                      <EditIcon className="text-gray-600 hover:text-black cursor-pointer" onClick={() => navigate(`/addcourses/${course?._id}`)} />
                       <button onClick={() => navigate(`/admin/create-doubt-session/${course?._id}`)} className="bg-black text-white px-2 py-1 rounded text-xs">Create Doubt Session</button>
                     </div>
                   </td>
@@ -106,9 +106,9 @@ function Courses() {
                   <h2 className="font-medium text-sm">{course?.title}</h2>
                   {course?.price ? <p className="text-gray-600 text-xs mt-1">₹{course?.price}</p> : <p className="text-gray-600 text-xs mt-1">₹ NA</p>}
                 </div>
-                <EditIcon className="text-gray-600 hover:text-blue-600 cursor-pointer" onClick={() => navigate(`/addcourses/${course?._id}`)} />
+                <EditIcon className="text-gray-600 hover:text-black cursor-pointer" onClick={() => navigate(`/addcourses/${course?._id}`)} />
               </div>
-              <span className={`w-fit px-3 py-1 text-xs rounded-full  ${course?.isPublished ? "text-green-600 bg-green-100" : "text-red-600 bg-red-100"}`}>
+              <span className={`w-fit px-3 py-1 text-xs rounded-full  ${course?.isPublished ? "text-gray-700 bg-gray-800" : "text-gray-500 bg-gray-200"}`}>
                 {course?.isPublished ? "Published" : "Draft"}
               </span>
             </div>
@@ -123,3 +123,4 @@ function Courses() {
 }
 
 export default Courses
+

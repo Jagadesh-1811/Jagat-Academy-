@@ -97,8 +97,8 @@ const AdminVoiceMonitor = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2 text-green-400 text-sm">
-                            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                        <div className="flex items-center gap-2 text-gray-700 text-sm">
+                            <span className="w-2 h-2 bg-gray-800 rounded-full animate-pulse" />
                             Auto-refreshing
                         </div>
                         <button
@@ -144,7 +144,7 @@ const AdminVoiceMonitor = () => {
                 <div className="admin-card">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-lg font-bold flex items-center gap-2">
-                            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                            <span className="w-2 h-2 bg-gray-200 rounded-full animate-pulse" />
                             Active Voice Rooms
                         </h2>
                     </div>
@@ -180,7 +180,7 @@ const AdminVoiceMonitor = () => {
                                     <div className="flex items-center justify-between w-full">
                                         <div className="flex items-center gap-3">
                                             <span className="admin-badge admin-badge-error flex items-center gap-1">
-                                                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                                                <span className="w-2 h-2 bg-gray-200 rounded-full animate-pulse" />
                                                 LIVE
                                             </span>
                                             <span className="font-mono font-bold text-lg">
@@ -259,3 +259,4 @@ const AdminVoiceMonitor = () => {
 };
 
 export default AdminVoiceMonitor;
+

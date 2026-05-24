@@ -199,7 +199,7 @@ function Dashboard() {
                     />
                     <div className="text-center md:text-left space-y-1">
                         <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                            Welcome, {userData?.name || "Educator"} <AutoAwesomeIcon className="text-yellow-500" />
+                            Welcome, {userData?.name || "Educator"} <AutoAwesomeIcon className="text-black" />
                         </h1>
                         <h1 className='text-xl font-semibold text-gray-800'>Total Earning : <span className='font-light text-gray-900'>₹{totalEarnings.toLocaleString()}</span>  </h1>
                         <p className="text-gray-600 text-sm">
@@ -257,7 +257,7 @@ function Dashboard() {
                                             <div className="flex items-center justify-between mb-2">
                                                 <h4 className="text-md font-semibold">{assignment.title}</h4>
                                                 <button
-                                                    className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 flex items-center gap-1 text-sm"
+                                                    className="bg-gray-200 text-white px-3 py-1 rounded-md hover:bg-gray-200 flex items-center gap-1 text-sm"
                                                     onClick={() => handleDeleteAssignment(assignment._id)}
                                                 >
                                                     <FaTrash /> Remove
@@ -268,14 +268,14 @@ function Dashboard() {
                                                     submission && (
                                                         <li key={submission._id} className="text-sm border-b pb-2 mb-2 last:border-b-0">
                                                             <span className="font-semibold">{submission.student?.name || "Unknown Student"}: </span>
-                                                            <a href={submission.submissionLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                                                            <a href={submission.submissionLink} target="_blank" rel="noopener noreferrer" className="text-black hover:underline">
                                                                 {submission.submissionLink}
                                                             </a>
                                                             {submission.grade ? (
                                                                 submission.grade.status === 'rejected' ? (
-                                                                    <div className="mt-2 p-3 rounded-md bg-red-100 border border-red-300">
-                                                                        <p className="font-semibold text-red-700 flex items-center gap-2"><CancelIcon /> Rejected</p>
-                                                                        <p className="text-red-600 text-sm mt-1">Feedback: {submission.grade.feedback}</p>
+                                                                    <div className="mt-2 p-3 rounded-md bg-gray-200 border border-red-300">
+                                                                        <p className="font-semibold text-gray-500 flex items-center gap-2"><CancelIcon /> Rejected</p>
+                                                                        <p className="text-gray-500 text-sm mt-1">Feedback: {submission.grade.feedback}</p>
                                                                     </div>
                                                                 ) : (
                                                                     <div
@@ -289,7 +289,7 @@ function Dashboard() {
                                                                     </div>
                                                                 )
                                                             ) : (
-                                                                <div className="mt-2 p-2 bg-yellow-100 rounded-md">
+                                                                <div className="mt-2 p-2 bg-gray-200 rounded-md">
                                                                     <h5 className="font-semibold mb-1">Assign Grade</h5>
                                                                     <div className="flex flex-col sm:flex-row gap-2">
                                                                         <select
@@ -348,3 +348,4 @@ function Dashboard() {
 }
 
 export default Dashboard;
+

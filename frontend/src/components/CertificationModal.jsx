@@ -29,12 +29,12 @@ const CertificationModal = ({ isOpen, onClose, message, formLink }) => {
                 href={formLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full bg-blue-600 text-white text-center py-3 rounded-md hover:bg-blue-700 transition duration-300"
+                className="block w-full bg-black text-white text-center py-3 rounded-md hover:bg-gray-800 transition duration-300"
               >
                 Apply for Certificate
               </a>
             ) : (
-              <p className="text-red-500">No application form available at the moment.</p>
+              <p className="text-gray-500">No application form available at the moment.</p>
             )}
             <button
               onClick={onClose}
@@ -50,3 +50,4 @@ const CertificationModal = ({ isOpen, onClose, message, formLink }) => {
 };
 
 export default CertificationModal;
+

@@ -212,7 +212,7 @@ function Auth() {
     }
 
     return (
-        <div className='bg-[#dddbdb] w-[100vw] h-[100vh] flex items-center justify-center flex-col gap-3'>
+        <div className='bg-[#f5f5f5] w-[100vw] h-[100vh] flex items-center justify-center flex-col gap-3'>
             <form className='w-[90%] md:w-200 h-auto min-h-150 bg-[white] shadow-xl rounded-2xl flex' onSubmit={handleSubmit}>
                 <div className='md:w-[50%] w-[100%] h-[100%] flex flex-col items-center justify-center gap-3 py-6'>
 
@@ -300,11 +300,11 @@ function Auth() {
                         />
                         <label htmlFor="agreeTerms" className='text-[13px] text-[#6f6f6f]'>
                             I agree to the{' '}
-                            <Link to="/terms" className='text-black underline hover:text-blue-600'>
+                            <Link to="/terms" className='text-black underline hover:text-gray-600'>
                                 Terms & Conditions
                             </Link>
                             {' '}and{' '}
-                            <Link to="/privacy" className='text-black underline hover:text-blue-600'>
+                            <Link to="/privacy" className='text-black underline hover:text-gray-600'>
                                 Privacy Policy
                             </Link>
                         </label>
@@ -361,3 +361,4 @@ function Auth() {
 }
 
 export default Auth
+

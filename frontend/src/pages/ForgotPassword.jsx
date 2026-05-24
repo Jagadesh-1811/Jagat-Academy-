@@ -42,8 +42,8 @@ function ForgotPassword() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white shadow-xl rounded-xl p-8 max-w-md w-full">
-        <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          {emailSent ? <span className="text-4xl text-green-500"><CheckCircleIcon /></span> : <span className="text-blue-500 text-4xl"><LockIcon /></span>}
+        <div className="w-20 h-20 bg-black rounded-full flex items-center justify-center mx-auto mb-4">
+          {emailSent ? <span className="text-4xl text-gray-700"><CheckCircleIcon /></span> : <span className="text-black text-4xl"><LockIcon /></span>}
         </div>
 
         <h2 className="text-2xl font-bold mb-2 text-center text-gray-800">
@@ -106,3 +106,4 @@ function ForgotPassword() {
 }
 
 export default ForgotPassword
+

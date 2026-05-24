@@ -358,7 +358,7 @@ function AddCourses() {
                     target="_blank"
                     rel="noopener noreferrer"
                     download={material.title} // Added download attribute
-                    className="text-blue-600 hover:underline text-sm"
+                    className="text-black hover:underline text-sm"
                   >
                     Download
                   </a>
@@ -379,3 +379,4 @@ function AddCourses() {
 }
 
 export default AddCourses
+

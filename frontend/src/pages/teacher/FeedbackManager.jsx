@@ -61,9 +61,9 @@ const FeedbackManager = () => {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'pending': return 'bg-yellow-100 text-yellow-800';
-            case 'reviewed': return 'bg-blue-100 text-blue-800';
-            case 'resolved': return 'bg-green-100 text-green-800';
+            case 'pending': return 'bg-gray-200 text-black';
+            case 'reviewed': return 'bg-black text-black';
+            case 'resolved': return 'bg-gray-800 text-gray-700';
             default: return 'bg-gray-100 text-gray-800';
         }
     };
@@ -181,11 +181,11 @@ const FeedbackManager = () => {
                                     >
                                         <div className="flex items-start justify-between mb-3">
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${feedback.type === 'feedback' ? 'bg-blue-100' : 'bg-orange-100'
+                                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${feedback.type === 'feedback' ? 'bg-black' : 'bg-gray-200'
                                                     }`}>
                                                     {feedback.type === 'feedback'
-                                                        ? <FaCommentDots className="w-5 h-5 text-blue-600" />
-                                                        : <FaBug className="w-5 h-5 text-orange-600" />
+                                                        ? <FaCommentDots className="w-5 h-5 text-black" />
+                                                        : <FaBug className="w-5 h-5 text-gray-600" />
                                                     }
                                                 </div>
                                                 <div>
@@ -217,11 +217,11 @@ const FeedbackManager = () => {
                         {selectedFeedback ? (
                             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-6">
                                 <div className="flex items-center gap-3 mb-6">
-                                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${selectedFeedback.type === 'feedback' ? 'bg-blue-100' : 'bg-orange-100'
+                                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${selectedFeedback.type === 'feedback' ? 'bg-black' : 'bg-gray-200'
                                         }`}>
                                         {selectedFeedback.type === 'feedback'
-                                            ? <FaCommentDots className="w-6 h-6 text-blue-600" />
-                                            : <FaBug className="w-6 h-6 text-orange-600" />
+                                            ? <FaCommentDots className="w-6 h-6 text-black" />
+                                            : <FaBug className="w-6 h-6 text-gray-600" />
                                         }
                                     </div>
                                     <div>
@@ -292,3 +292,4 @@ const FeedbackManager = () => {
 };
 
 export default FeedbackManager;
+

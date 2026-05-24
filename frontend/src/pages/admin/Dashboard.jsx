@@ -152,7 +152,7 @@ function Dashboard() {
                                 className="w-12 h-12 rounded-full object-cover border-2 border-white/20"
                             />
                             <div>
-                                <h1>Welcome, {userData?.name || "Educator"} <FaHandSparkles className="inline text-yellow-500" /></h1>
+                                <h1>Welcome, {userData?.name || "Educator"} <FaHandSparkles className="inline text-black" /></h1>
                                 <p>{userData?.description || "Manage your courses and students"}</p>
                             </div>
                         </div>
@@ -364,8 +364,8 @@ function Dashboard() {
                                                                             )}
                                                                         </div>
                                                                     ) : (
-                                                                        <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-100">
-                                                                            <p className="text-sm font-semibold text-yellow-800 mb-3 flex items-center gap-2"><FaHourglassHalf /> Pending Review</p>
+                                                                        <div className="mt-3 p-3 bg-gray-200 rounded-lg border border-yellow-100">
+                                                                            <p className="text-sm font-semibold text-black mb-3 flex items-center gap-2"><FaHourglassHalf /> Pending Review</p>
                                                                             <div className="flex flex-col sm:flex-row gap-2">
                                                                                 <select
                                                                                     className="admin-input admin-select flex-shrink-0 sm:w-32"
@@ -422,3 +422,4 @@ function Dashboard() {
 }
 
 export default Dashboard;
+

@@ -151,11 +151,11 @@ function SignUp() {
                         />
                         <label htmlFor="agreeTerms" className='text-[13px] text-[#6f6f6f]'>
                             I agree to the{' '}
-                            <Link to="/terms" className='text-black underline hover:text-blue-600'>
+                            <Link to="/terms" className='text-black underline hover:text-black'>
                                 Terms & Conditions
                             </Link>
                             {' '}and{' '}
-                            <Link to="/privacy" className='text-black underline hover:text-blue-600'>
+                            <Link to="/privacy" className='text-black underline hover:text-black'>
                                 Privacy Policy
                             </Link>
                         </label>
@@ -188,3 +188,4 @@ function SignUp() {
 }
 
 export default SignUp
+

@@ -162,7 +162,7 @@ function FinishSignUp() {
         return (
             <div className='bg-[#dddbdb] w-[100vw] h-[100vh] flex items-center justify-center flex-col gap-3'>
                 <div className='w-[90%] md:w-[450px] bg-white shadow-xl rounded-2xl p-8 text-center'>
-                    <WarningIcon className='text-6xl text-red-500 mx-auto mb-6' />
+                    <WarningIcon className='text-6xl text-gray-500 mx-auto mb-6' />
                     <h1 className='text-2xl font-bold text-black mb-4'>Verification Failed</h1>
                     <p className='text-gray-600 mb-6'>{error}</p>
                     <div className='space-y-3'>
@@ -189,7 +189,7 @@ function FinishSignUp() {
         return (
             <div className='bg-[#dddbdb] w-[100vw] h-[100vh] flex items-center justify-center flex-col gap-3'>
                 <div className='w-[90%] md:w-[450px] bg-white shadow-xl rounded-2xl p-8 text-center'>
-                    <CheckCircleIcon className='text-6xl text-green-500 mx-auto mb-6' />
+                    <CheckCircleIcon className='text-6xl text-gray-700 mx-auto mb-6' />
                     <h1 className='text-2xl font-bold text-black mb-4'>Welcome to Jagat Academy!</h1>
                     <p className='text-gray-600 mb-4'>Your email has been verified successfully.</p>
                     <p className='text-gray-400'>Redirecting you to the homepage...</p>
@@ -205,3 +205,4 @@ function FinishSignUp() {
 }
 
 export default FinishSignUp;
+

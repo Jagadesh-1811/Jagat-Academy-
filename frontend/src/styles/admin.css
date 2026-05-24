@@ -15,15 +15,15 @@
     --admin-gray-800: #262626;
     --admin-gray-900: #171717;
 
-    /* Status Colors */
-    --admin-success: #22c55e;
-    --admin-success-bg: #dcfce7;
-    --admin-warning: #f59e0b;
-    --admin-warning-bg: #fef3c7;
-    --admin-error: #ef4444;
-    --admin-error-bg: #fee2e2;
-    --admin-info: #3b82f6;
-    --admin-info-bg: #dbeafe;
+    /* Status Colors - Monochrome */
+    --admin-success: #171717;
+    --admin-success-bg: #e5e5e5;
+    --admin-warning: #404040;
+    --admin-warning-bg: #d4d4d4;
+    --admin-error: #737373;
+    --admin-error-bg: #f5f5f5;
+    --admin-info: #000000;
+    --admin-info-bg: #ebebeb;
 
     /* Transitions */
     --admin-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

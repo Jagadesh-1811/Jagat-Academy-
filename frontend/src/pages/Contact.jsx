@@ -82,7 +82,7 @@ const Contact = () => {
             <section className="pt-32 pb-16 px-6 bg-black">
                 <div className="max-w-4xl mx-auto text-center">
                     <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-                        Contact <span className="text-blue-500">Us</span>
+                        Contact <span className="text-black">Us</span>
                     </h1>
                     <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto">
                         Have questions? We're here to help. Reach out to us through any of the channels below.
@@ -95,22 +95,22 @@ const Contact = () => {
                 <div className="max-w-6xl mx-auto">
                     <div className="grid md:grid-cols-2 gap-8 mb-12">
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center hover:shadow-lg transition-shadow">
-                            <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                                <FaEnvelope className="w-10 h-10 text-blue-600 mx-auto" />
+                            <div className="w-20 h-20 bg-black rounded-2xl flex items-center justify-center mx-auto mb-6">
+                                <FaEnvelope className="w-10 h-10 text-black mx-auto" />
                             </div>
                             <h3 className="text-2xl font-semibold text-gray-900 mb-3">Email Us</h3>
                             <p className="text-gray-600 mb-5 text-lg">We'll respond within 24 hours</p>
-                            <a href="mailto:official.jagat.services@gmail.com" className="text-blue-600 font-medium hover:underline text-lg">
+                            <a href="mailto:official.jagat.services@gmail.com" className="text-black font-medium hover:underline text-lg">
                                 official.jagat.services@gmail.com
                             </a>
                         </div>
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center hover:shadow-lg transition-shadow">
-                            <div className="w-20 h-20 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                                <FaPhone className="w-10 h-10 text-green-600 mx-auto" />
+                            <div className="w-20 h-20 bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                                <FaPhone className="w-10 h-10 text-gray-700 mx-auto" />
                             </div>
                             <h3 className="text-2xl font-semibold text-gray-900 mb-3">Call Us</h3>
                             <p className="text-gray-600 mb-5 text-lg">Mon-Sat, 10am-5pm IST</p>
-                            <a href="tel:+918919548737" className="text-green-600 font-medium hover:underline text-lg">
+                            <a href="tel:+918919548737" className="text-gray-700 font-medium hover:underline text-lg">
                                 +91 8919548737
                             </a>
                         </div>
@@ -147,7 +147,7 @@ const Contact = () => {
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            How to Submit <span className="text-blue-500">Assignment</span>
+                            How to Submit <span className="text-black">Assignment</span>
                         </h2>
                         <p className="text-gray-600 text-lg max-w-2xl mx-auto">
                             Follow these simple steps to submit your assignments and get graded by your instructor.
@@ -177,23 +177,23 @@ const Contact = () => {
                     </div>
 
                     {/* Tips Box */}
-                    <div className="mt-12 bg-blue-50 rounded-2xl p-8 border border-blue-100">
-                        <h3 className="text-xl font-semibold text-blue-900 mb-4 flex items-center gap-2"><FaLightbulb /> Important Tips</h3>
-                        <ul className="space-y-3 text-blue-800">
+                    <div className="mt-12 bg-black rounded-2xl p-8 border border-gray-800">
+                        <h3 className="text-xl font-semibold text-black mb-4 flex items-center gap-2"><FaLightbulb /> Important Tips</h3>
+                        <ul className="space-y-3 text-black">
                             <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-1">•</span>
+                                <span className="text-black mt-1">•</span>
                                 Make sure your submission link is accessible (set to "Anyone with link can view")
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-1">•</span>
+                                <span className="text-black mt-1">•</span>
                                 Submit before the deadline to avoid late submission penalties
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-1">•</span>
+                                <span className="text-black mt-1">•</span>
                                 Use Google Drive, GitHub, or similar platforms to host your files
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-1">•</span>
+                                <span className="text-black mt-1">•</span>
                                 Include your name and roll number in the file if required
                             </li>
                         </ul>
@@ -223,3 +223,4 @@ const Contact = () => {
 };
 
 export default Contact;
+

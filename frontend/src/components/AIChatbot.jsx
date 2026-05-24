@@ -293,7 +293,7 @@ const AIChatbot = () => {
                     <div className="space-y-2 text-left">
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <FaEnvelope className="text-gray-500" />
-                        <a href="mailto:official.jagat.services@gmail.com" className="text-blue-600 hover:underline">
+                        <a href="mailto:official.jagat.services@gmail.com" className="text-black hover:underline">
                           official.jagat.services@gmail.com
                         </a>
                       </div>
@@ -352,3 +352,4 @@ const AIChatbot = () => {
 };
 
 export default AIChatbot;
+

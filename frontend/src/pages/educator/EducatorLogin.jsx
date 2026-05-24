@@ -247,25 +247,25 @@ function EducatorLogin() {
                     {/* Approval Status Card */}
                     {approvalInfo && (
                         <div className={`w-full p-4 rounded-xl mb-6 ${approvalInfo.status === 'pending'
-                            ? 'bg-yellow-50 border-2 border-yellow-400'
+                            ? 'bg-gray-200 border-2 border-yellow-400'
                             : approvalInfo.status === 'approved'
-                                ? 'bg-green-50 border-2 border-green-400'
-                                : 'bg-red-50 border-2 border-red-400'
+                                ? 'bg-gray-800 border-2 border-gray-600'
+                                : 'bg-gray-200 border-2 border-red-400'
                             }`}>
                             <div className='flex items-start gap-3'>
                                 {approvalInfo.status === 'pending' ? (
-                                    <AccessTimeIcon className='text-2xl text-yellow-600 mt-1' />
+                                    <AccessTimeIcon className='text-2xl text-black mt-1' />
                                 ) : approvalInfo.status === 'approved' ? (
-                                    <CheckCircleIcon className='text-2xl text-green-600 mt-1' />
+                                    <CheckCircleIcon className='text-2xl text-gray-700 mt-1' />
                                 ) : (
-                                    <CancelIcon className='text-2xl text-red-600 mt-1' />
+                                    <CancelIcon className='text-2xl text-gray-500 mt-1' />
                                 )}
                                 <div>
                                     <h3 className={`font-bold text-lg ${approvalInfo.status === 'pending'
-                                        ? 'text-yellow-800'
+                                        ? 'text-black'
                                         : approvalInfo.status === 'approved'
-                                            ? 'text-green-800'
-                                            : 'text-red-800'
+                                            ? 'text-gray-700'
+                                            : 'text-gray-500'
                                         }`}>
                                         {approvalInfo.status === 'pending'
                                             ? '⏳ Account Pending Approval'
@@ -274,10 +274,10 @@ function EducatorLogin() {
                                                 : '❌ Application Rejected'}
                                     </h3>
                                     <p className={`text-sm mt-1 ${approvalInfo.status === 'pending'
-                                        ? 'text-yellow-700'
+                                        ? 'text-black'
                                         : approvalInfo.status === 'approved'
-                                            ? 'text-green-700'
-                                            : 'text-red-700'
+                                            ? 'text-gray-700'
+                                            : 'text-gray-500'
                                         }`}>
                                         {approvalInfo.status === 'pending'
                                             ? 'Your educator account is awaiting admin approval.'
@@ -440,3 +440,4 @@ function EducatorLogin() {
 }
 
 export default EducatorLogin
+

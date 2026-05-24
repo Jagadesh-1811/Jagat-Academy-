@@ -224,20 +224,20 @@ function QuizManager() {
                         {quizzes.map((quiz) => (
                             <li key={quiz._id} className="py-4 flex justify-between items-center">
                                 <div>
-                                    <p className="text-md font-semibold">Quiz Link: <a href={quiz.quizLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{quiz.quizLink}</a></p>
+                                    <p className="text-md font-semibold">Quiz Link: <a href={quiz.quizLink} target="_blank" rel="noopener noreferrer" className="text-black hover:underline">{quiz.quizLink}</a></p>
                                     <p className="text-sm text-gray-600">Schedule: {new Date(quiz.schedule).toLocaleString()}</p>
                                     <p className="text-sm text-gray-600">Rewards: {quiz.rewards}</p>
                                 </div>
                                 <div>
                                     <button
                                         onClick={() => handleEdit(quiz)}
-                                        className="text-indigo-600 hover:text-indigo-900 text-sm mr-4"
+                                        className="text-black hover:text-black text-sm mr-4"
                                     >
                                         Edit
                                     </button>
                                     <button
                                         onClick={() => handleDelete(quiz._id)}
-                                        className="text-red-600 hover:text-red-900 text-sm"
+                                        className="text-gray-500 hover:text-gray-500 text-sm"
                                     >
                                         Delete
                                     </button>
@@ -255,3 +255,4 @@ function QuizManager() {
 }
 
 export default QuizManager;
+

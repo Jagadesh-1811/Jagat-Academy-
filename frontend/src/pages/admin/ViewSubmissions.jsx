@@ -24,7 +24,7 @@ const SubmissionCard = ({ submission, grades, feedback, onGradeChange, onFeedbac
                 <h3 className="text-lg font-medium">Student: {submission.student.name}</h3>
                 <p className="text-gray-500 text-sm">Submitted: {new Date(submission.submittedAt).toLocaleDateString()}</p>
             </div>
-            <p className="text-gray-700">Submission Link: <a href={submission.submissionLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{submission.submissionLink}</a></p>
+            <p className="text-gray-700">Submission Link: <a href={submission.submissionLink} target="_blank" rel="noopener noreferrer" className="text-black hover:underline">{submission.submissionLink}</a></p>
 
             {submission.grade ? (
                 <div className="mt-4 p-3 rounded-md"
@@ -33,7 +33,7 @@ const SubmissionCard = ({ submission, grades, feedback, onGradeChange, onFeedbac
                     <p className="text-gray-700">Feedback: {submission.grade.feedback}</p>
                 </div>
             ) : (
-                <div className="mt-4 p-3 bg-yellow-100 rounded-md">
+                <div className="mt-4 p-3 bg-gray-200 rounded-md">
                     <h4 className="font-semibold mb-2">Assign Grade</h4>
                     <div className="flex flex-col sm:flex-row gap-3">
                         <select

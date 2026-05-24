@@ -84,7 +84,7 @@ function EditLecture() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
         <div className="w-full max-w-xl bg-white rounded-xl shadow-lg p-6 text-center">
-          <p className="text-red-600 font-semibold mb-2">Lecture not found</p>
+          <p className="text-gray-500 font-semibold mb-2">Lecture not found</p>
           <p className="text-gray-600 text-sm mb-4">Please navigate from the Create Lecture page to edit a specific lecture.</p>
           <button
             className="mt-4 px-6 py-2 bg-black text-white rounded-md"

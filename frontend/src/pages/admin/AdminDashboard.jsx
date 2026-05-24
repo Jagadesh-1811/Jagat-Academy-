@@ -225,7 +225,7 @@ const AdminDashboard = () => {
                             <h1 className="text-2xl font-bold">Admin Dashboard</h1>
                             <p className="text-gray-400 text-sm">
                                 Welcome, {adminData?.name || 'Admin'} •
-                                <span className="ml-2 text-green-400">● Live</span>
+                                <span className="ml-2 text-gray-700">● Live</span>
                             </p>
                         </div>
                     </div>
@@ -240,7 +240,7 @@ const AdminDashboard = () => {
                                     onChange={(e) => setAutoRefresh(e.target.checked)}
                                     className="sr-only"
                                 />
-                                <div className={`w-10 h-5 rounded-full transition-colors ${autoRefresh ? 'bg-green-500' : 'bg-gray-600'}`}>
+                                <div className={`w-10 h-5 rounded-full transition-colors ${autoRefresh ? 'bg-gray-800' : 'bg-gray-600'}`}>
                                     <div className={`w-4 h-4 bg-white rounded-full m-0.5 transition-transform ${autoRefresh ? 'translate-x-5' : ''}`}></div>
                                 </div>
                             </div>
@@ -301,8 +301,8 @@ const AdminDashboard = () => {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                <SchoolOutlinedIcon className="w-6 h-6 text-green-600" />
+                            <div className="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center">
+                                <SchoolOutlinedIcon className="w-6 h-6 text-gray-700" />
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-gray-900">{stats.totalStudents}</p>
@@ -312,8 +312,8 @@ const AdminDashboard = () => {
                     </div>
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                                <SchoolIcon className="w-6 h-6 text-indigo-600" />
+                            <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
+                                <SchoolIcon className="w-6 h-6 text-black" />
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-gray-900">{stats.totalEducators}</p>
@@ -323,8 +323,8 @@ const AdminDashboard = () => {
                     </div>
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                                <BookIcon className="w-6 h-6 text-purple-600" />
+                            <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
+                                <BookIcon className="w-6 h-6 text-black" />
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-gray-900">{stats.totalCourses}</p>
@@ -334,8 +334,8 @@ const AdminDashboard = () => {
                     </div>
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                                <PaymentsIcon className="w-6 h-6 text-yellow-600" />
+                            <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                                <PaymentsIcon className="w-6 h-6 text-black" />
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-gray-900">₹{stats.totalRevenue?.toLocaleString() || 0}</p>
@@ -345,8 +345,8 @@ const AdminDashboard = () => {
                     </div>
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <SchoolIcon className="w-6 h-6 text-blue-600" />
+                            <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
+                                <SchoolIcon className="w-6 h-6 text-black" />
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-gray-900">{stats.totalEnrollments}</p>
@@ -376,15 +376,15 @@ const AdminDashboard = () => {
                         </div>
                         <div className="flex gap-8">
                             <div className="text-center">
-                                <p className="text-3xl font-bold text-green-400">{stats.newStudentsToday}</p>
+                                <p className="text-3xl font-bold text-gray-700">{stats.newStudentsToday}</p>
                                 <p className="text-xs text-gray-400">New Students</p>
                             </div>
                             <div className="text-center">
-                                <p className="text-3xl font-bold text-indigo-400">{stats.newEducatorsToday}</p>
+                                <p className="text-3xl font-bold text-black">{stats.newEducatorsToday}</p>
                                 <p className="text-xs text-gray-400">New Teachers</p>
                             </div>
                             <div className="text-center">
-                                <p className="text-3xl font-bold text-yellow-400">{stats.newUsersThisWeek}</p>
+                                <p className="text-3xl font-bold text-black">{stats.newUsersThisWeek}</p>
                                 <p className="text-xs text-gray-400">This Week</p>
                             </div>
                         </div>
@@ -397,8 +397,8 @@ const AdminDashboard = () => {
                     <div className="lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-semibold">Live Activity Feed</h2>
-                            <span className="flex items-center gap-1 text-xs text-green-500">
-                                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                            <span className="flex items-center gap-1 text-xs text-gray-700">
+                                <span className="w-2 h-2 bg-gray-800 rounded-full animate-pulse"></span>
                                 Live
                             </span>
                         </div>
@@ -408,7 +408,7 @@ const AdminDashboard = () => {
                             ) : (
                                 activityFeed.map((activity, index) => (
                                     <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${activity.type === 'enrollment' ? 'bg-blue-500' : 'bg-green-500'
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${activity.type === 'enrollment' ? 'bg-black' : 'bg-gray-800'
                                             }`}>
                                             {activity.user?.name?.charAt(0)?.toUpperCase() || '?'}
                                         </div>
@@ -420,7 +420,7 @@ const AdminDashboard = () => {
                                                     {formatTimeAgo(activity.timestamp)}
                                                 </span>
                                                 {activity.revenue > 0 && (
-                                                    <span className="text-xs text-green-600 font-medium">
+                                                    <span className="text-xs text-gray-700 font-medium">
                                                         +₹{activity.revenue}
                                                     </span>
                                                 )}
@@ -538,8 +538,8 @@ const AdminDashboard = () => {
                                             <td className="py-3 px-4 text-gray-600">{user.email}</td>
                                             <td className="py-3 px-4">
                                                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.role === 'educator'
-                                                    ? 'bg-indigo-100 text-indigo-700'
-                                                    : 'bg-green-100 text-green-700'
+                                                    ? 'bg-black text-black'
+                                                    : 'bg-gray-800 text-gray-700'
                                                     }`}>
                                                     {user.role}
                                                 </span>
@@ -591,17 +591,17 @@ const AdminDashboard = () => {
                                             </td>
                                             <td className="py-3 px-4 text-gray-700">₹{course.price || 0}</td>
                                             <td className="py-3 px-4">
-                                                <span className="font-medium text-blue-600">
+                                                <span className="font-medium text-black">
                                                     {course.enrollmentCount || 0}
                                                 </span>
                                             </td>
-                                            <td className="py-3 px-4 font-semibold text-green-600">
+                                            <td className="py-3 px-4 font-semibold text-gray-700">
                                                 ₹{(course.revenue || 0).toLocaleString()}
                                             </td>
                                             <td className="py-3 px-4">
                                                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${course.isPublished
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-yellow-100 text-yellow-700'
+                                                    ? 'bg-gray-800 text-gray-700'
+                                                    : 'bg-gray-200 text-black'
                                                     }`}>
                                                     {course.isPublished ? 'Published' : 'Draft'}
                                                 </span>
@@ -655,7 +655,7 @@ const AdminDashboard = () => {
                                                     href={session.meetingLink}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-blue-600 hover:underline truncate block max-w-xs"
+                                                    className="text-black hover:underline truncate block max-w-xs"
                                                 >
                                                     {session.meetingLink}
                                                 </a>
@@ -678,8 +678,8 @@ const AdminDashboard = () => {
                         className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-yellow-500"
                     >
                         <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-yellow-100 rounded-xl flex items-center justify-center">
-                                <PersonAddOutlinedIcon className="w-7 h-7 text-yellow-600" />
+                            <div className="w-14 h-14 bg-gray-200 rounded-xl flex items-center justify-center">
+                                <PersonAddOutlinedIcon className="w-7 h-7 text-black" />
                             </div>
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-900">Educator Approvals</h3>
@@ -694,8 +694,8 @@ const AdminDashboard = () => {
                         className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md transition-shadow"
                     >
                         <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
-                                <ChatBubbleOutlineIcon className="w-7 h-7 text-blue-600" />
+                            <div className="w-14 h-14 bg-black rounded-xl flex items-center justify-center">
+                                <ChatBubbleOutlineIcon className="w-7 h-7 text-black" />
                             </div>
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-900">View Feedback & Issues</h3>
@@ -710,8 +710,8 @@ const AdminDashboard = () => {
                         className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md transition-shadow"
                     >
                         <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center">
-                                <GroupIcon className="w-7 h-7 text-green-600" />
+                            <div className="w-14 h-14 bg-gray-800 rounded-xl flex items-center justify-center">
+                                <GroupIcon className="w-7 h-7 text-gray-700" />
                             </div>
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-900">Contact Page</h3>
@@ -726,3 +726,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

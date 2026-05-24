@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 const ProgressBar = ({
   percentage = 0,
-  barColor = 'bg-blue-500',
+  barColor = 'bg-black',
   height = 'h-4',
   width = 'w-full',
   textColor = 'text-white',
@@ -38,3 +38,4 @@ const ProgressBar = ({
 };
 
 export default ProgressBar;
+
