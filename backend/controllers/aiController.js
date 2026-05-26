@@ -92,7 +92,24 @@ Provide a clear, concise, and helpful explanation to solve the doubt. Use a frie
     
     return res.status(200).json({ answer: answer || "I'm sorry, I couldn't find an answer to your doubt at the moment." });
   } catch (error) {
-    console.error("askDoubt error:", error);
-    return res.status(500).json({ message: "Failed to answer doubt" });
+    console.error("askDoubt error, activating smart fallback:", error);
+    
+    const msg = req.body.question.toLowerCase();
+    let fallbackAnswer = "";
+
+    if (msg.includes("javascript") || msg.includes("js")) {
+      fallbackAnswer = "JavaScript is a powerful client-side and server-side language. For most doubts, check your bracket closures, variable scope (let/const), and make sure async code uses async/await or .then(). If you have an error, double check your browser console!";
+    } else if (msg.includes("react")) {
+      fallbackAnswer = "In React, make sure your hooks (useState, useEffect) are called at the top level of your component. Never mutate state directly; always use the setter function (e.g., setState). Don't forget that list items need unique 'key' props!";
+    } else if (msg.includes("html") || msg.includes("css")) {
+      fallbackAnswer = "For CSS doubts: check if your selector specificity is correct, and consider using Flexbox (display: flex) or Grid for layouts. For HTML doubts: ensure all tags are closed properly and that your script tags have defer/async attributes if needed.";
+    } else {
+      fallbackAnswer = "I'm currently operating in high-traffic fallback mode (rate limit reached), but I encourage you to post this query in our 'Course Discussion' tab to get prompt assistance from peer students and course mentors!";
+    }
+
+    return res.status(200).json({ 
+      answer: fallbackAnswer,
+      isFallback: true 
+    });
   }
 };
