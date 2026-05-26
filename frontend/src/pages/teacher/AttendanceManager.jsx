@@ -335,7 +335,14 @@ export default function AttendanceManager() {
                         className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border-2 border-black gap-2"
                       >
                         <div>
-                          <p className="text-sm font-extrabold">{student.name}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-extrabold">{student.name}</p>
+                            {student.isOnline && (
+                              <span className="inline-flex items-center gap-1 bg-[#00FF66] text-black border border-black font-black text-[8px] uppercase tracking-wider px-2 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-pulse">
+                                ● Live
+                              </span>
+                            )}
+                          </div>
                           <p className="text-xs text-gray-500">{student.email}</p>
                           {isAlreadyPresent && (
                             <span className="text-[10px] bg-black text-white font-bold px-2 py-0.5 rounded mt-1 inline-block">

@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import geolib from 'geolib';
 import AttendanceSession from '../models/attendanceSessionModel.js';
 import crypto from 'crypto';
+import { isUserOnline } from '../configs/socket.js';
 
 // In-memory cache for active QR sessions: token -> session details
 const activeSessions = new Map();
@@ -300,10 +301,19 @@ export const getCourseHistory = async (req, res) => {
       .populate('lecture', 'lectureTitle')
       .sort({ checkInTime: -1 });
 
+    // Map enrolled students to include their real-time online presence status
+    const enrolledStudentsWithPresence = course.enrolledStudents.map(student => {
+      const studentObj = student.toObject ? student.toObject() : student;
+      return {
+        ...studentObj,
+        isOnline: isUserOnline(student._id)
+      };
+    });
+
     res.status(200).json({
       success: true,
       records,
-      enrolledStudents: course.enrolledStudents
+      enrolledStudents: enrolledStudentsWithPresence
     });
   } catch (error) {
     console.error('Error fetching course history:', error);

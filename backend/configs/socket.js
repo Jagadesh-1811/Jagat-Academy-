@@ -108,3 +108,10 @@ export const emitCourseDiscussionMessage = (courseId, payload) => {
   io.to(`course-discussion:${courseId}`).emit('course-discussion:message', payload);
   return true;
 };
+
+export const isUserOnline = (userId) => {
+  if (!userId) return false;
+  const userIdStr = String(userId);
+  const activeSockets = userSockets.get(userIdStr);
+  return activeSockets && activeSockets.length > 0;
+};
