@@ -338,9 +338,21 @@ export default function AttendanceManager() {
                           <div className="flex items-center gap-2">
                             <p className="text-sm font-extrabold">{student.name}</p>
                             {student.isOnline && (
-                              <span className="inline-flex items-center gap-1 bg-[#00FF66] text-black border border-black font-black text-[8px] uppercase tracking-wider px-2 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-pulse">
-                                ● Live
-                              </span>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="inline-flex items-center gap-1 bg-[#00FF66] text-black border border-black font-black text-[8px] uppercase tracking-wider px-2 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-pulse">
+                                  ● Live
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    handleManualStatusChange(student._id, 'present');
+                                    toast.info(`Selected "present" for online student: ${student.name}. Make sure to click "Apply Manual Override Log" below!`);
+                                  }}
+                                  className="text-[9px] uppercase font-black bg-[#FFDE4D] hover:bg-[#FFD214] text-black border border-black px-2 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-y-[2px] transition-all"
+                                >
+                                  Mark Present
+                                </button>
+                              </div>
                             )}
                           </div>
                           <p className="text-xs text-gray-500">{student.email}</p>

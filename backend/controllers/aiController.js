@@ -82,6 +82,18 @@ export const askDoubt = async (req, res) => {
       return res.status(400).json({ message: "Question is required" });
     }
 
+    const msg = question.toLowerCase();
+    
+    // Check if the user is asking "what is python" or related queries
+    if (msg.includes("what is python") || msg === "python" || msg.includes("explain python")) {
+      const pythonResponse = `🐍 **Python** is a high-level, interpreted programming language famous for its clear, clean syntax and readability! It is designed to be easy to learn and write. It's extremely versatile and used in Web Dev, Data Science, AI, and scripting. Let me know if you want to write your first code!`;
+      return res.status(200).json({
+        success: true,
+        answer: pythonResponse,
+        customResponse: true
+      });
+    }
+
     const prompt = `You are an expert tutor for Jagat Academy. A student has asked a doubt:
     
 Question: ${question}

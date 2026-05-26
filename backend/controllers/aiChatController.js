@@ -16,6 +16,35 @@ export const chatWithAI = async (req, res) => {
       });
     }
 
+    const msg = message.toLowerCase();
+    
+    // Check if the user is asking "what is python" or related queries
+    if (msg.includes("what is python") || msg === "python" || msg.includes("explain python")) {
+      const pythonResponse = `🐍 **Python** is a high-level, interpreted programming language famous for its clear, clean syntax and readability! It is designed to be easy to learn and write.
+
+Here is what makes Python so popular:
+1. **Easy to Read & Write:** Uses clean indentation instead of complex braces, making it look almost like written English.
+2. **Extremely Versatile:** Used in **Web Development** (Django, Flask), **Data Science & Machine Learning** (Pandas, TensorFlow), **Automation Scripts**, and **Software Testing**.
+3. **Massive Ecosystem:** Millions of free libraries (packages) are available so you don't have to write code from scratch.
+
+**Example Python code:**
+\`\`\`python
+# Simple greeting in Python
+def greet_student(name):
+    return f"Welcome to Jagat Academy, {name}!"
+
+print(greet_student("Learner"))
+\`\`\`
+
+Would you like to learn about variables, loops, lists, or how to write your very first Python script? Let me know!`;
+
+      return res.status(200).json({
+        success: true,
+        response: pythonResponse,
+        customResponse: true
+      });
+    }
+
     // Create a context-aware prompt for educational assistance
     const prompt = `Welcome to Jagat Academy! You are the official AI assistant for Jagat Academy. 
 Your role is to help students with their courses, assignments, and learning journey.
