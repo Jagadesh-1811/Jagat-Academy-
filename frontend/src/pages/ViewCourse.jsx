@@ -56,6 +56,7 @@ function ViewCourse() {
   const [submissionLinks, setSubmissionLinks] = useState({});
   const [studentSubmissionsWithGrades, setStudentSubmissionsWithGrades] = useState([]);
   const [studentSubmissions, setStudentSubmissions] = useState([]);
+  const [editingSubmissions, setEditingSubmissions] = useState({});
   const [courseMaterials, setCourseMaterials] = useState([]);
   const [fetchingMaterials, setFetchingMaterials] = useState(true);
   const [courseQuizzes, setCourseQuizzes] = useState([]);
@@ -117,6 +118,8 @@ function ViewCourse() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success(data.message);
+      setEditingSubmissions(prev => ({ ...prev, [assignmentId]: false }));
+      setSubmissionLinks(prev => ({ ...prev, [assignmentId]: "" }));
       fetchStudentSubmissions();
     } catch (error) {
       console.error("Error submitting assignment:", error);
@@ -566,16 +569,51 @@ function ViewCourse() {
                         </div>
                       )
                     ) : existingSubmission ? (
-                      <div className="mt-4 p-3 border-2 border-black bg-yellow-50">
-                        <p className="font-black text-black">Status: <span className="text-yellow-600 font-black">Pending Review / Grading</span></p>
-                        <p className="text-gray-700 text-xs font-bold mt-1">
-                          Your Submitted Link:{' '}
-                          <a href={existingSubmission.submissionLink} target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-black break-all">
-                            {existingSubmission.submissionLink}
-                          </a>
-                        </p>
-                        <p className="text-[10px] text-gray-400 mt-2 uppercase font-black">Submitted on: {new Date(existingSubmission.createdAt).toLocaleString()}</p>
-                      </div>
+                      editingSubmissions[assignment._id] ? (
+                        <div className="mt-4">
+                          <p className="text-xs font-bold text-gray-500 mb-2">Change your submission link:</p>
+                          <input 
+                            type="text" 
+                            placeholder="Enter your new submission link" 
+                            value={submissionLinks[assignment._id] || ""}
+                            className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:ring-2 focus:ring-black bg-white" 
+                            onChange={(e) => setSubmissionLinks(prev => ({ ...prev, [assignment._id]: e.target.value }))} 
+                          />
+                          <div className="flex gap-2 mt-3">
+                            <button 
+                              className="bg-black text-white px-4 py-2 border-2 border-black font-black uppercase text-xs tracking-wider hover:bg-gray-800 transition-none" 
+                              onClick={() => handleAssignmentSubmit(assignment._id)}
+                            >
+                              Update Link
+                            </button>
+                            <button 
+                              className="bg-white text-black px-4 py-2 border-2 border-black font-black uppercase text-xs tracking-wider hover:bg-gray-100 transition-none" 
+                              onClick={() => setEditingSubmissions(prev => ({ ...prev, [assignment._id]: false }))}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mt-4 p-3 border-2 border-black bg-yellow-50">
+                          <p className="font-black text-black">Status: <span className="text-yellow-600 font-black">Pending Review / Grading</span></p>
+                          <p className="text-gray-700 text-xs font-bold mt-1">
+                            Your Submitted Link:{' '}
+                            <a href={existingSubmission.submissionLink} target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-black break-all">
+                              {existingSubmission.submissionLink}
+                            </a>
+                          </p>
+                          {existingSubmission.submittedAt && (
+                            <p className="text-[10px] text-gray-400 mt-2 uppercase font-black">Submitted on: {new Date(existingSubmission.submittedAt).toLocaleString()}</p>
+                          )}
+                          <button 
+                            className="bg-black text-white mt-3 px-3 py-1.5 border-2 border-black font-black uppercase text-[10px] tracking-wider hover:bg-gray-800 transition-none block"
+                            onClick={() => setEditingSubmissions(prev => ({ ...prev, [assignment._id]: true }))}
+                          >
+                            Change Link / Resubmit
+                          </button>
+                        </div>
+                      )
                     ) : (
                       <div className="mt-4">
                         <input type="text" placeholder="Enter your submission link" className="w-full border-2 border-black p-2 font-bold" onChange={(e) => setSubmissionLinks(prev => ({ ...prev, [assignment._id]: e.target.value }))} />

@@ -38,8 +38,14 @@ export const submitAssignment = async (req, res) => {
                 // Delete the old grade and submission to allow resubmission
                 await Grade.findByIdAndDelete(existingSubmission.grade._id);
                 await Submission.findByIdAndDelete(existingSubmission._id);
+            } else if (!existingSubmission.grade) {
+                // If the submission is not graded yet, simply update the link
+                existingSubmission.submissionLink = submissionLink;
+                existingSubmission.submittedAt = new Date();
+                await existingSubmission.save();
+                return res.status(200).json({ message: 'Submission updated successfully', submission: existingSubmission });
             } else {
-                return res.status(400).json({ message: 'You have already submitted this assignment' });
+                return res.status(400).json({ message: 'You have already submitted this assignment and it has been graded.' });
             }
         }
 
