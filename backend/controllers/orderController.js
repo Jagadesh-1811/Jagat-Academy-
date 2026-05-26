@@ -3,6 +3,7 @@ import razorpay from 'razorpay'
 import User from "../models/userModel.js";
 import crypto from 'crypto';
 import dotenv from "dotenv"
+import { awardXP, checkAndAwardBadges } from "../services/gamificationService.js";
 dotenv.config()
 const razorpayInstance = new razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -67,6 +68,14 @@ export const verifyPayment = async (req, res) => {
         await course.save();
       }
 
+      // Gamification: Award XP for first course enrollment
+      try {
+        await awardXP(userId, 25, 'Enrolled in a course');
+        await checkAndAwardBadges(userId, 'Onboarding');
+      } catch (gErr) {
+        console.error('⚠️ Gamification enrollment hook failed:', gErr.message);
+      }
+
       return res.status(200).json({ message: "Enrollment successful (Sandbox Mode)" });
     }
 
@@ -107,6 +116,14 @@ export const verifyPayment = async (req, res) => {
         course.enrolledStudents.push(userId);
         await course.save();
         console.log("User enrolled. Updated enrolledStudents:", course.enrolledStudents.map(id => id.toString()));
+      }
+
+      // Gamification: Award XP for enrollment
+      try {
+        await awardXP(userId, 25, 'Enrolled in a course');
+        await checkAndAwardBadges(userId, 'Onboarding');
+      } catch (gErr) {
+        console.error('⚠️ Gamification enrollment hook failed:', gErr.message);
       }
 
       return res.status(200).json({ message: "Payment verified and enrollment successful" });

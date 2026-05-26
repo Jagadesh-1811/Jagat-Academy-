@@ -4,6 +4,7 @@ import { Assignment } from '../models/assignmentModel.js';
 import Course from '../models/courseModel.js';
 import User from '../models/userModel.js';
 import Grade from '../models/gradeModel.js';
+import { awardXP, checkAndAwardBadges } from '../services/gamificationService.js';
 
 export const submitAssignment = async (req, res) => {
     try {
@@ -56,6 +57,14 @@ export const submitAssignment = async (req, res) => {
         });
 
         await submission.save();
+
+        // Gamification: Award XP for assignment submission
+        try {
+            await awardXP(studentId, 30, 'Assignment submitted');
+            await checkAndAwardBadges(studentId, 'Performance');
+        } catch (gamificationErr) {
+            console.error('⚠️ Gamification submission hook failed:', gamificationErr.message);
+        }
 
         res.status(201).json({ message: 'Assignment submitted successfully', submission });
 

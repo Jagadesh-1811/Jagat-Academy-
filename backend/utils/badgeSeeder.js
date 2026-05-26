@@ -384,17 +384,17 @@ const initialBadges = [
     icon: 'social_follow',
     rarity: 'Common',
     category: 'Social',
-    criteria: { type: 'gift_badge', value: 0 },
+    criteria: { type: 'following_count', value: 5 },
     xpReward: 50,
     coinsReward: 25,
   },
   {
     name: 'Study Syndicate',
-    description: 'Be part of a study group working on shared courses.',
+    description: 'Amass 10 followers who look up to your learning profile.',
     icon: 'social_group',
     rarity: 'Common',
     category: 'Social',
-    criteria: { type: 'gift_badge', value: 0 },
+    criteria: { type: 'followers_count', value: 10 },
     xpReward: 50,
     coinsReward: 25,
   },
@@ -404,7 +404,7 @@ const initialBadges = [
     icon: 'social_network',
     rarity: 'Rare',
     category: 'Social',
-    criteria: { type: 'gift_badge', value: 0 },
+    criteria: { type: 'followers_count', value: 20 },
     xpReward: 200,
     coinsReward: 100,
   },
@@ -412,11 +412,11 @@ const initialBadges = [
   // === MILESTONES BADGES (10 badges) ===
   {
     name: 'Certified Graduate',
-    description: 'Earn your first certified course completion credential from Jagat Academy.',
+    description: 'Complete your first certified course on Jagat Academy.',
     icon: 'milestone_cert_1',
     rarity: 'Rare',
     category: 'Milestones',
-    criteria: { type: 'course_count', value: 1 },
+    criteria: { type: 'courses_completed', value: 1 },
     xpReward: 200,
     coinsReward: 100,
   },
@@ -426,7 +426,7 @@ const initialBadges = [
     icon: 'milestone_cert_2',
     rarity: 'Rare',
     category: 'Milestones',
-    criteria: { type: 'course_count', value: 2 },
+    criteria: { type: 'courses_completed', value: 2 },
     xpReward: 300,
     coinsReward: 150,
   },
@@ -436,7 +436,7 @@ const initialBadges = [
     icon: 'milestone_cert_5',
     rarity: 'Epic',
     category: 'Milestones',
-    criteria: { type: 'course_count', value: 5 },
+    criteria: { type: 'courses_completed', value: 5 },
     xpReward: 500,
     coinsReward: 250,
   },
@@ -446,7 +446,7 @@ const initialBadges = [
     icon: 'milestone_cert_10',
     rarity: 'Legendary',
     category: 'Milestones',
-    criteria: { type: 'course_count', value: 10 },
+    criteria: { type: 'courses_completed', value: 10 },
     xpReward: 1500,
     coinsReward: 750,
   },
@@ -476,7 +476,7 @@ const initialBadges = [
     icon: 'milestone_badge_10',
     rarity: 'Rare',
     category: 'Milestones',
-    criteria: { type: 'course_count', value: 1 },
+    criteria: { type: 'badge_count', value: 10 },
     xpReward: 150,
     coinsReward: 75,
   },
@@ -486,7 +486,7 @@ const initialBadges = [
     icon: 'milestone_badge_25',
     rarity: 'Epic',
     category: 'Milestones',
-    criteria: { type: 'course_count', value: 1 },
+    criteria: { type: 'badge_count', value: 25 },
     xpReward: 300,
     coinsReward: 150,
   },
@@ -496,7 +496,7 @@ const initialBadges = [
     icon: 'milestone_badge_40',
     rarity: 'Legendary',
     category: 'Milestones',
-    criteria: { type: 'course_count', value: 1 },
+    criteria: { type: 'badge_count', value: 40 },
     xpReward: 1000,
     coinsReward: 500,
   },
@@ -506,7 +506,59 @@ const initialBadges = [
     icon: 'milestone_badge_all',
     rarity: 'Legendary',
     category: 'Milestones',
-    criteria: { type: 'course_count', value: 1 },
+    criteria: { type: 'badge_count', value: 54 },
+    xpReward: 5000,
+    coinsReward: 2500,
+  },
+
+  // === NEW BADGES (5 badges — total 55) ===
+  {
+    name: 'Assignment Crusher',
+    description: 'Submit 10 assignments to prove your consistent academic output.',
+    icon: 'performance_assignment_10',
+    rarity: 'Rare',
+    category: 'Performance',
+    criteria: { type: 'assignments_count', value: 10 },
+    xpReward: 200,
+    coinsReward: 100,
+  },
+  {
+    name: 'Curious Mind',
+    description: 'Enroll in 10 different courses. True multidisciplinary explorer!',
+    icon: 'onboarding_curious_10',
+    rarity: 'Epic',
+    category: 'Onboarding',
+    criteria: { type: 'course_count', value: 10 },
+    xpReward: 400,
+    coinsReward: 200,
+  },
+  {
+    name: 'Star Student',
+    description: 'Score 20 perfect marks on quizzes and assignments across all courses.',
+    icon: 'performance_star_20',
+    rarity: 'Legendary',
+    category: 'Performance',
+    criteria: { type: 'quiz_perfect', value: 20 },
+    xpReward: 2000,
+    coinsReward: 1000,
+  },
+  {
+    name: 'Superstar Influencer',
+    description: 'Amass 50 followers on your public learning profile. Platform celebrity!',
+    icon: 'social_influencer_50',
+    rarity: 'Epic',
+    category: 'Social',
+    criteria: { type: 'followers_count', value: 50 },
+    xpReward: 400,
+    coinsReward: 200,
+  },
+  {
+    name: 'Badge Collector',
+    description: 'Collect 55 badges and prove you are the ultimate achievement hunter!',
+    icon: 'milestone_collector_55',
+    rarity: 'Legendary',
+    category: 'Milestones',
+    criteria: { type: 'badge_count', value: 54 },
     xpReward: 5000,
     coinsReward: 2500,
   },
@@ -514,7 +566,7 @@ const initialBadges = [
 
 export const seedBadges = async () => {
   try {
-    console.log('🌱 Seeding & Synchronizing 50 LMS Gamification Badges (SVG IDs) into the database...');
+    console.log('🌱 Seeding & Synchronizing 55 LMS Gamification Badges (SVG IDs) into the database...');
     for (const initialBadge of initialBadges) {
       await Badge.findOneAndUpdate(
         { name: initialBadge.name },
@@ -522,7 +574,7 @@ export const seedBadges = async () => {
         { upsert: true, new: true }
       );
     }
-    console.log('✅ Successfully seeded and synchronized 50 badges.');
+    console.log('✅ Successfully seeded and synchronized 55 badges.');
   } catch (error) {
     console.error('❌ Failed to seed/update badges:', error);
   }

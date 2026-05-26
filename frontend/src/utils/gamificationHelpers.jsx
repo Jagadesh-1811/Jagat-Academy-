@@ -79,6 +79,13 @@ const iconMap = {
   milestone_badge_25: <EmojiEventsIcon className="text-amber-500 scale-105" />,
   milestone_badge_40: <EmojiEventsIcon className="text-amber-600 scale-110" />,
   milestone_badge_all: <AutoAwesomeIcon className="text-amber-500 animate-spin" style={{ animationDuration: '4s' }} />,
+
+  // New 5 Badges
+  performance_assignment_10: <GradeIcon className="text-green-600" />,
+  onboarding_curious_10: <LocalLibraryIcon className="text-purple-600" />,
+  performance_star_20: <StarsIcon className="text-amber-500 animate-pulse scale-110" />,
+  social_influencer_50: <GroupsIcon className="text-blue-500 scale-110" />,
+  milestone_collector_55: <EmojiEventsIcon className="text-amber-600 scale-120 animate-bounce" style={{ animationDuration: '3s' }} />,
 };
 
 /**

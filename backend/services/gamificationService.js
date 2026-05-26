@@ -1,6 +1,8 @@
 import UserGameProfile from '../models/userGameProfileModel.js';
 import Badge from '../models/badgeModel.js';
 import User from '../models/userModel.js';
+import Submission from '../models/submissionModel.js';
+import Progress from '../models/progressModel.js';
 import { emitUserEvent } from '../configs/socket.js';
 import redisWrapper from '../configs/redis.js';
 
@@ -207,6 +209,12 @@ export const checkAndAwardBadges = async (userId, category, contextData = {}) =>
 
     const query = category ? { category } : {};
     const availableBadges = await Badge.find(query);
+
+    // Count submissions for assignments_count badge type
+    const submissionCount = await Submission.countDocuments({ student: userId });
+
+    // Count completed courses (progress >= 80%)
+    const completedCourses = await Progress.countDocuments({ student: userId, progressPercentage: { $gte: 80 } });
     
     const newlyUnlocked = [];
     const oldLevel = profile.level;
@@ -244,6 +252,21 @@ export const checkAndAwardBadges = async (userId, category, contextData = {}) =>
           break;
         case 'level_milestone':
           meetsCriteria = profile.level >= value;
+          break;
+        case 'badge_count':
+          meetsCriteria = profile.badges.length >= value;
+          break;
+        case 'following_count':
+          meetsCriteria = profile.followedUsers.length >= value;
+          break;
+        case 'followers_count':
+          meetsCriteria = profile.followers.length >= value;
+          break;
+        case 'assignments_count':
+          meetsCriteria = submissionCount >= value;
+          break;
+        case 'courses_completed':
+          meetsCriteria = completedCourses >= value;
           break;
         default:
           break;

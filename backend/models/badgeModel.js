@@ -27,7 +27,7 @@ const badgeSchema = new mongoose.Schema(
     },
     criteria: {
       type: {
-        type: String, // 'streak', 'course_count', 'watch_time', 'quiz_perfect', 'doubts_solved', 'profile_complete', 'gift_badge'
+        type: String, // 'streak', 'course_count', 'watch_time', 'quiz_perfect', 'doubts_solved', 'profile_complete', 'gift_badge', 'level_milestone', 'badge_count', 'following_count', 'followers_count', 'assignments_count', 'courses_completed'
         required: true,
       },
       value: {
