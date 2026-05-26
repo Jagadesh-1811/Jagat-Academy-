@@ -243,7 +243,7 @@ export const logOut = async (req, res) => {
 
 export const googleSignup = async (req, res) => {
     try {
-        const { name, email, role, firebaseUid } = req.body
+        const { name, email, role, firebaseUid, couponCode, qualification } = req.body
         let user = await User.findOne({
             $or: [
                 ...(firebaseUid ? [{ firebaseUid }] : []),
@@ -252,14 +252,23 @@ export const googleSignup = async (req, res) => {
         })
 
         if (!user) {
+            // If they are trying to sign up as an educator, validate the coupon code
+            if (role === 'educator') {
+                const validCode = process.env.EDUCATOR_COUPON_CODE || "JAGAT-EDU-2026";
+                if (!couponCode || couponCode !== validCode) {
+                    return res.status(400).json({ message: "Invalid or missing educator registration code" });
+                }
+            }
+
             user = await User.create({
                 name,
                 email: email.toLowerCase(),
                 role: role || 'student',
                 firebaseUid,
-                emailVerified: true
+                emailVerified: true,
+                ...(role === 'educator' ? { approvalStatus: 'pending', description: qualification || "" } : {})
             })
-            console.log(`📝 Created new user via Google Sign-In: ${user.email}`);
+            console.log(`📝 Created new user via Google Sign-In: ${user.email} (${user.role})`);
         } else {
             // Update firebaseUid if not already linked
             if (!user.firebaseUid && firebaseUid) {
@@ -270,9 +279,18 @@ export const googleSignup = async (req, res) => {
             }
         }
 
+        // Educator Approval Gate
+        if (user.role === 'educator') {
+            if (user.approvalStatus === 'pending') {
+                return res.status(403).json({ message: "Your account is pending admin approval." });
+            }
+            if (user.approvalStatus === 'rejected') {
+                return res.status(403).json({ message: `Your account has been rejected. Reason: ${user.approvalNote}` });
+            }
+        }
+
         let token = await genToken(user._id)
         return res.status(200).json({ user, token })
-
 
     } catch (error) {
         console.log(error)

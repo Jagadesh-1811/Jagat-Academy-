@@ -3,14 +3,55 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { serverUrl } from '../../App';
 import { toast } from 'react-toastify';
+import { auth, googleProvider } from '../../../utils/Firebase';
+import { signInWithPopup } from 'firebase/auth';
+import { FcGoogle } from "react-icons/fc";
+import { ClipLoader } from 'react-spinners';
 
 const EducatorSignUp = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '', qualification: '', couponCode: '' });
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleGoogleSignUp = async () => {
+    if (!form.qualification || !form.couponCode) {
+      toast.error('Please fill in your qualification and registration code before signing up with Google');
+      return;
+    }
+    setGoogleLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      
+      await axios.post(`${serverUrl}/api/auth/googlesignup`, {
+        name: user.displayName,
+        email: user.email,
+        role: "educator",
+        firebaseUid: user.uid,
+        couponCode: form.couponCode,
+        qualification: form.qualification
+      });
+      
+      toast.success('Registration successful! Pending admin approval.');
+      navigate('/educator/login');
+    } catch (error) {
+      console.error("Educator Google Sign Up Error:", error);
+      if (error.code === 'auth/admin-restricted-operation') {
+        toast.error("Google Sign-In is not enabled. Please enable it in Firebase Console.");
+      } else if (error.code === 'auth/popup-blocked') {
+        toast.error("Popup was blocked. Please allow popups for this site.");
+      } else if (error.code === 'auth/popup-closed-by-user') {
+        toast.error("Sign-up cancelled. Please try again.");
+      } else {
+        toast.error(error.response?.data?.message || "Google sign up failed. Please check your registration code.");
+      }
+    }
+    setGoogleLoading(false);
   };
 
   const handleSubmit = async (e) => {
@@ -139,6 +180,28 @@ const EducatorSignUp = () => {
               ) : 'Register →'}
             </button>
           </form>
+
+          <div className="flex items-center my-5 gap-3">
+            <div className="flex-1 h-[2px] bg-gray-200"></div>
+            <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">or</span>
+            <div className="flex-1 h-[2px] bg-gray-200"></div>
+          </div>
+
+          <button
+            type="button"
+            disabled={googleLoading}
+            onClick={handleGoogleSignUp}
+            className="w-full bg-white border-2 border-black text-black font-black py-4 uppercase text-sm tracking-wider flex items-center justify-center gap-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all disabled:opacity-50"
+          >
+            {googleLoading ? (
+              <ClipLoader size={20} color="black" />
+            ) : (
+              <>
+                <FcGoogle className="text-xl" />
+                Sign Up with Google
+              </>
+            )}
+          </button>
 
           <div className="mt-6 text-center space-y-2">
             <p className="text-gray-500 text-sm font-bold">
