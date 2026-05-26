@@ -103,6 +103,8 @@ Provide a clear, concise, and helpful explanation to solve the doubt. Use a frie
       fallbackAnswer = "In React, make sure your hooks (useState, useEffect) are called at the top level of your component. Never mutate state directly; always use the setter function (e.g., setState). Don't forget that list items need unique 'key' props!";
     } else if (msg.includes("html") || msg.includes("css")) {
       fallbackAnswer = "For CSS doubts: check if your selector specificity is correct, and consider using Flexbox (display: flex) or Grid for layouts. For HTML doubts: ensure all tags are closed properly and that your script tags have defer/async attributes if needed.";
+    } else if (msg.includes("python")) {
+      fallbackAnswer = "🐍 Python is a highly readable, versatile programming language used for web apps, automation, and AI/ML. Ensure you check your indentations (spaces/tabs) as Python uses indentation to define code blocks, unlike JS/React which uses curly braces!";
     } else {
       fallbackAnswer = "I'm currently operating in high-traffic fallback mode (rate limit reached), but I encourage you to post this query in our 'Course Discussion' tab to get prompt assistance from peer students and course mentors!";
     }

@@ -49,7 +49,23 @@ Please provide a helpful and educational response:`;
     } else if (msg.includes("html") || msg.includes("css")) {
       fallbackText = "HTML provides the structure of a webpage (like headings, paragraphs, and buttons), while CSS styles it (layout, colors, fonts, and responsiveness). Let me know if you need help with CSS Flexbox, Grid, semantic HTML, or positioning elements!";
     } else if (msg.includes("python")) {
-      fallbackText = "Python is a clean, readable language used extensively in web development (Django/Flask), data science, AI/ML, and automation scripts. Key concepts include lists, dictionaries, functions, and standard libraries. What Python topic or script can I assist you with?";
+      fallbackText = `🐍 **Python** is a high-level, interpreted programming language famous for its clear, clean syntax and readability! It is designed to be easy to learn and write.
+
+Here is what makes Python so popular:
+1. **Easy to Read & Write:** Uses clean indentation instead of complex braces, making it look almost like written English.
+2. **Extremely Versatile:** Used in **Web Development** (Django, Flask), **Data Science & Machine Learning** (Pandas, TensorFlow), **Automation Scripts**, and **Software Testing**.
+3. **Massive Ecosystem:** Millions of free libraries (packages) are available so you don't have to write code from scratch.
+
+**Example Python code:**
+\`\`\`python
+# Simple greeting in Python
+def greet_student(name):
+    return f"Welcome to Jagat Academy, {name}!"
+
+print(greet_student("Learner"))
+\`\`\`
+
+Would you like to learn about variables, loops, lists, or how to write your very first Python script? Let me know!`;
     } else if (msg.includes("db") || msg.includes("database") || msg.includes("sql") || msg.includes("mongodb")) {
       fallbackText = "Databases store and manage application data. SQL databases (like PostgreSQL or MySQL) are relational and use tables with schemas, while NoSQL databases (like MongoDB) are document-oriented and highly scalable. Let me know if you need help writing a query or structuring your database schema!";
     } else {
