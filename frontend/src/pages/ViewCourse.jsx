@@ -55,6 +55,7 @@ function ViewCourse() {
   const [comment, setComment] = useState("");
   const [submissionLinks, setSubmissionLinks] = useState({});
   const [studentSubmissionsWithGrades, setStudentSubmissionsWithGrades] = useState([]);
+  const [studentSubmissions, setStudentSubmissions] = useState([]);
   const [courseMaterials, setCourseMaterials] = useState([]);
   const [fetchingMaterials, setFetchingMaterials] = useState(true);
   const [courseQuizzes, setCourseQuizzes] = useState([]);
@@ -92,6 +93,17 @@ function ViewCourse() {
     }
   };
 
+  const fetchStudentSubmissions = async () => {
+    if (userData?._id && courseId && token) {
+      try {
+        const result = await axios.get(`${serverUrl}/api/submission/student/my-submissions`, { headers: { Authorization: `Bearer ${token}` } });
+        setStudentSubmissions(result.data.submissions || []);
+      } catch (error) {
+        console.error("Error fetching submissions:", error);
+      }
+    }
+  };
+
   const handleAssignmentSubmit = async (assignmentId) => {
     try {
       const submissionLink = submissionLinks[assignmentId];
@@ -105,6 +117,7 @@ function ViewCourse() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success(data.message);
+      fetchStudentSubmissions();
     } catch (error) {
       console.error("Error submitting assignment:", error);
       toast.error(error.response?.data?.message || error.message || "An unexpected error occurred.");
@@ -210,6 +223,7 @@ function ViewCourse() {
             grade.submission?.assignment?.course?._id === courseId
           );
           setStudentSubmissionsWithGrades(gradesForCurrentCourse);
+          fetchStudentSubmissions();
         } catch (error) {
           console.error("Error fetching student grades:", error);
           toast.error(error.response?.data?.message || "Failed to fetch student grades.");
@@ -513,6 +527,9 @@ function ViewCourse() {
                 const studentGrade = studentSubmissionsWithGrades.find(
                   (gradeEntry) => gradeEntry.submission?.assignment?._id === assignment._id
                 );
+                const existingSubmission = studentSubmissions.find(
+                  (sub) => sub.assignment === assignment._id || sub.assignment?._id === assignment._id
+                );
                 return (
                   <div key={assignment._id} className="border-2 border-black p-4 mb-4 bg-gray-50">
                     <h3 className="text-lg font-black">{assignment.title}</h3>
@@ -538,8 +555,27 @@ function ViewCourse() {
                         <div className="mt-4 p-3 border-2 border-black" style={{ backgroundColor: getGradeColor(studentGrade.grade, true) }}>
                           <p className="font-black">Your Grade: <span style={{ color: getGradeColor(studentGrade.grade) }}>{studentGrade.grade}</span></p>
                           <p className="text-gray-700 font-bold">Feedback: {studentGrade.feedback}</p>
+                          {studentGrade.submission?.submissionLink && (
+                            <p className="text-xs text-gray-500 mt-2">
+                              Submitted Link:{' '}
+                              <a href={studentGrade.submission.submissionLink} target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-bold">
+                                {studentGrade.submission.submissionLink}
+                              </a>
+                            </p>
+                          )}
                         </div>
                       )
+                    ) : existingSubmission ? (
+                      <div className="mt-4 p-3 border-2 border-black bg-yellow-50">
+                        <p className="font-black text-black">Status: <span className="text-yellow-600 font-black">Pending Review / Grading</span></p>
+                        <p className="text-gray-700 text-xs font-bold mt-1">
+                          Your Submitted Link:{' '}
+                          <a href={existingSubmission.submissionLink} target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-black break-all">
+                            {existingSubmission.submissionLink}
+                          </a>
+                        </p>
+                        <p className="text-[10px] text-gray-400 mt-2 uppercase font-black">Submitted on: {new Date(existingSubmission.createdAt).toLocaleString()}</p>
+                      </div>
                     ) : (
                       <div className="mt-4">
                         <input type="text" placeholder="Enter your submission link" className="w-full border-2 border-black p-2 font-bold" onChange={(e) => setSubmissionLinks(prev => ({ ...prev, [assignment._id]: e.target.value }))} />

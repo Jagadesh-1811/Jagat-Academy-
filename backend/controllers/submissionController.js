@@ -86,3 +86,13 @@ export const getSubmissions = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const getStudentSubmissions = async (req, res) => {
+    try {
+        const studentId = req.userId;
+        const submissions = await Submission.find({ student: studentId }).populate('grade');
+        res.status(200).json({ submissions });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
