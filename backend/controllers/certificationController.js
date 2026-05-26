@@ -8,6 +8,7 @@ import path from "path";
 import fs from "fs";
 import { generateCertificatePDF } from "../utils/pdfGenerator.js";
 import { sendCertificateEmail } from "../configs/Mail.js";
+import uploadOnCloudinary from "../configs/cloudinary.js";
 
 /**
  * Check if student meets certification criteria
@@ -74,8 +75,17 @@ export const autoIssueCertificateIfEligible = async (studentId, courseId, protoc
         level: "Gold",
         verificationUrl
       }, absolutePdfPath);
+
+      // Upload the generated PDF to Cloudinary
+      const cloudinaryUrl = await uploadOnCloudinary(absolutePdfPath);
+      if (cloudinaryUrl) {
+        finalPdfPath = cloudinaryUrl;
+        finalDownloadUrl = cloudinaryUrl;
+      } else {
+        throw new Error("Failed to upload certificate PDF to Cloudinary");
+      }
     } catch (pdfError) {
-      console.warn("PDF generation failed, falling back to default image:", pdfError);
+      console.warn("PDF generation or upload failed, falling back to default image:", pdfError);
       finalPdfPath = "https://placehold.co/800x600?text=Certificate+of+Completion";
       finalDownloadUrl = finalPdfPath;
     }
@@ -170,13 +180,27 @@ export const issueCertificate = async (req, res) => {
       verificationUrl
     }, absolutePdfPath);
 
+    // Upload generated PDF to Cloudinary
+    let finalPdfPath = relativePdfPath;
+    let finalDownloadUrl = pdfDownloadUrl;
+
+    try {
+      const cloudinaryUrl = await uploadOnCloudinary(absolutePdfPath);
+      if (cloudinaryUrl) {
+        finalPdfPath = cloudinaryUrl;
+        finalDownloadUrl = cloudinaryUrl;
+      }
+    } catch (uploadError) {
+      console.error("Cloudinary upload failed for manually issued certificate:", uploadError);
+    }
+
     // Save record to DB
     // Satisfy required schema fields
     const certificate = new Certificate({
       studentId,
       courseId,
       certificateId,
-      ipfsHash: relativePdfPath, // Store path in ipfsHash to satisfy schema
+      ipfsHash: finalPdfPath, // Store Cloudinary URL (or local fallback path) in ipfsHash
       blockchainTxHash: "SIG-" + crypto.createHash("sha256").update(certificateId + student.name).digest("hex").substring(0, 32),
       level: level || "Gold",
       status: "active"
@@ -185,7 +209,7 @@ export const issueCertificate = async (req, res) => {
     await certificate.save();
 
     // Send emails (to student)
-    await sendCertificateEmail(student.email, student.name, course.title, pdfDownloadUrl);
+    await sendCertificateEmail(student.email, student.name, course.title, finalDownloadUrl);
 
     // Send emails to parents if configured
     if (student.parents && student.parents.length > 0) {
@@ -194,7 +218,7 @@ export const issueCertificate = async (req, res) => {
           parent.email,
           student.name,
           `${course.title} (Student: ${student.name})`,
-          pdfDownloadUrl
+          finalDownloadUrl
         );
       }
     }
@@ -203,7 +227,7 @@ export const issueCertificate = async (req, res) => {
       success: true,
       message: "Certificate generated and emailed successfully",
       certificate,
-      pdfUrl: pdfDownloadUrl
+      pdfUrl: finalDownloadUrl
     });
   } catch (error) {
     console.error("Error issuing certificate:", error);
