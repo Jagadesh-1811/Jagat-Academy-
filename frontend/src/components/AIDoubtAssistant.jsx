@@ -37,8 +37,8 @@ const AIDoubtAssistant = ({ courseName, onClose, initialQuestion, bookmark }) =>
     const audioAnalysisRef = useRef(null);
 
     // Welcome message for intro
-    const welcomeText = `Hello! I am Jagat AI, your personal doubt solver. I'm here to help you master "${courseName}". Ask me anything - type, speak, or share an image of your doubt!`;
-    const shortWelcome = "Hello! I am Jagat AI, your personal doubt solver. How can I help you today?";
+    const welcomeText = "Welcome to Jagat assistant. I am here to help you about doubt solving.";
+    const shortWelcome = "Welcome to Jagat assistant. I am here to help you about doubt solving.";
 
     // Clean special characters from AI response
     const cleanResponse = (text) => {
@@ -221,40 +221,58 @@ const AIDoubtAssistant = ({ courseName, onClose, initialQuestion, bookmark }) =>
         };
     }, []);
 
-    // Text-to-Speech function
+    // Text-to-Speech function (with chunking for long text to fix repetition bug)
     const speakText = (text, onComplete) => {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
-
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9;
-            utterance.pitch = 1;
-            utterance.volume = 1;
+            
+            // Chunk text by punctuation to avoid long-text repetition bug in Chrome
+            const chunks = text.match(/[^.!?]+[.!?]+/g) || [text];
+            let currentChunk = 0;
 
             const voices = window.speechSynthesis.getVoices();
             const preferredVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Female'))
                 || voices.find(v => v.lang.startsWith('en'))
                 || voices[0];
-            if (preferredVoice) {
-                utterance.voice = preferredVoice;
-            }
 
-            utterance.onstart = () => {
-                setIsSpeaking(true);
-                setMode('speaking');
+            const speakNextChunk = () => {
+                if (currentChunk >= chunks.length) {
+                    setIsSpeaking(false);
+                    if (onComplete) onComplete();
+                    return;
+                }
+
+                const utterance = new SpeechSynthesisUtterance(chunks[currentChunk].trim());
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+
+                if (preferredVoice) {
+                    utterance.voice = preferredVoice;
+                }
+
+                utterance.onstart = () => {
+                    if (currentChunk === 0) {
+                        setIsSpeaking(true);
+                        setMode('speaking');
+                    }
+                };
+
+                utterance.onend = () => {
+                    currentChunk++;
+                    speakNextChunk();
+                };
+
+                utterance.onerror = () => {
+                    setIsSpeaking(false);
+                    if (onComplete) onComplete();
+                };
+
+                window.speechSynthesis.speak(utterance);
             };
 
-            utterance.onend = () => {
-                setIsSpeaking(false);
-                if (onComplete) onComplete();
-            };
+            speakNextChunk();
 
-            utterance.onerror = () => {
-                setIsSpeaking(false);
-                if (onComplete) onComplete();
-            };
-
-            window.speechSynthesis.speak(utterance);
         } else if (onComplete) {
             onComplete();
         }
