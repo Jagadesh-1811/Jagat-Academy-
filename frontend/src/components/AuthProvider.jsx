@@ -68,14 +68,17 @@ const AuthProvider = () => {
     // Also refresh token when the app regains focus (user returns to tab)
     useEffect(() => {
         const handleVisibilityChange = async () => {
-            if (document.visibilityState === 'visible' && auth.currentUser) {
+            if (document.visibilityState === 'visible' && auth.currentUser && navigator.onLine) {
                 try {
+                    // Only force refresh if we actually have internet
                     const refreshedToken = await auth.currentUser.getIdToken(true);
                     dispatch(setToken(refreshedToken));
                     localStorage.setItem('token', refreshedToken);
                     console.log('✅ Token refreshed on tab focus');
                 } catch (error) {
-                    console.error('❌ Token refresh on focus failed:', error);
+                    if (error.code !== 'auth/network-request-failed') {
+                        console.error('❌ Token refresh on focus failed:', error);
+                    }
                 }
             }
         };
