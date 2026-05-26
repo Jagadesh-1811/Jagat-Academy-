@@ -42,11 +42,19 @@ let app = express()
 // CORS configuration
 app.use(express.json())
 app.use(cookieParser())
+
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://jagat-acadamey-1-1.onrender.com"
+]
+if (process.env.FRONTEND_URL) {
+    // Split by comma in case they provide multiple URLs (e.g. preview deployments)
+    process.env.FRONTEND_URL.split(",").forEach(url => allowedOrigins.push(url.trim()))
+}
+
 app.use(cors({
-    origin: [
-        "http://localhost:5173",
-        "https://jagat-acadamey-1-1.onrender.com"
-    ],
+    origin: allowedOrigins,
     credentials: true
 }))
 app.use("/public", express.static("public"))
