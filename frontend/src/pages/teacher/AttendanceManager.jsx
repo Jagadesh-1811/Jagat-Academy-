@@ -20,6 +20,7 @@ export default function AttendanceManager() {
 
   // Active Session QR State
   const [qrToken, setQrToken] = useState('');
+  const [scanUrl, setScanUrl] = useState('');
   const [generatingQR, setGeneratingQR] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
 
@@ -104,7 +105,8 @@ export default function AttendanceManager() {
       );
 
       setQrToken(response.data.token);
-      setTimeLeft(response.data.expiresIn); // 300 seconds
+      setScanUrl(response.data.scanUrl || '');
+      setTimeLeft(response.data.expiresIn); // 3600 seconds
       toast.success('Live attendance QR code generated!');
     } catch (error) {
       console.error('QR Generate Error:', error);
@@ -122,6 +124,7 @@ export default function AttendanceManager() {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           setQrToken('');
+          setScanUrl('');
           clearInterval(timer);
           return 0;
         }
@@ -278,25 +281,43 @@ export default function AttendanceManager() {
             </div>
 
             {/* Rendered Live QR Code using public QR Code generator API */}
-            {qrToken && (
+            {qrToken && scanUrl && (
               <div className="bg-black text-white p-6 rounded-lg text-center space-y-4">
-                <p className="text-sm font-extrabold tracking-widest text-white">LIVE SESSION ACTIVE</p>
-                <div className="bg-gray-900 border border-neutral-800 p-2 rounded font-mono text-[10px] break-all text-gray-300 select-all">
-                  Token: {qrToken}
-                </div>
+                <p className="text-sm font-extrabold tracking-widest text-yellow-400">🔴 LIVE SESSION ACTIVE</p>
+                
+                {/* QR Code — encodes the scan URL so phones open the form */}
                 <div className="flex justify-center bg-white p-4 inline-block mx-auto rounded border-4 border-black">
                   <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrToken)}`}
-                    alt="Live Check-in QR"
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(scanUrl)}`}
+                    alt="Scan to mark attendance"
                     className="w-48 h-48 object-contain"
                   />
                 </div>
+
+                {/* Scan URL (copyable) */}
+                <div className="bg-gray-900 border border-neutral-800 p-3 rounded font-mono text-[10px] break-all text-gray-300 select-all">
+                  {scanUrl}
+                </div>
+
                 <div className="space-y-1">
                   <p className="text-lg font-black text-white">
                     Expires in: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
                   </p>
-                  <p className="text-xs text-gray-400">Tokens refresh or expire continuously to protect session authenticity.</p>
+                  <p className="text-xs text-gray-400">
+                    Students scan this QR to open a form and confirm their attendance.
+                  </p>
                 </div>
+
+                {/* Quick copy button */}
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(scanUrl);
+                    toast.success('Scan link copied to clipboard!');
+                  }}
+                  className="text-xs font-extrabold uppercase tracking-wider text-white bg-black hover:bg-gray-800 px-4 py-2 border-2 border-white transition-none"
+                >
+                  📋 Copy Scan Link
+                </button>
               </div>
             )}
           </div>
@@ -339,8 +360,8 @@ export default function AttendanceManager() {
                             <p className="text-sm font-extrabold">{student.name}</p>
                             {student.isOnline && (
                               <div className="flex items-center gap-2 mt-1">
-                                <span className="inline-flex items-center gap-1 bg-[#00FF66] text-black border border-black font-black text-[8px] uppercase tracking-wider px-2 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-pulse">
-                                  ● Live
+                                <span className="inline-flex items-center gap-1 bg-white text-black border border-black font-black text-[8px] uppercase tracking-wider px-2 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-pulse">
+                                  ◉ Live
                                 </span>
                                 <button
                                   type="button"
@@ -348,7 +369,7 @@ export default function AttendanceManager() {
                                     handleManualStatusChange(student._id, 'present');
                                     toast.info(`Selected "present" for online student: ${student.name}. Make sure to click "Apply Manual Override Log" below!`);
                                   }}
-                                  className="text-[9px] uppercase font-black bg-[#FFDE4D] hover:bg-[#FFD214] text-black border border-black px-2 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-y-[2px] transition-all"
+                                  className="text-[9px] uppercase font-black bg-black hover:bg-gray-800 text-white border border-black px-2 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-y-[2px] transition-all"
                                 >
                                   Mark Present
                                 </button>

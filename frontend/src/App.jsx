@@ -55,6 +55,7 @@ import EducatorApprovals from './pages/admin/EducatorApprovals';
 import AuthProvider from './components/AuthProvider';
 import AttendanceView from './pages/student/AttendanceView';
 import AttendanceManager from './pages/teacher/AttendanceManager';
+import AttendanceScan from './pages/AttendanceScan';
 import ParentLogin from './pages/parent/ParentLogin';
 import ParentSignUp from './pages/parent/ParentSignUp';
 import ParentDashboard from './pages/parent/ParentDashboard';
@@ -212,6 +213,7 @@ function App() {
           {/* Attendance Management Routes */}
           <Route path='/attendance/:courseId' element={userData ? <AttendanceView /> : <Navigate to={"/signup"} />} />
           <Route path='/attendance' element={userData ? <AttendanceView /> : <Navigate to={"/signup"} />} />
+          <Route path='/attendance/scan' element={userData ? <AttendanceScan /> : <Navigate to={"/signup"} />} />
           <Route path='/teacher/attendance/:courseId' element={userData?.role === "educator" ? <AttendanceManager /> : <Navigate to={"/signup"} />} />
 
           {/* Parent Portal Routes */}

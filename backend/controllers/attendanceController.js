@@ -91,9 +91,13 @@ export const generateQR = async (req, res) => {
       expiresAt: expiresAt.getTime()
     });
 
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const scanUrl = `${frontendUrl.replace(/\/$/, '')}/attendance/scan?token=${token}`;
+
     res.status(200).json({
       success: true,
       token,
+      scanUrl,
       expiresIn: 3600 // seconds (1 hour)
     });
   } catch (error) {
@@ -143,6 +147,9 @@ export const getSessionInfo = async (req, res) => {
       if (lecture) lectureTitle = lecture.lectureTitle;
     }
 
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const scanUrl = `${frontendUrl.replace(/\/$/, '')}/attendance/scan?token=${token}`;
+
     res.status(200).json({
       success: true,
       courseTitle: course?.title || 'Unknown Course',
@@ -151,6 +158,7 @@ export const getSessionInfo = async (req, res) => {
       lectureTitle,
       courseId: session.courseId,
       lectureId: session.lectureId,
+      scanUrl,
       isTimeWindowActive: isWithinTimeSlots()
     });
   } catch (error) {
@@ -341,43 +349,50 @@ export const manualBulkMark = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Only course creator can perform manual attendance override' });
     }
 
-    const bulkOperations = [];
-
-    for (const record of records) {
-      const { studentId, status } = record;
-      if (!studentId || !status) continue;
-
-      const filter = { student: studentId, course: courseId };
-      if (lectureId) filter.lecture = lectureId;
-
-      bulkOperations.push({
-        updateOne: {
-          filter,
-          update: {
-            $set: {
-              status,
-              checkInMethod: 'manual',
-              isOverridden: true,
-              overrideNote: 'Educator manual override',
-              checkInTime: new Date()
-            }
-          },
-          upsert: true
+    // Process each record individually so one failure doesn't block the rest
+    const results = await Promise.allSettled(
+      records.map(async (record) => {
+        const { studentId, status } = record;
+        if (!studentId || !status) {
+          return { studentId: studentId || 'unknown', success: false, status: 'skipped', reason: 'Missing studentId or status' };
         }
-      });
-    }
 
-    if (bulkOperations.length > 0) {
-      await Attendance.bulkWrite(bulkOperations);
-    }
+        try {
+          const filter = { student: studentId, course: courseId };
+          if (lectureId) filter.lecture = lectureId;
 
-    res.status(200).json({
-      success: true,
-      message: `Manual bulk attendance override successful for ${bulkOperations.length} records.`
+          await Attendance.findOneAndUpdate(
+            filter,
+            {
+              $set: {
+                status,
+                checkInMethod: 'manual',
+                isOverridden: true,
+                overrideNote: 'Educator manual override',
+                checkInTime: new Date()
+              }
+            },
+            { upsert: true, new: true, runValidators: true }
+          );
+
+          return { studentId, status, success: true };
+        } catch (err) {
+          return { studentId, status, success: false, reason: err.message };
+        }
+      })
+    );
+
+    const succeeded = results.filter(r => r.status === 'fulfilled' && r.value.success);
+    const failed = results.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success));
+
+    res.status(failed.length > 0 && succeeded.length === 0 ? 500 : 200).json({
+      success: succeeded.length > 0,
+      message: `Updated ${succeeded.length} record(s).${failed.length > 0 ? ` ${failed.length} failed.` : ''}`,
+      details: results.map(r => r.status === 'fulfilled' ? r.value : { studentId: 'unknown', success: false, reason: r.reason?.message || 'Promise rejected' })
     });
   } catch (error) {
     console.error('Error processing bulk manual attendance:', error);
-    res.status(500).json({ success: false, message: 'Failed to update manual bulk attendance', error: error.message });
+    res.status(500).json({ success: false, message: 'Failed to process manual bulk attendance', error: error.message });
   }
 };
 
@@ -386,21 +401,59 @@ export const getActiveSessions = async (req, res) => {
   try {
     cleanupExpiredSessions();
     const sessionsList = [];
+    const seenTokens = new Set();
 
+    // 1. Collect from in-memory cache
     for (const [token, details] of activeSessions.entries()) {
+      seenTokens.add(token);
       const course = await Course.findById(details.courseId);
       let lectureTitle = 'General Session';
       if (details.lectureId) {
         const lecture = await Lecture.findById(details.lectureId);
         if (lecture) lectureTitle = lecture.lectureTitle;
       }
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const scanUrl = `${frontendUrl.replace(/\/$/, '')}/attendance/scan?token=${token}`;
+
       sessionsList.push({
         token,
+        scanUrl,
         courseId: details.courseId,
         courseTitle: course?.title || 'Unknown Course',
         lectureTitle,
         createdAt: details.createdAt,
-        expiresIn: Math.max(0, 300 - Math.floor((Date.now() - details.createdAt) / 1000))
+        expiresIn: Math.max(0, Math.floor((details.expiresAt - Date.now()) / 1000))
+      });
+    }
+
+    // 2. Also query DB for active sessions not in memory (e.g., after server restart)
+    const dbSessions = await AttendanceSession.find({
+      active: true,
+      expiresAt: { $gt: new Date() }
+    }).sort({ createdAt: -1 });
+
+    for (const dbSession of dbSessions) {
+      if (seenTokens.has(dbSession.token)) continue;
+      seenTokens.add(dbSession.token);
+
+      const course = await Course.findById(dbSession.course);
+      let lectureTitle = 'General Session';
+      if (dbSession.lecture) {
+        const lecture = await Lecture.findById(dbSession.lecture);
+        if (lecture) lectureTitle = lecture.lectureTitle;
+      }
+
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const scanUrl = `${frontendUrl.replace(/\/$/, '')}/attendance/scan?token=${dbSession.token}`;
+
+      sessionsList.push({
+        token: dbSession.token,
+        scanUrl,
+        courseId: dbSession.course.toString(),
+        courseTitle: course?.title || 'Unknown Course',
+        lectureTitle,
+        createdAt: dbSession.createdAt.getTime(),
+        expiresIn: Math.max(0, Math.floor((dbSession.expiresAt.getTime() - Date.now()) / 1000))
       });
     }
 

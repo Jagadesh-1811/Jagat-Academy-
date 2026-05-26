@@ -90,19 +90,49 @@ const AttendanceView = () => {
             </h2>
             <div className="space-y-4">
               {activeSessions.map((session, idx) => (
-                <div key={idx} className="bg-white border-2 border-black p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div>
-                    <h3 className="font-black text-lg">{session.courseTitle}</h3>
-                    <p className="text-gray-600 text-sm font-bold">Session: {session.lectureTitle}</p>
-                    <p className="text-xs font-black text-gray-400 mt-1 uppercase tracking-wider">Code: {session.token.split('-')[0]}</p>
+                <div key={idx} className="bg-white border-2 border-black p-4">
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="font-black text-lg">{session.courseTitle}</h3>
+                      <p className="text-gray-600 text-sm font-bold">Session: {session.lectureTitle}</p>
+                      <p className="text-xs font-black text-gray-400 mt-1 uppercase tracking-wider">
+                        Expires in: {Math.floor(session.expiresIn / 60)}:{(session.expiresIn % 60).toString().padStart(2, '0')}
+                      </p>
+
+                      {/* Scan button - opens scan page with token */}
+                      <div className="flex gap-2 mt-3">
+                        <button
+                          onClick={() => navigate(`/attendance/scan?token=${session.token}`)}
+                          className="bg-black text-white px-4 py-2 font-black uppercase text-xs tracking-wider hover:bg-gray-800 transition-colors"
+                        >
+                          Open Scan Form
+                        </button>
+                        <button
+                          onClick={() => handleMarkAttendance(session.token, session.courseId, session.lectureId)}
+                          disabled={marking}
+                          className="bg-white text-black border-2 border-black px-4 py-2 font-black uppercase text-xs tracking-wider hover:bg-gray-100 transition-colors disabled:opacity-50"
+                        >
+                          {marking ? 'Marking...' : 'Quick Mark'}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* QR Code for scanning */}
+                    {session.scanUrl && (
+                      <div className="flex flex-col items-center flex-shrink-0">
+                        <div className="bg-white border-2 border-black p-2">
+                          <img
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(session.scanUrl)}`}
+                            alt="Scan to mark attendance"
+                            className="w-28 h-28 object-contain"
+                          />
+                        </div>
+                        <p className="text-[9px] font-black uppercase tracking-wider text-gray-500 mt-1">
+                          Scan to Attend
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  <button
-                    onClick={() => handleMarkAttendance(session.token, session.courseId, session.lectureId)}
-                    disabled={marking}
-                    className="bg-black text-white px-6 py-3 font-black uppercase text-sm tracking-wider hover:bg-gray-800 transition-colors disabled:opacity-50"
-                  >
-                    {marking ? 'Marking...' : 'Mark Present'}
-                  </button>
                 </div>
               ))}
             </div>
