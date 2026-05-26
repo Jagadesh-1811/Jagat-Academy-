@@ -76,8 +76,9 @@ function Courses() {
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-2 flex-wrap">
                       <EditIcon className="text-black cursor-pointer border-2 border-black p-1 box-content hover:bg-black hover:text-white transition-none" onClick={() => navigate(`/addcourses/${course?._id}`)} />
-                      <button onClick={() => navigate(`/admin/create-doubt-session/${course?._id}`)} className="bg-black text-white font-black uppercase text-[10px] tracking-wider px-3 py-2 border-2 border-black">Doubt Session</button>
-                      <button onClick={() => navigate(`/teacher/attendance/${course?._id}`)} className="bg-black text-white font-black uppercase text-[10px] tracking-wider px-3 py-2 border-2 border-black">Attendance</button>
+                      <button onClick={() => navigate(`/admin/create-doubt-session/${course?._id}`)} className="bg-black text-white font-black uppercase text-[10px] tracking-wider px-3 py-2 border-2 border-black hover:bg-white hover:text-black transition-all">Doubt Session</button>
+                      <button onClick={() => navigate(`/teacher/materials/${course?._id}`)} className="bg-black text-white font-black uppercase text-[10px] tracking-wider px-3 py-2 border-2 border-black hover:bg-white hover:text-black transition-all">Materials</button>
+                      <button onClick={() => navigate(`/teacher/attendance/${course?._id}`)} className="bg-black text-white font-black uppercase text-[10px] tracking-wider px-3 py-2 border-2 border-black hover:bg-white hover:text-black transition-all">Attendance</button>
                     </div>
                   </td>
                 </tr>
@@ -113,7 +114,10 @@ function Courses() {
                 <span className={`px-3 py-1 text-xs font-black uppercase tracking-wider border-2 border-black ${course?.isPublished ? "bg-black text-white" : "bg-white text-black"}`}>
                   {course?.isPublished ? "Published" : "Draft"}
                 </span>
-                <button onClick={() => navigate(`/teacher/attendance/${course?._id}`)} className="bg-black text-white font-black uppercase text-[10px] tracking-wider px-3 py-2 border-2 border-black">Manage Attendance</button>
+                <div className="flex gap-2">
+                  <button onClick={() => navigate(`/teacher/materials/${course?._id}`)} className="bg-black text-white font-black uppercase text-[10px] tracking-wider px-3 py-2 border-2 border-black">Materials</button>
+                  <button onClick={() => navigate(`/teacher/attendance/${course?._id}`)} className="bg-black text-white font-black uppercase text-[10px] tracking-wider px-3 py-2 border-2 border-black">Attendance</button>
+                </div>
               </div>
             </div>
           ))}

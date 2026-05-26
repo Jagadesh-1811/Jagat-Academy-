@@ -32,6 +32,7 @@ import getAllReviews from './customHooks/getAllReviews'
 import StudentDashboard from './pages/Dashboard.jsx'
 import CertificateManager from './pages/teacher/CertificateManager'
 import CreateDoubtSession from './pages/teacher/CreateDoubtSession';
+import MaterialsManager from './pages/teacher/MaterialsManager';
 import AdminFeedbackManager from './pages/admin/FeedbackManager';
 import AdminLogin from './pages/admin/AdminLogin';
 import Contact from './pages/Contact';
@@ -179,6 +180,7 @@ function App() {
           <Route path='/admin/assignments/:courseId' element={userData?.role === "educator" ? <TeacherAssignments /> : <Navigate to={"/signup"} />} />
           <Route path='/admin/create-assignment/:courseId' element={userData?.role === "educator" ? <CreateAssignment /> : <Navigate to={"/signup"} />} />
           <Route path='/admin/create-doubt-session/:courseId' element={userData?.role === "educator" ? <CreateDoubtSession /> : <Navigate to={"/signup"} />} />
+          <Route path='/teacher/materials/:courseId' element={userData?.role === "educator" ? <MaterialsManager /> : <Navigate to={"/signup"} />} />
           <Route path='/admin/certificate-manager' element={userData?.role === "educator" ? <CertificateManager /> : <Navigate to={"/signup"} />} />
           <Route path='/admin/login' element={<AdminLogin />} />
           <Route path='/admin/feedback-manager' element={<AdminProtectedRoute><AdminFeedbackManager /></AdminProtectedRoute>} />
