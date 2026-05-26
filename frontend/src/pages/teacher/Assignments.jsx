@@ -1,103 +1,98 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { serverUrl } from '../../config';
+import { serverUrl } from '../../App';
 import { toast } from 'react-toastify';
-import { FaArrowLeft, FaEdit, FaTrash } from 'react-icons/fa';
 import { ClipLoader } from 'react-spinners';
-import { useSelector } from 'react-redux';
 
-function Assignments() {
+const TeacherAssignments = () => {
     const { courseId } = useParams();
     const navigate = useNavigate();
-    const { token } = useSelector(state => state.user);
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchAssignments = async () => {
-            try {
-                const result = await axios.get(`${serverUrl}/api/assignment/course/${courseId}`, { headers: { Authorization: `Bearer ${token}` } });
-                setAssignments(result.data.assignments);
-            } catch (error) {
-                console.error("Error fetching assignments:", error);
-                toast.error(error.response?.data?.message || "Failed to fetch assignments.");
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchAssignments();
-    }, [courseId, token]);
+    }, [courseId]);
 
-    const handleDeleteAssignment = async (assignmentId) => {
-        if (!window.confirm("Are you sure you want to delete this assignment?")) {
-            return;
-        }
+    const fetchAssignments = async () => {
         try {
-            await axios.delete(`${serverUrl}/api/assignment/delete/${assignmentId}`, { headers: { Authorization: `Bearer ${token}` } });
-            setAssignments(assignments.filter(a => a._id !== assignmentId));
-            toast.success("Assignment deleted successfully");
+            const res = await axios.get(`${serverUrl}/api/assignment/course/${courseId}`);
+            setAssignments(res.data || []);
         } catch (error) {
-            console.error("Error deleting assignment:", error);
-            toast.error(error.response?.data?.message || "Failed to delete assignment.");
+            toast.error('Failed to fetch assignments');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Delete this assignment?')) return;
+        try {
+            await axios.delete(`${serverUrl}/api/assignment/delete/${id}`);
+            toast.success('Assignment deleted');
+            fetchAssignments();
+        } catch (error) {
+            toast.error('Failed to delete assignment');
         }
     };
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center min-h-screen">
-                <ClipLoader size={50} color={'#000'} />
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <ClipLoader size={40} color="#000" />
             </div>
         );
     }
 
     return (
-        <div className="max-w-5xl mx-auto p-6 mt-10 bg-white rounded-lg shadow-md">
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                    <FaArrowLeft className="w-5 h-5 cursor-pointer" onClick={() => navigate(`/addcourses/${courseId}`)} />
-                    <h2 className="text-2xl font-semibold">Assignments for Course</h2>
+        <div className="min-h-screen bg-white">
+            <div className="bg-black border-b-4 border-black px-6 py-4">
+                <div className="max-w-5xl mx-auto flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => navigate(`/addcourses/${courseId}`)} className="text-white hover:text-gray-300">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <h1 className="text-white font-black uppercase tracking-tight text-lg">Assignments</h1>
+                    </div>
+                    <Link to={`/admin/create-assignment/${courseId}`}
+                        className="border-2 border-white text-white px-4 py-2 text-xs font-black uppercase hover:bg-white hover:text-black transition-none">
+                        + New
+                    </Link>
                 </div>
-                <button
-                    className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-700"
-                    onClick={() => navigate(`/admin/create-assignment/${courseId}`)}
-                >
-                    Create New Assignment
-                </button>
             </div>
 
-            {assignments.length === 0 ? (
-                <p className="text-center text-gray-600">No assignments found for this course.</p>
-            ) : (
-                <div className="space-y-4">
-                    {assignments.map((assignment) => (
-                        <div key={assignment._id} className="bg-gray-50 p-4 rounded-md shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div className="max-w-5xl mx-auto p-6 space-y-4">
+                {assignments.length === 0 ? (
+                    <div className="border-4 border-black p-12 text-center">
+                        <h3 className="font-black uppercase text-sm text-gray-500">No assignments found</h3>
+                        <Link to={`/admin/create-assignment/${courseId}`}
+                            className="inline-block mt-4 bg-black text-white px-6 py-3 text-xs font-black uppercase border-2 border-black">
+                            Create Assignment
+                        </Link>
+                    </div>
+                ) : (
+                    assignments.map((a) => (
+                        <div key={a._id} className="border-4 border-black p-4 bg-gray-50 flex justify-between items-center">
                             <div>
-                                <h3 className="text-lg font-medium">{assignment.title}</h3>
-                                {assignment.description && <p className="text-gray-600 text-sm">{assignment.description}</p>}
-                                <p className="text-gray-500 text-xs">Deadline: {new Date(assignment.deadline).toLocaleString()}</p>
+                                <h3 className="font-black uppercase text-sm">{a.title}</h3>
+                                {a.description && <p className="text-xs text-gray-600 mt-1">{a.description}</p>}
+                                {a.deadline && <p className="text-[10px] font-bold text-gray-500 mt-1">Due: {new Date(a.deadline).toLocaleDateString()}</p>}
                             </div>
-                            <div className="flex gap-3 mt-3 md:mt-0">
-                                <button
-                                    className="bg-gray-300 text-gray-800 px-3 py-1 rounded-md hover:bg-gray-400 flex items-center gap-1 text-sm"
-                                    onClick={() => navigate(`/admin/edit-assignment/${courseId}/${assignment._id}`)}
-                                >
-                                    <FaEdit /> Edit
-                                </button>
-                                <button
-                                    className="bg-gray-200 text-white px-3 py-1 rounded-md hover:bg-gray-200 flex items-center gap-1 text-sm"
-                                    onClick={() => handleDeleteAssignment(assignment._id)}
-                                >
-                                    <FaTrash /> Remove
-                                </button>
+                            <div className="flex gap-2">
+                                <Link to={`/admin/edit-assignment/${courseId}/${a._id}`}
+                                    className="border-2 border-black px-3 py-1 text-[10px] font-black uppercase hover:bg-black hover:text-white transition-none">Edit</Link>
+                                <Link to={`/view-submissions/${courseId}/${a._id}`}
+                                    className="bg-black text-white px-3 py-1 text-[10px] font-black uppercase border-2 border-black hover:bg-gray-800 transition-none">Submissions</Link>
+                                <button onClick={() => handleDelete(a._id)}
+                                    className="border-2 border-red-600 text-red-600 px-3 py-1 text-[10px] font-black uppercase hover:bg-red-600 hover:text-white transition-none">Delete</button>
                             </div>
                         </div>
-                    ))}
-                </div>
-            )}
+                    ))
+                )}
+            </div>
         </div>
     );
-}
+};
 
-export default Assignments;
-
+export default TeacherAssignments;

@@ -3,30 +3,20 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { serverUrl } from '../App';
 
-/* ─── Status colours ─── */
-const STATUS = {
-  idle:     { bg: 'bg-slate-50',   border: 'border-slate-200' },
-  loading:  { bg: 'bg-slate-50',   border: 'border-slate-200' },
-  verified: { bg: 'bg-green-50',   border: 'border-green-300' },
-  revoked:  { bg: 'bg-red-50',     border: 'border-red-300'   },
-  notfound: { bg: 'bg-yellow-50',  border: 'border-yellow-300'},
-};
-
-const LEVEL_BADGE = {
-  Platinum: { bg: 'bg-purple-100 text-purple-800', emoji: '💎' },
-  Gold:     { bg: 'bg-yellow-100 text-yellow-800', emoji: '🥇' },
-  Silver:   { bg: 'bg-gray-100   text-gray-700',   emoji: '🥈' },
-  Bronze:   { bg: 'bg-orange-100 text-orange-800', emoji: '🥉' },
+const LEVEL_LABELS = {
+  Platinum: 'Platinum',
+  Gold:     'Gold',
+  Silver:   'Silver',
+  Bronze:   'Bronze',
 };
 
 export default function CertificateVerify() {
-  const { certId: paramId } = useParams();           // from /verify/:certId
+  const { certId: paramId } = useParams();
   const [certId,    setCertId]  = useState(paramId || '');
-  const [state,     setState]   = useState('idle');  // idle | loading | verified | revoked | notfound
+  const [state,     setState]   = useState('idle'); // idle | loading | verified | revoked | notfound
   const [cert,      setCert]    = useState(null);
   const [error,     setError]   = useState('');
 
-  /* Auto-verify if ID came from URL param (QR scan) */
   useEffect(() => {
     if (paramId) verify(paramId);
   }, [paramId]);
@@ -48,44 +38,42 @@ export default function CertificateVerify() {
     }
   }
 
-  const s = STATUS[state] || STATUS.idle;
-  const levelBadge = cert?.level ? LEVEL_BADGE[cert.level] || LEVEL_BADGE.Gold : null;
+  const levelLabel = cert?.level ? LEVEL_LABELS[cert.level] || LEVEL_LABELS.Gold : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0F1F3D] via-[#1B365D] to-[#0D2444] flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
 
       {/* ─── Header ─── */}
-      <header className="py-6 px-8 flex items-center justify-between">
+      <header className="bg-black border-b-4 border-black px-6 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3 group">
-          {/* Academy seal */}
-          <div className="w-11 h-11 rounded-full bg-[#C5A059] flex items-center justify-center text-[#1B365D] font-black text-lg shadow-lg group-hover:scale-105 transition-transform">
+          <div className="w-11 h-11 bg-black border-2 border-white flex items-center justify-center text-white font-black text-lg">
             JA
           </div>
           <div>
             <p className="text-white font-extrabold text-lg leading-none tracking-wide">JAGAT ACADEMY</p>
-            <p className="text-[#C5A059] text-xs font-medium tracking-widest uppercase">Certificate Verifier</p>
+            <p className="text-gray-400 text-xs font-bold tracking-widest uppercase">Certificate Verifier</p>
           </div>
         </Link>
-        <a href="/" className="text-white/60 hover:text-white text-sm transition-colors">← Back to Home</a>
+        <a href="/" className="text-gray-400 hover:text-white text-sm font-bold transition-colors">← Back</a>
       </header>
 
-      {/* ─── Hero text ─── */}
-      <div className="text-center py-10 px-4">
-        <h1 className="text-4xl md:text-5xl font-black text-white drop-shadow-xl mb-3">
+      {/* ─── Hero ─── */}
+      <div className="bg-white border-b-4 border-black px-6 py-12 text-center">
+        <h1 className="text-4xl md:text-5xl font-black text-black mb-3 uppercase tracking-tight">
           Verify a Certificate
         </h1>
-        <p className="text-white/60 text-sm max-w-md mx-auto">
+        <p className="text-gray-500 text-sm max-w-md mx-auto font-medium">
           Enter the unique Certificate ID printed on the document, or scan the QR code to validate its authenticity instantly.
         </p>
       </div>
 
-      {/* ─── Search card ─── */}
-      <div className="flex-1 flex items-start justify-center px-4 pb-16">
-        <div className="w-full max-w-xl space-y-6">
+      {/* ─── Main Content ─── */}
+      <div className="flex-1 bg-gray-50 px-4 py-12">
+        <div className="w-full max-w-xl mx-auto space-y-6">
 
           {/* Input box */}
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-2xl">
-            <label className="block text-white/80 text-sm font-semibold mb-2 uppercase tracking-wider">
+          <div className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <label className="block text-black text-sm font-bold mb-2 uppercase tracking-wider">
               Certificate ID
             </label>
             <div className="flex gap-2">
@@ -95,39 +83,44 @@ export default function CertificateVerify() {
                 onChange={e => setCertId(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && verify()}
                 placeholder="e.g. JAGT-A1B2C3D4"
-                className="flex-1 bg-white/15 border border-white/25 text-white placeholder-white/40 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#C5A059] transition"
+                className="flex-1 border-2 border-black px-4 py-3 text-sm font-mono font-bold focus:outline-none focus:ring-2 focus:ring-black bg-white text-black placeholder-gray-400"
               />
               <button
                 onClick={() => verify()}
                 disabled={state === 'loading'}
-                className="bg-[#C5A059] hover:bg-[#b38d47] disabled:opacity-60 text-[#1B365D] font-extrabold px-6 py-3 rounded-xl transition-colors text-sm shadow-lg"
+                className="bg-black border-2 border-black text-white font-extrabold px-6 py-3 text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all disabled:opacity-50"
               >
                 {state === 'loading' ? (
-                  <div className="w-5 h-5 border-2 border-[#1B365D] border-t-transparent rounded-full animate-spin" />
-                ) : 'Verify'}
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : 'Verify →'}
               </button>
             </div>
-            {error && <p className="mt-2 text-red-300 text-xs">{error}</p>}
+            {error && <p className="mt-2 text-red-600 text-xs font-bold">{error}</p>}
           </div>
 
-          {/* ─── Result card ─── */}
+          {/* ─── Result ─── */}
           {state !== 'idle' && state !== 'loading' && (
-            <div className={`rounded-2xl border-2 p-6 shadow-2xl transition-all ${s.bg} ${s.border}`}>
+            <div className={`bg-white border-4 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${
+              state === 'verified' ? 'border-black' : 
+              state === 'revoked' ? 'border-black' : 'border-black'
+            }`}>
 
-              {/* Verified ✅ */}
+              {/* Verified */}
               {state === 'verified' && cert && (
                 <div className="space-y-5">
-                  {/* Badge banner */}
-                  <div className="flex items-center gap-3 bg-green-100 border border-green-300 rounded-xl px-4 py-3">
-                    <span className="text-2xl">✅</span>
+                  <div className="flex items-center gap-3 bg-gray-100 border-2 border-black px-4 py-3">
+                    <div className="w-8 h-8 bg-black flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                    </div>
                     <div>
-                      <p className="font-extrabold text-green-800 text-base">Certificate Verified</p>
-                      <p className="text-green-600 text-xs">Issued by Jagat Academy · Authentic &amp; Tamper-free</p>
+                      <p className="font-black text-black text-base uppercase">Certificate Verified</p>
+                      <p className="text-gray-600 text-xs font-bold">Issued by Jagat Academy - Authentic and Tamper-free</p>
                     </div>
                   </div>
 
-                  {/* Certificate details */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <InfoRow label="Student Name"   value={cert.studentId?.name   || '—'} />
                     <InfoRow label="Course"         value={cert.courseId?.title   || '—'} />
                     <InfoRow label="Certificate ID" value={cert.certificateId}             mono />
@@ -136,22 +129,18 @@ export default function CertificateVerify() {
                     <InfoRow label="Institution"    value="Jagat Academy" />
                   </div>
 
-                  {/* Level badge */}
-                  {levelBadge && (
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold ${levelBadge.bg}`}>
-                        {levelBadge.emoji} {cert.level} Certificate
-                      </span>
+                  {levelLabel && (
+                    <div className="inline-flex items-center gap-2 bg-black text-white px-4 py-2 font-bold text-sm uppercase tracking-wider">
+                      {levelLabel} Certificate
                     </div>
                   )}
 
-                  {/* Download PDF if present */}
                   {cert.ipfsHash && (
                     <a
                       href={`${serverUrl}${cert.ipfsHash}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-[#1B365D] hover:bg-[#142848] text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors shadow"
+                      className="inline-flex items-center gap-2 bg-black border-2 border-black text-white font-bold px-5 py-3 text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
@@ -162,26 +151,30 @@ export default function CertificateVerify() {
                 </div>
               )}
 
-              {/* Revoked ⚠️ */}
+              {/* Revoked */}
               {state === 'revoked' && (
-                <div className="flex items-start gap-3 bg-red-100 border border-red-300 rounded-xl px-4 py-4">
-                  <span className="text-3xl">⚠️</span>
+                <div className="flex items-start gap-3 bg-gray-100 border-2 border-black px-4 py-4">
+                  <div className="w-8 h-8 border-2 border-black flex items-center justify-center shrink-0">
+                    <span className="text-black font-black text-lg">!</span>
+                  </div>
                   <div>
-                    <p className="font-extrabold text-red-800 text-base">Certificate Revoked</p>
-                    <p className="text-red-600 text-sm mt-1">
+                    <p className="font-black text-black text-base uppercase">Certificate Revoked</p>
+                    <p className="text-gray-700 text-sm font-medium mt-1">
                       This certificate has been revoked by Jagat Academy and is no longer valid. Please contact the institution for more information.
                     </p>
                   </div>
                 </div>
               )}
 
-              {/* Not found ❌ */}
+              {/* Not found */}
               {state === 'notfound' && (
-                <div className="flex items-start gap-3 bg-yellow-50 border border-yellow-300 rounded-xl px-4 py-4">
-                  <span className="text-3xl">❌</span>
+                <div className="flex items-start gap-3 bg-gray-100 border-2 border-black px-4 py-4">
+                  <div className="w-8 h-8 border-2 border-black flex items-center justify-center shrink-0">
+                    <span className="text-black font-black text-lg">X</span>
+                  </div>
                   <div>
-                    <p className="font-extrabold text-yellow-800 text-base">Certificate Not Found</p>
-                    <p className="text-yellow-700 text-sm mt-1">
+                    <p className="font-black text-black text-base uppercase">Certificate Not Found</p>
+                    <p className="text-gray-700 text-sm font-medium mt-1">
                       No certificate matching that ID was found in our records. Please double-check the ID and try again.
                     </p>
                   </div>
@@ -190,13 +183,13 @@ export default function CertificateVerify() {
             </div>
           )}
 
-          {/* ─── Trust strip ─── */}
-          <div className="flex items-center justify-center gap-6 text-white/40 text-xs pt-2">
-            <span>🔒 Secure &amp; Tamper-proof</span>
-            <span>·</span>
-            <span>🏛️ Jagat Academy Official Portal</span>
-            <span>·</span>
-            <span>📜 SHA-256 Signed</span>
+          {/* Trust strip */}
+          <div className="flex items-center justify-center gap-3 text-gray-400 text-xs font-bold pt-2">
+            <span>Secure and Tamper-proof</span>
+            <span className="text-gray-300">|</span>
+            <span>Jagat Academy Official Portal</span>
+            <span className="text-gray-300">|</span>
+            <span>SHA-256 Signed</span>
           </div>
         </div>
       </div>
@@ -207,9 +200,9 @@ export default function CertificateVerify() {
 /* ─── Small helper ─── */
 function InfoRow({ label, value, mono }) {
   return (
-    <div className="bg-white/60 rounded-xl px-4 py-3 border border-gray-200">
-      <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-0.5">{label}</p>
-      <p className={`text-gray-800 font-bold text-sm break-all ${mono ? 'font-mono' : ''}`}>{value}</p>
+    <div className="border-2 border-black bg-white px-4 py-3">
+      <p className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-0.5">{label}</p>
+      <p className={`text-black font-black text-sm break-all ${mono ? 'font-mono' : ''}`}>{value}</p>
     </div>
   );
 }

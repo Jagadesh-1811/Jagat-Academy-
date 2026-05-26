@@ -20,12 +20,10 @@ const ChatWindow = ({ courseId, educatorName, onClose }) => {
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
 
-    // Initialize conversation
     useEffect(() => {
         initConversation();
     }, [courseId]);
 
-    // Auto-refresh messages every 3 seconds
     useEffect(() => {
         if (conversation) {
             const interval = setInterval(() => {
@@ -35,7 +33,6 @@ const ChatWindow = ({ courseId, educatorName, onClose }) => {
         }
     }, [conversation]);
 
-    // Scroll to bottom on new messages
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
@@ -119,44 +116,42 @@ const ChatWindow = ({ courseId, educatorName, onClose }) => {
 
     if (loading) {
         return (
-            <div className="fixed bottom-4 right-4 w-96 h-[500px] bg-white rounded-2xl shadow-2xl flex items-center justify-center z-50 border border-gray-200">
+            <div className="fixed bottom-4 right-4 w-96 h-[500px] bg-white border-4 border-black flex items-center justify-center z-50 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
                 <ClipLoader size={40} color="#000" />
             </div>
         );
     }
 
     return (
-        <div className="fixed bottom-4 right-4 w-96 h-[500px] bg-white rounded-2xl shadow-2xl flex flex-col z-50 border border-gray-200 overflow-hidden"
-            style={{ animation: 'adminFadeIn 0.3s ease-out' }}>
-
+        <div className="fixed bottom-4 right-4 w-96 h-[500px] bg-white border-4 border-black flex flex-col z-50 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
             {/* Header */}
-            <div className="bg-black text-white p-4 flex items-center justify-between">
+            <div className="bg-black text-white px-4 py-3 flex items-center justify-between border-b-4 border-black">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 border-2 border-white flex items-center justify-center">
                         <FaComments className="w-5 h-5" />
                     </div>
                     <div>
-                        <h3 className="font-semibold text-sm">Chat with Educator</h3>
-                        <p className="text-xs text-gray-300">{educatorName}</p>
+                        <h3 className="font-black uppercase text-xs tracking-wider">Chat with Educator</h3>
+                        <p className="text-xs font-bold text-gray-300">{educatorName}</p>
                     </div>
                 </div>
                 <button
                     onClick={onClose}
-                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                    className="p-1 border-2 border-white hover:bg-white/20 transition-none"
                 >
-                    <FaTimes className="w-5 h-5" />
+                    <FaTimes className="w-4 h-4" />
                 </button>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 border-b-2 border-black">
                 {messages.length === 0 ? (
                     <div className="text-center py-10">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <FaComments className="w-8 h-8 text-gray-400" />
+                        <div className="w-16 h-16 bg-white border-2 border-black flex items-center justify-center mx-auto mb-3">
+                            <FaComments className="w-8 h-8 text-black" />
                         </div>
-                        <p className="text-gray-500 text-sm">No messages yet</p>
-                        <p className="text-gray-400 text-xs mt-1">Start the conversation!</p>
+                        <p className="text-gray-500 font-bold text-sm">No messages yet</p>
+                        <p className="text-gray-400 font-bold text-xs mt-1">Start the conversation!</p>
                     </div>
                 ) : (
                     messages.map((msg, index) => {
@@ -168,24 +163,24 @@ const ChatWindow = ({ courseId, educatorName, onClose }) => {
                             <React.Fragment key={msg._id}>
                                 {showDate && (
                                     <div className="text-center">
-                                        <span className="text-xs text-gray-400 bg-white px-3 py-1 rounded-full">
+                                        <span className="text-xs font-bold text-gray-400 bg-white border-2 border-black px-3 py-1">
                                             {formatDate(msg.createdAt)}
                                         </span>
                                     </div>
                                 )}
                                 <div className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[75%] ${isMe
-                                        ? 'bg-black text-white rounded-2xl rounded-br-md'
-                                        : 'bg-white text-gray-800 rounded-2xl rounded-bl-md border border-gray-200'
-                                        } px-4 py-2.5 shadow-sm`}>
-                                        <p className="text-sm leading-relaxed">{msg.message}</p>
+                                    <div className={`max-w-[75%] border-2 border-black px-4 py-2.5 ${
+                                        isMe
+                                            ? 'bg-black text-white'
+                                            : 'bg-white text-gray-800'
+                                    }`}>
+                                        <p className="text-sm font-bold leading-relaxed">{msg.message}</p>
                                         <div className="flex items-center justify-between gap-2 mt-1">
-                                            <p className={`text-[10px] ${isMe ? 'text-gray-400' : 'text-gray-400'}`}>
+                                            <p className={`text-[10px] font-bold ${isMe ? 'text-gray-400' : 'text-gray-400'}`}>
                                                 {formatTime(msg.createdAt)}
                                             </p>
-                                            {/* Show read status only for student's messages */}
                                             {msg.senderRole === 'student' && (
-                                                <p className={`text-[10px] ${msg.isRead ? 'text-gray-300' : 'text-gray-400'}`}>
+                                                <p className={`text-[10px] font-bold ${msg.isRead ? 'text-gray-300' : 'text-gray-400'}`}>
                                                     {msg.isRead ? '✓ Read' : 'Unread'}
                                                 </p>
                                             )}
@@ -200,41 +195,30 @@ const ChatWindow = ({ courseId, educatorName, onClose }) => {
             </div>
 
             {/* Input */}
-            <form onSubmit={sendMessage} className="p-3 bg-white border-t border-gray-100">
-                <div className="flex items-center gap-2">
-                    <input
-                        ref={inputRef}
-                        type="text"
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Type your doubt..."
-                        className="flex-1 px-4 py-3 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-black/20 transition-all"
-                        disabled={sending}
-                    />
-                    <button
-                        type="submit"
-                        disabled={!newMessage.trim() || sending}
-                        className="w-11 h-11 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {sending ? (
-                            <ClipLoader size={16} color="white" />
-                        ) : (
-                            <FaPaperPlane className="w-4 h-4" />
-                        )}
-                    </button>
-                </div>
+            <form onSubmit={sendMessage} className="p-3 bg-white flex gap-2">
+                <input
+                    ref={inputRef}
+                    type="text"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Type your doubt..."
+                    className="flex-1 px-4 py-3 border-2 border-black text-sm font-bold focus:outline-none focus:ring-2 focus:ring-black"
+                    disabled={sending}
+                />
+                <button
+                    type="submit"
+                    disabled={!newMessage.trim() || sending}
+                    className="w-11 h-11 bg-black border-2 border-black text-white flex items-center justify-center font-black hover:bg-gray-800 transition-none disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {sending ? (
+                        <ClipLoader size={16} color="white" />
+                    ) : (
+                        <FaPaperPlane className="w-4 h-4" />
+                    )}
+                </button>
             </form>
-
-            {/* Keyframes */}
-            <style>{`
-                @keyframes adminFadeIn {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-            `}</style>
         </div>
     );
 };
 
 export default ChatWindow;
-

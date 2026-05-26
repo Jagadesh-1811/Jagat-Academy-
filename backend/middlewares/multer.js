@@ -1,7 +1,11 @@
 import multer from "multer";
+import fs from "fs";
 
 let storage = multer.diskStorage({
     destination:(req,file,cb)=>{
+        if (!fs.existsSync("./public")) {
+            fs.mkdirSync("./public", { recursive: true });
+        }
         cb(null,"./public")
     },
     filename:(req,file,cb)=>{

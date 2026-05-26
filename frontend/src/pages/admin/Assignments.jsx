@@ -1,82 +1,101 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
-import { serverUrl } from '../../config';
-import { toast } from 'react-toastify';
-import { FaArrowLeft, FaEye, FaEdit } from 'react-icons/fa';
-import { ClipLoader } from 'react-spinners';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import axios from 'axios';
+import { serverUrl } from '../../App';
+import { toast } from 'react-toastify';
+import { ClipLoader } from 'react-spinners';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-function Assignments() {
+const Assignments = () => {
     const { courseId } = useParams();
     const navigate = useNavigate();
-    const { token } = useSelector(state => state.user);
+    const { token } = useSelector((state) => state.user);
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchAssignments = async () => {
-            try {
-                const result = await axios.get(`${serverUrl}/api/assignment/course/${courseId}`, { headers: { Authorization: `Bearer ${token}` } });
-                setAssignments(result.data.assignments);
-            } catch (error) {
-                console.error("Error fetching assignments:", error);
-                toast.error(error.response?.data?.message || "Failed to fetch assignments.");
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchAssignments();
-    }, [courseId, token]);
+    }, [courseId]);
+
+    const fetchAssignments = async () => {
+        try {
+            const response = await axios.get(`${serverUrl}/api/assignment/course/${courseId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setAssignments(response.data || []);
+        } catch (error) {
+            toast.error('Failed to fetch assignments');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center min-h-screen">
-                <ClipLoader size={50} color={'#000'} />
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <ClipLoader size={40} color="#000" />
             </div>
         );
     }
 
     return (
-        <div className="max-w-5xl mx-auto p-6 mt-10 bg-white rounded-lg shadow-md">
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                    <FaArrowLeft className="w-5 h-5 cursor-pointer" onClick={() => navigate(`/addcourses/${courseId}`)} />
-                    <h2 className="text-2xl font-semibold">Assignments for Course</h2>
+        <div className="min-h-screen bg-white">
+            <div className="bg-black border-b-4 border-black px-6 py-4">
+                <div className="max-w-5xl mx-auto flex items-center gap-4">
+                    <button onClick={() => navigate(-1)} className="text-white hover:text-gray-300">
+                        <ArrowBackIcon />
+                    </button>
+                    <h1 className="text-white font-black uppercase tracking-tight text-lg">Assignments</h1>
                 </div>
-                <button
-                    className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-700"
-                    onClick={() => navigate(`/admin/create-assignment/${courseId}`)}
-                >
-                    Create New Assignment
-                </button>
             </div>
 
-            {assignments.length === 0 ? (
-                <p className="text-center text-gray-600">No assignments found for this course.</p>
-            ) : (
-                <div className="space-y-4">
-                    {assignments.map((assignment) => (
-                        <div key={assignment._id} className="bg-gray-50 p-4 rounded-md shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center">
-                            <div>
-                                <h3 className="text-lg font-medium">{assignment.title}</h3>
-                                <p className="text-gray-600 text-sm">{assignment.description}</p>
-                                <p className="text-gray-500 text-xs">Deadline: {new Date(assignment.deadline).toLocaleString()}</p>
-                            </div>
-                            <div className="flex gap-3 mt-3 md:mt-0">
-                                <button
-                                    className="bg-gray-300 text-gray-800 px-3 py-1 rounded-md hover:bg-gray-400 flex items-center gap-1 text-sm"
-                                    onClick={() => navigate(`/admin/edit-assignment/${courseId}/${assignment._id}`)}
-                                >
-                                    <FaEdit /> Edit
-                                </button>
-                            </div>                        </div>
-                    ))}
+            <div className="max-w-5xl mx-auto p-6 space-y-6">
+                <div className="flex justify-between items-center">
+                    <p className="text-sm font-bold text-gray-500 uppercase">
+                        {assignments.length} Assignment{assignments.length !== 1 ? 's' : ''}
+                    </p>
+                    <Link to={`/admin/create-assignment/${courseId}`}
+                        className="border-2 border-black px-4 py-2 text-xs font-black uppercase hover:bg-black hover:text-white transition-none">
+                        + New Assignment
+                    </Link>
                 </div>
-            )}
+
+                {assignments.length === 0 ? (
+                    <div className="border-4 border-black p-12 text-center">
+                        <h3 className="text-lg font-black uppercase">No Assignments Yet</h3>
+                        <p className="text-gray-500 text-xs font-bold mt-2">Create your first assignment to get started.</p>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        {assignments.map((assignment) => (
+                            <div key={assignment._id} className="border-4 border-black p-4 bg-gray-50">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="font-black uppercase text-sm">{assignment.title}</h3>
+                                        {assignment.description && (
+                                            <p className="text-gray-500 text-xs mt-1">{assignment.description}</p>
+                                        )}
+                                        {assignment.deadline && (
+                                            <p className="text-[10px] font-bold text-gray-500 mt-2 uppercase">
+                                                Due: {new Date(assignment.deadline).toLocaleDateString()}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <Link to={`/admin/edit-assignment/${courseId}/${assignment._id}`}
+                                            className="border-2 border-black px-3 py-1 text-[10px] font-black uppercase hover:bg-black hover:text-white transition-none">
+                                            Edit
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
-}
+};
 
 export default Assignments;
-

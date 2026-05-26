@@ -146,63 +146,53 @@ const MonthlyQuiz = () => {
     }
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="bg-gradient-to-r from-purple-600 to-indigo-700 text-white p-6 rounded-lg shadow-xl mb-8 mx-auto max-w-4xl"
-        >
-            <h2 className="text-3xl font-extrabold text-center mb-4">Quiz of the Month!</h2>
-            <p className="text-center text-lg mb-6">Join the Monthly Quiz (10PM–11PM)</p>
+        <div className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 mb-8 mx-auto max-w-4xl bg-white">
+            <div className="border-b-4 border-black pb-4 mb-6">
+                <h2 className="text-3xl font-black text-center uppercase tracking-tight text-black">Quiz of the Month!</h2>
+                <p className="text-center text-base font-bold text-gray-600 mt-1">Join the Monthly Quiz (10PM–11PM)</p>
+            </div>
 
-            <div className="bg-white bg-opacity-10 p-4 rounded-md mb-4">
-                <p className="text-lg font-semibold">Instructions: <span className="font-normal">{quiz?.instructions}</span></p>
-                <p className="text-lg font-semibold">Rewards: <span className="font-normal">{quiz?.rewards}</span></p>
-                <p className="text-lg font-semibold">Scheduled: <span className="font-normal">{quiz?.schedule ? new Date(quiz.schedule).toLocaleString() : 'N/A'}</span></p>
+            <div className="bg-gray-50 border-2 border-black p-4 mb-6 space-y-2">
+                <p className="text-sm font-bold">Instructions: <span className="font-normal text-gray-700">{quiz?.instructions}</span></p>
+                <p className="text-sm font-bold">Rewards: <span className="font-normal text-gray-700">{quiz?.rewards}</span></p>
+                <p className="text-sm font-bold">Scheduled: <span className="font-normal text-gray-700">{quiz?.schedule ? new Date(quiz.schedule).toLocaleString() : 'N/A'}</span></p>
             </div>
 
             <div className="text-center mb-6">
                 {isQuizClosed ? (
-                    <motion.button
-                        className="bg-gray-500 text-white font-bold py-3 px-8 rounded-full text-xl cursor-not-allowed"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                    <button
+                        className="bg-gray-300 text-gray-600 font-black py-3 px-8 text-lg border-2 border-black cursor-not-allowed uppercase tracking-wider"
                         disabled
                     >
                         Quiz Closed
-                    </motion.button>
+                    </button>
                 ) : (
-                    <motion.button
-                        className={`font-bold py-3 px-8 rounded-full text-xl ${isQuizActive ? 'bg-black hover:bg-gray-800' : 'bg-gray-400 cursor-not-allowed'}`}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                    <button
+                        className={`font-black py-3 px-8 text-lg border-2 border-black uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all ${
+                            isQuizActive ? 'bg-black text-white' : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        }`}
                         onClick={() => isQuizActive && window.open(quiz?.quizLink, '_blank')}
                         disabled={!isQuizActive}
                     >
                         {isQuizActive ? "Start Quiz Now!" : `Starts in ${formatTime(timeRemaining)}`}
-                    </motion.button>
+                    </button>
                 )}
             </div>
 
             {isQuizClosed && quiz?.liveSessionLink && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5, duration: 0.5 }}
-                    className="text-center mt-4"
-                >
-                    <p className="text-lg">Join the post-quiz discussion:</p>
+                <div className="text-center mt-6 pt-4 border-t-2 border-black">
+                    <p className="text-sm font-bold text-gray-700 mb-2">Join the post-quiz discussion:</p>
                     <a
                         href={quiz?.liveSessionLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-gray-300 hover:underline text-xl font-semibold"
+                        className="inline-block border-2 border-black bg-black text-white font-black uppercase text-xs px-6 py-3 hover:bg-white hover:text-black transition-none"
                     >
-                        Live Session Link
+                        Live Session Link →
                     </a>
-                </motion.div>
+                </div>
             )}
-        </motion.div>
+        </div>
     );
 };
 

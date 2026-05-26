@@ -1,149 +1,118 @@
-import axios from 'axios'
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
+import { serverUrl } from '../../App';
+import { toast } from 'react-toastify';
+import { ClipLoader } from 'react-spinners';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate, useParams } from 'react-router-dom'
-import { serverUrl } from '../../App'
-import { setLectureData } from '../../redux/lectureSlice'
-import { toast } from 'react-toastify'
-import { ClipLoader } from 'react-spinners'
-function EditLecture() {
-  const [loading, setLoading] = useState(false)
-  const [loading1, setLoading1] = useState(false)
-  const { courseId, lectureId } = useParams()
-  const { lectureData } = useSelector(state => state.lecture)
-  const { token } = useSelector(state => state.user)
-  const dispatch = useDispatch()
-  const selectedLecture = lectureData.find(lecture => lecture._id === lectureId)
-  const [videoUrl, setVideoUrl] = useState(null)
-  const [lectureTitle, setLectureTitle] = useState(selectedLecture.lectureTitle)
-  const [isPreviewFree, setIsPreviewFree] = useState(false)
+import { setLectureData } from '../../redux/lectureSlice';
 
-  const formData = new FormData()
-  formData.append("lectureTitle", lectureTitle)
-  formData.append("videoUrl", videoUrl)
-  formData.append("isPreviewFree", isPreviewFree)
+const EditLecture = () => {
+    const navigate = useNavigate();
+    const { courseId, lectureId } = useParams();
+    const dispatch = useDispatch();
+    const { token } = useSelector((state) => state.user);
+    const { lectureData } = useSelector((state) => state.lecture);
+    const lecture = lectureData?.find((l) => l._id === lectureId);
 
+    const [lectureTitle, setLectureTitle] = useState(lecture?.title || '');
+    const [videoUrl, setVideoUrl] = useState(null);
+    const [isPreviewFree, setIsPreviewFree] = useState(lecture?.isPreviewFree || false);
+    const [loading, setLoading] = useState(false);
 
-  const editLecture = async () => {
-    if (!token) {
-      toast.error("Authentication token not found. Please log in again.");
-      return;
-    }
-    setLoading(true)
-    try {
-      const result = await axios.post(serverUrl + `/api/course/editlecture/${lectureId}`, formData, { headers: { Authorization: `Bearer ${token}` } })
-      console.log(result.data)
-      dispatch(setLectureData([...lectureData, result.data]))
-      toast.success("Lecture Updated")
-      navigate("/courses")
-      setLoading(false)
-    } catch (error) {
-      console.error("Edit lecture error:", error);
-      toast.error(error.response?.data?.message || error.message || "Failed to edit lecture.");
-      setLoading(false)
-    }
-  };
+    const editLecture = async () => {
+        setLoading(true);
+        try {
+            const formData = new FormData();
+            formData.append('title', lectureTitle);
+            formData.append('isPreviewFree', isPreviewFree);
+            if (videoUrl) formData.append('video', videoUrl);
 
-  const removeLecture = async () => {
-    if (!token) {
-      toast.error("Authentication token not found. Please log in again.");
-      return;
-    }
-    setLoading1(true)
-    try {
-      const result = await axios.delete(serverUrl + `/api/course/removelecture/${lectureId}`, { headers: { Authorization: `Bearer ${token}` } })
-      console.log(result.data)
-      toast.success("Lecture Removed")
-      navigate(`/createlecture/${courseId}`)
-      setLoading1(false)
-    } catch (error) {
-      console.log(error)
-      toast.error("Lecture remove error")
-      setLoading1(false)
+            await axios.post(`${serverUrl}/api/course/editlecture/${lectureId}`, formData, {
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
+            });
+            toast.success('Lecture updated');
+        } catch (error) {
+            toast.error('Failed to update lecture');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const removeLecture = async () => {
+        if (!window.confirm('Delete this lecture?')) return;
+        setLoading(true);
+        try {
+            await axios.delete(`${serverUrl}/api/course/removelecture/${lectureId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            toast.success('Lecture deleted');
+            dispatch(setLectureData(lectureData.filter((l) => l._id !== lectureId)));
+            navigate(`/createlecture/${courseId}`);
+        } catch (error) {
+            toast.error('Failed to delete lecture');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (!lecture) {
+        return (
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <p className="font-black uppercase text-sm text-gray-500">Lecture not found</p>
+            </div>
+        );
     }
 
-  }
+    return (
+        <div className="min-h-screen bg-white">
+            <div className="bg-black border-b-4 border-black px-6 py-4">
+                <div className="max-w-2xl mx-auto flex items-center gap-4">
+                    <button onClick={() => navigate(`/createlecture/${courseId}`)} className="text-white hover:text-gray-300"><ArrowBackIcon /></button>
+                    <h1 className="text-white font-black uppercase tracking-tight text-lg">Edit Lecture</h1>
+                </div>
+            </div>
 
+            <div className="max-w-2xl mx-auto p-6 space-y-6">
+                <div className="border-4 border-black p-6 bg-gray-50 space-y-4">
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-black uppercase tracking-wider text-gray-600">Lecture Title</label>
+                        <input value={lectureTitle} onChange={(e) => setLectureTitle(e.target.value)}
+                            className="w-full border-2 border-black p-3 text-sm font-bold bg-white focus:outline-none" />
+                    </div>
 
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-black uppercase tracking-wider text-gray-600">Video File</label>
+                        <input type="file" accept="video/*" onChange={(e) => setVideoUrl(e.target.files[0])}
+                            className="w-full border-2 border-black p-2 text-sm bg-white focus:outline-none" />
+                    </div>
 
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" checked={isPreviewFree} onChange={(e) => setIsPreviewFree(e.target.checked)}
+                            className="w-4 h-4 border-2 border-black" />
+                        <span className="text-xs font-bold uppercase">Free Preview</span>
+                    </label>
 
+                    <div className="flex gap-3 pt-2">
+                        <button onClick={editLecture} disabled={loading}
+                            className="bg-black text-white px-6 py-3 text-xs font-black uppercase border-2 border-black hover:bg-gray-800 transition-none disabled:opacity-50">
+                            {loading ? <ClipLoader size={16} color="white" /> : 'Save Changes'}
+                        </button>
+                        <button onClick={removeLecture} disabled={loading}
+                            className="border-2 border-red-600 text-red-600 px-6 py-3 text-xs font-black uppercase hover:bg-red-600 hover:text-white transition-none disabled:opacity-50">
+                            Delete
+                        </button>
+                    </div>
+                </div>
 
-
-
-
-
-
-  const navigate = useNavigate()
-  return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-xl bg-white rounded-xl shadow-lg p-6 space-y-6">
-
-        {/* Header Inside Box */}
-        <div className="flex items-center gap-2 mb-2">
-          <ArrowBackIcon className="text-gray-600 cursor-pointer" onClick={() => navigate(`/createlecture/${courseId}`)} />
-          <h2 className="text-xl font-semibold text-gray-800">Update Your Lecture</h2>
+                <Link to={`/admin/create-assignment/${courseId}`}
+                    className="block border-2 border-black px-6 py-3 text-xs font-black uppercase text-center hover:bg-black hover:text-white transition-none">
+                    + Create Assignment
+                </Link>
+            </div>
         </div>
+    );
+};
 
-        {/* Instruction */}
-        <div className='flex gap-2'>
-
-          <button className="mt-2 px-4 py-2 bg-black text-white rounded-md text-sm" disabled={loading1} onClick={removeLecture}>
-            {loading1 ? <ClipLoader size={30} color='white' /> : "Remove Lecture"}
-          </button>
-          <button className="mt-2 px-4 py-2 bg-black text-white rounded-md text-sm" onClick={() => navigate(`/admin/create-assignment/${courseId}`)}>
-            Create Assignment
-          </button>
-        </div>
-
-        {/* Input Fields */}
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-            <input
-              type="text"
-              className="w-full p-3 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[black]focus:outline-none"
-              placeholder={selectedLecture.lectureTitle}
-              onChange={(e) => setLectureTitle(e.target.value)}
-              value={lectureTitle}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Video *</label>
-            <input
-              type="file"
-              required
-              accept='video/*'
-              className="w-full border border-gray-300 rounded-md p-2 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:bg-gray-700 file:text-[white] hover:file:bg-gray-500"
-              onChange={(e) => setVideoUrl(e.target.files[0])}
-            />
-          </div>
-
-          {/* Toggle */}
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-
-              className="accent-[black] h-4 w-4"
-
-              onChange={() => setIsPreviewFree(prev => !prev)}
-            />
-            <label htmlFor="isFree" className="text-sm text-gray-700">Is this video FREE</label>
-          </div>
-        </div>
-        <div>
-          {loading ? <p>Uploading video... Please wait.</p> : ""}
-        </div>
-        {/* Submit Button */}
-        <div className="pt-4">
-          <button className="w-full bg-black text-white py-3 rounded-md text-sm font-medium transition" disabled={loading} onClick={editLecture}>
-            {loading ? <ClipLoader size={30} color='white' /> : "Update Lecture"}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-export default EditLecture
+export default EditLecture;

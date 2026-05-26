@@ -12,41 +12,41 @@ import { useNavigate } from 'react-router-dom';
 function ExploreCourses() {
   const navigate = useNavigate()
   return (
-    <div className='w-full max-w-7xl mx-auto min-h-[50vh] lg:h-[50vh] flex flex-col lg:flex-row items-center justify-center gap-4 px-[30px] overflow-hidden'>
-      <div className='w-[100%] lg:w-[350px] lg:h-[100%] h-[400px]  flex flex-col items-start justify-center gap-1 md:px-[40px]  px-[20px]'>
-        <span className='text-[35px] font-semibold'>Explore</span>
-        <span className='text-[35px] font-semibold'>Our Courses</span>
-        <p className='text-[17px]'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem vel iure explicabo laboriosam accusantium expedita laudantium facere magnam.</p>
-        <button className='px-[20px] py-[10px] border-2 bg-[black] border-white text-white rounded-[10px] text-[18px] font-light flex gap-2 mt-[40px]' onClick={() => navigate("/allcourses")}>Explore Courses <ArrowForwardOutlinedIcon sx={{ color: 'white', fontSize: 28 }} /></button>
+    <div className='w-full max-w-7xl mx-auto min-h-[50vh] lg:h-[50vh] flex flex-col lg:flex-row items-center justify-center gap-4 px-[30px] overflow-hidden py-12'>
+      <div className='w-full lg:w-[350px] flex flex-col items-start justify-center gap-3 md:px-[40px] px-[20px]'>
+        <span className='text-4xl font-black uppercase tracking-tight'>Explore</span>
+        <span className='text-4xl font-black uppercase tracking-tight'>Our Courses</span>
+        <p className='text-base font-medium text-gray-600 mt-2'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem vel iure explicabo laboriosam accusantium expedita laudantium facere magnam.</p>
+        <button className='px-6 py-3 border-2 border-black bg-black text-white font-black text-sm uppercase tracking-wider flex gap-2 mt-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all' onClick={() => navigate("/allcourses")}>Explore Courses <ArrowForwardOutlinedIcon sx={{ color: 'white', fontSize: 24 }} /></button>
 
       </div>
       <div className='w-[720px] max-w-[90%] lg:h-[300px] md:min-h-[300px] flex items-center justify-center lg:gap-[60px] gap-[50px] flex-wrap mb-[50px] lg:mb-[0px]'>
-        <div className='w-[100px] h-[130px] font-light text-[13px] flex flex-col gap-3 text-center '>
-          <div className='w-[100px] h-[90px] bg-[#f0f0f0] rounded-lg flex items-center justify-center border border-gray-200'><ComputerOutlinedIcon sx={{ fontSize: 50, color: '#111111' }} /></div>
-          Web Devlopment
+        <div className='w-[110px] h-[140px] font-black text-xs uppercase tracking-wider flex flex-col gap-3 text-center'>
+          <div className='w-[110px] h-[95px] bg-white border-2 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all'><ComputerOutlinedIcon sx={{ fontSize: 45, color: '#000000' }} /></div>
+          Web Development
         </div>
-        <div className='w-[100px] h-[130px] font-light text-[13px] flex flex-col gap-3 text-center '>
-          <div className='w-[100px] h-[90px] bg-[#e8e8e8] rounded-lg flex items-center justify-center border border-gray-200'><DesignServicesOutlinedIcon sx={{ fontSize: 50, color: '#111111' }} /></div>
+        <div className='w-[110px] h-[140px] font-black text-xs uppercase tracking-wider flex flex-col gap-3 text-center'>
+          <div className='w-[110px] h-[95px] bg-gray-100 border-2 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all'><DesignServicesOutlinedIcon sx={{ fontSize: 45, color: '#000000' }} /></div>
           UI UX Designing
         </div>
-        <div className='w-[100px] h-[130px] font-light text-[13px] flex flex-col gap-3 text-center'>
-          <div className='w-[100px] h-[90px] bg-[#f0f0f0] rounded-lg flex items-center justify-center border border-gray-200'><PhoneIphoneOutlinedIcon sx={{ fontSize: 45, color: '#111111' }} /></div>
-          App Devlopment
+        <div className='w-[110px] h-[140px] font-black text-xs uppercase tracking-wider flex flex-col gap-3 text-center'>
+          <div className='w-[110px] h-[95px] bg-white border-2 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all'><PhoneIphoneOutlinedIcon sx={{ fontSize: 40, color: '#000000' }} /></div>
+          App Development
         </div>
-        <div className='w-[100px] h-[130px] font-light text-[13px] flex flex-col gap-3 text-center'>
-          <div className='w-[100px] h-[90px] bg-[#e8e8e8] rounded-lg flex items-center justify-center border border-gray-200'><SecurityOutlinedIcon sx={{ fontSize: 45, color: '#111111' }} /></div>
+        <div className='w-[110px] h-[140px] font-black text-xs uppercase tracking-wider flex flex-col gap-3 text-center'>
+          <div className='w-[110px] h-[95px] bg-gray-100 border-2 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all'><SecurityOutlinedIcon sx={{ fontSize: 40, color: '#000000' }} /></div>
           Ethical Hacking
         </div>
-        <div className='w-[100px] h-[130px] font-light text-[13px] flex flex-col gap-3 text-center'>
-          <div className='w-[100px] h-[90px] bg-[#f0f0f0] rounded-lg flex items-center justify-center border border-gray-200'><PsychologyOutlinedIcon sx={{ fontSize: 50, color: '#111111' }} /></div>
+        <div className='w-[110px] h-[140px] font-black text-xs uppercase tracking-wider flex flex-col gap-3 text-center'>
+          <div className='w-[110px] h-[95px] bg-white border-2 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all'><PsychologyOutlinedIcon sx={{ fontSize: 45, color: '#000000' }} /></div>
           AI/ML
         </div>
-        <div className='w-[100px] h-[130px] font-light text-[13px] flex flex-col gap-3 text-center '>
-          <div className='w-[100px] h-[90px] bg-[#e8e8e8] rounded-lg flex items-center justify-center border border-gray-200'><AssessmentOutlinedIcon sx={{ fontSize: 45, color: '#111111' }} /></div>
+        <div className='w-[110px] h-[140px] font-black text-xs uppercase tracking-wider flex flex-col gap-3 text-center'>
+          <div className='w-[110px] h-[95px] bg-gray-100 border-2 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all'><AssessmentOutlinedIcon sx={{ fontSize: 40, color: '#000000' }} /></div>
           Data Analytics
         </div>
-        <div className='w-[100px] h-[130px] font-light text-[13px] flex flex-col gap-3 text-center'>
-          <div className='w-[100px] h-[90px] bg-[#f0f0f0] rounded-lg flex items-center justify-center border border-gray-200'><AutoAwesomeOutlinedIcon sx={{ fontSize: 45, color: '#111111' }} /></div>
+        <div className='w-[110px] h-[140px] font-black text-xs uppercase tracking-wider flex flex-col gap-3 text-center'>
+          <div className='w-[110px] h-[95px] bg-white border-2 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all'><AutoAwesomeOutlinedIcon sx={{ fontSize: 40, color: '#000000' }} /></div>
           AI Tools
         </div>
       </div>

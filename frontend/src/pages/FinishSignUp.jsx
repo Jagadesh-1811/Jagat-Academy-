@@ -1,208 +1,101 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ClipLoader } from 'react-spinners';
-import { toast } from 'react-toastify';
-import { useDispatch } from 'react-redux';
+import React, { useState } from 'react';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { serverUrl } from '../App';
-import { setUserData, setToken } from '../redux/userSlice';
-import { auth, isSignInWithEmailLink, signInWithEmailLink } from '../../utils/Firebase';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import WarningIcon from '@mui/icons-material/Warning';
-import logo from '../assets/logo.jpg';
+import { toast } from 'react-toastify';
+import { FaArrowLeft } from 'react-icons/fa';
 
-function FinishSignUp() {
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(false);
-    const [manualEmail, setManualEmail] = useState('');
-    const [needsEmail, setNeedsEmail] = useState(false);
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
+const FinishSignUp = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const email = searchParams.get('email') || '';
+  const [role, setRole] = useState('');
+  const [loading, setLoading] = useState(false);
 
-    const completeSignIn = async (email) => {
-        try {
-            // Get the role from localStorage (set during email link request)
-            const role = window.localStorage.getItem('roleForSignIn') || 'student';
-
-            // Complete sign-in with Firebase
-            const result = await signInWithEmailLink(auth, email, window.location.href);
-
-            // Clear localStorage
-            window.localStorage.removeItem('emailForSignIn');
-            window.localStorage.removeItem('roleForSignIn');
-
-            // Register/login user in our backend
-            const response = await axios.post(serverUrl + "/api/auth/email-link-signup", {
-                name: email.split('@')[0], // Use email prefix as initial name
-                email: email,
-                role: role
-            });
-
-            // Store user data and token
-            dispatch(setUserData(response.data.user));
-            dispatch(setToken(response.data.token));
-
-            setSuccess(true);
-            toast.success("Welcome! You're now signed in.");
-
-            // Redirect to home after a short delay
-            setTimeout(() => {
-                navigate('/');
-            }, 2000);
-
-        } catch (error) {
-            console.error("Sign-in completion error:", error);
-
-            let errorMessage = "Failed to complete sign-in. Please try again.";
-
-            if (error.code === 'auth/invalid-action-code') {
-                errorMessage = "This link has expired or already been used. Please request a new link.";
-            } else if (error.code === 'auth/expired-action-code') {
-                errorMessage = "This link has expired. Please request a new link.";
-            } else if (error.code === 'auth/invalid-email') {
-                errorMessage = "Invalid email address. Please check and try again.";
-            } else if (error.response?.data?.message) {
-                errorMessage = error.response.data.message;
-            }
-
-            setError(errorMessage);
-        }
-        setLoading(false);
-    };
-
-    useEffect(() => {
-        const handleEmailLink = async () => {
-            // Check if this is a valid sign-in link
-            if (!isSignInWithEmailLink(auth, window.location.href)) {
-                setError("Invalid sign-in link. Please request a new verification email.");
-                setLoading(false);
-                return;
-            }
-
-            // Try to get email from localStorage (same device)
-            let email = window.localStorage.getItem('emailForSignIn');
-
-            if (!email) {
-                // User opened link on different device - need to ask for email
-                setNeedsEmail(true);
-                setLoading(false);
-                return;
-            }
-
-            // Complete the sign-in
-            await completeSignIn(email);
-        };
-
-        handleEmailLink();
-    }, []);
-
-    const handleManualEmailSubmit = async () => {
-        if (!manualEmail) {
-            toast.error("Please enter your email address");
-            return;
-        }
-        setLoading(true);
-        setNeedsEmail(false);
-        await completeSignIn(manualEmail);
-    };
-
-    // Loading state
-    if (loading) {
-        return (
-            <div className='bg-[#dddbdb] w-[100vw] h-[100vh] flex items-center justify-center flex-col gap-4'>
-                <div className='bg-white shadow-xl rounded-2xl p-12 text-center'>
-                    <ClipLoader size={50} color='#000' />
-                    <p className='mt-6 text-gray-600 text-lg'>Verifying your email...</p>
-                    <p className='text-gray-400 text-sm mt-2'>Please wait a moment</p>
-                </div>
-            </div>
-        );
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!role) {
+      toast.error('Please select a role');
+      return;
     }
-
-    // Need email input (different device)
-    if (needsEmail) {
-        return (
-            <div className='bg-[#dddbdb] w-[100vw] h-[100vh] flex items-center justify-center flex-col gap-3'>
-                <div className='w-[90%] md:w-[450px] bg-white shadow-xl rounded-2xl p-8'>
-                    <div className='text-center mb-6'>
-                        <img src={logo} className='w-20 mx-auto mb-4' alt="Logo" />
-                        <h1 className='text-2xl font-bold text-black'>Confirm Your Email</h1>
-                        <p className='text-gray-500 mt-2'>
-                            You opened this link on a different device. Please enter your email to continue.
-                        </p>
-                    </div>
-
-                    <div className='space-y-4'>
-                        <div>
-                            <label className='block font-semibold mb-2'>Email Address</label>
-                            <input
-                                type="email"
-                                value={manualEmail}
-                                onChange={(e) => setManualEmail(e.target.value)}
-                                className='w-full h-[45px] border border-gray-300 rounded-lg px-4 focus:outline-none focus:ring-2 focus:ring-black'
-                                placeholder='Enter the email you used to sign up'
-                            />
-                        </div>
-
-                        <button
-                            onClick={handleManualEmailSubmit}
-                            className='w-full h-[50px] bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-semibold'
-                        >
-                            Continue
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
+    setLoading(true);
+    try {
+      await axios.post(`${serverUrl}/api/auth/finish-signup`, { email, role });
+      toast.success('Profile updated! You can now log in.');
+      navigate('/login');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Update failed');
+    } finally {
+      setLoading(false);
     }
+  };
 
-    // Error state
-    if (error) {
-        return (
-            <div className='bg-[#dddbdb] w-[100vw] h-[100vh] flex items-center justify-center flex-col gap-3'>
-                <div className='w-[90%] md:w-[450px] bg-white shadow-xl rounded-2xl p-8 text-center'>
-                    <WarningIcon className='text-6xl text-gray-500 mx-auto mb-6' />
-                    <h1 className='text-2xl font-bold text-black mb-4'>Verification Failed</h1>
-                    <p className='text-gray-600 mb-6'>{error}</p>
-                    <div className='space-y-3'>
-                        <button
-                            onClick={() => navigate('/email-signin')}
-                            className='w-full py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors'
-                        >
-                            Request New Link
-                        </button>
-                        <button
-                            onClick={() => navigate('/login')}
-                            className='w-full py-3 bg-gray-100 text-black rounded-lg hover:bg-gray-200 transition-colors'
-                        >
-                            Back to Login
-                        </button>
-                    </div>
-                </div>
+  return (
+    <div className="min-h-screen bg-white flex items-center justify-center px-4 relative">
+      {/* Back button */}
+      <FaArrowLeft
+        className='absolute top-6 left-6 w-5 h-5 cursor-pointer text-black hover:text-gray-600 z-10'
+        onClick={() => navigate('/')}
+      />
+      <div className="w-full max-w-lg">
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-flex items-center gap-3">
+            <div className="w-12 h-12 bg-black flex items-center justify-center text-white font-black text-lg">JA</div>
+            <div className="text-left">
+              <p className="text-black font-black text-xl leading-none">JAGAT ACADEMY</p>
+              <p className="text-gray-500 text-xs font-bold tracking-widest uppercase mt-1">Complete Registration</p>
             </div>
-        );
-    }
+          </Link>
+        </div>
 
-    // Success state
-    if (success) {
-        return (
-            <div className='bg-[#dddbdb] w-[100vw] h-[100vh] flex items-center justify-center flex-col gap-3'>
-                <div className='w-[90%] md:w-[450px] bg-white shadow-xl rounded-2xl p-8 text-center'>
-                    <CheckCircleIcon className='text-6xl text-gray-700 mx-auto mb-6' />
-                    <h1 className='text-2xl font-bold text-black mb-4'>Welcome to Jagat Academy!</h1>
-                    <p className='text-gray-600 mb-4'>Your email has been verified successfully.</p>
-                    <p className='text-gray-400'>Redirecting you to the homepage...</p>
-                    <div className='mt-6'>
-                        <ClipLoader size={30} color='#000' />
-                    </div>
-                </div>
+        <div className="bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-8">
+          <div className="border-b-4 border-black pb-4 mb-6">
+            <h1 className="text-2xl font-black uppercase tracking-tight text-black">Finish Sign Up</h1>
+            <p className="text-gray-500 text-xs font-bold mt-1">Tell us about yourself</p>
+          </div>
+
+          {email && (
+            <div className="bg-gray-50 border-2 border-black p-4 mb-6">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Account Email</p>
+              <p className="text-black font-bold text-sm mt-1">{email}</p>
             </div>
-        );
-    }
+          )}
 
-    return null;
-}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-black mb-3">I am a...</label>
+              <div className="grid grid-cols-2 gap-4">
+                {['student', 'teacher', 'parent'].map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setRole(option)}
+                    className={`p-6 border-4 text-center font-black uppercase text-sm tracking-wider transition-all ${
+                      role === option
+                        ? 'bg-black text-white border-black'
+                        : 'bg-white text-black border-black hover:bg-gray-100'
+                    }`}
+                  >
+                    {option === 'student' ? 'Student 👨‍🎓' : option === 'teacher' ? 'Teacher 👨‍🏫' : 'Parent 👨‍👩‍👧‍👦'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || !role}
+              className="w-full bg-black border-2 border-black text-white font-black py-4 uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all disabled:opacity-50"
+            >
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto" />
+              ) : 'Complete Registration →'}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default FinishSignUp;
-

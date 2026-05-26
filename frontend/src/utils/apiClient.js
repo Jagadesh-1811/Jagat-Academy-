@@ -3,7 +3,7 @@ import { auth } from '../../utils/Firebase';
 import { store } from '../redux/store';
 import { setToken } from '../redux/userSlice';
 
-const serverUrl = 'http://localhost:8000';
+const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, "");
 
 // Flag to prevent multiple token refresh attempts
 let isRefreshing = false;

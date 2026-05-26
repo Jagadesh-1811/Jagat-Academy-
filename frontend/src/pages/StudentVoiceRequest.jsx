@@ -7,12 +7,10 @@ import { toast } from 'react-toastify';
 import {
     FaMicrophone,
     FaCheckCircle,
-    FaCalendarAlt,
     FaHourglassHalf,
     FaCircle,
     FaUsers,
     FaBook,
-    FaLock,
     FaPhone
 } from 'react-icons/fa';
 import Nav from '../components/Nav';
@@ -25,8 +23,6 @@ const StudentVoiceRequest = () => {
 
     const [educators, setEducators] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [isWeekend, setIsWeekend] = useState(false);
-    const [weekendMessage, setWeekendMessage] = useState('');
     const [busyEducators, setBusyEducators] = useState([]);
     const [liveRooms, setLiveRooms] = useState([]);
     const [myRequests, setMyRequests] = useState([]);
@@ -36,12 +32,10 @@ const StudentVoiceRequest = () => {
     const [previousLiveRoomCount, setPreviousLiveRoomCount] = useState(0);
 
     useEffect(() => {
-        checkWeekendStatus();
         fetchEducators();
         fetchMyRequests();
         fetchLiveRooms();
 
-        // Poll for updates every 5 seconds
         const interval = setInterval(() => {
             fetchMyRequests();
             fetchLiveRooms();
@@ -79,15 +73,6 @@ const StudentVoiceRequest = () => {
         }
     }, [myRequests, liveRooms, navigate]);
 
-    const checkWeekendStatus = async () => {
-        try {
-            const response = await axios.get(`${serverUrl}/api/voice-room/weekend-status`);
-            setIsWeekend(response.data.isWeekend);
-            setWeekendMessage(response.data.message);
-        } catch (err) {
-            console.error("Weekend check error:", err);
-        }
-    };
 
     const fetchEducators = async () => {
         try {
@@ -287,17 +272,17 @@ const StudentVoiceRequest = () => {
                     <p style={styles.subtitle}>Connect with your course educators via voice call</p>
                 </div>
 
-                {/* Weekend Status Banner */}
+                {/* Availability Status Banner - always green */}
                 <div style={{
                     ...styles.weekendBanner,
-                    backgroundColor: isWeekend ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                    borderColor: isWeekend ? '#22c55e' : '#ef4444',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    borderColor: '#22c55e',
                 }}>
                     <span style={{ fontSize: '24px', display: 'flex', alignItems: 'center' }}>
-                        {isWeekend ? <FaCheckCircle /> : <FaCalendarAlt />}
+                        <FaCheckCircle />
                     </span>
-                    <span style={{ color: isWeekend ? '#22c55e' : '#ef4444' }}>
-                        {weekendMessage}
+                    <span style={{ color: '#22c55e' }}>
+                        Voice rooms are available today! Request a call with your educator.
                     </span>
                 </div>
 
@@ -416,11 +401,11 @@ const StudentVoiceRequest = () => {
                                     <button
                                         style={{
                                             ...styles.requestButton,
-                                            backgroundColor: '#000000', // Enforce black button
-                                            opacity: (!isWeekend || isEducatorBusy(educator._id) || hasPendingRequest(educator._id)) ? 0.5 : 1,
-                                            cursor: (!isWeekend || isEducatorBusy(educator._id) || hasPendingRequest(educator._id)) ? 'not-allowed' : 'pointer',
+                                            backgroundColor: '#000000',
+                                            opacity: (isEducatorBusy(educator._id) || hasPendingRequest(educator._id)) ? 0.5 : 1,
+                                            cursor: (isEducatorBusy(educator._id) || hasPendingRequest(educator._id)) ? 'not-allowed' : 'pointer',
                                         }}
-                                        disabled={!isWeekend || isEducatorBusy(educator._id) || hasPendingRequest(educator._id) || requestingId === educator._id}
+                                        disabled={isEducatorBusy(educator._id) || hasPendingRequest(educator._id) || requestingId === educator._id}
                                         onClick={() => handleRequestCall(educator._id)}
                                     >
                                         {requestingId === educator._id ? (
@@ -432,10 +417,6 @@ const StudentVoiceRequest = () => {
                                         ) : isEducatorBusy(educator._id) ? (
                                             <>
                                                 <FaCircle style={{ color: '#ef4444', marginRight: '5px', fontSize: '10px' }} /> In Call
-                                            </>
-                                        ) : !isWeekend ? (
-                                            <>
-                                                <FaLock style={{ marginRight: '5px' }} /> Weekend Only
                                             </>
                                         ) : (
                                             <>

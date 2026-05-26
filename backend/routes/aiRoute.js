@@ -1,5 +1,5 @@
 import express from "express";
-import { searchWithAi } from "../controllers/aiController.js";
+import { searchWithAi, askDoubt } from "../controllers/aiController.js";
 import {
   generateAICourse,
   getAICourseById,
@@ -14,6 +14,9 @@ let aiRouter = express.Router()
 
 // Existing AI search route
 aiRouter.post("/search",searchWithAi)
+
+// AI Doubt Assistant
+aiRouter.post("/doubt", isAuth, askDoubt)
 
 // Multi-Agent AI Course Generation routes
 // Place specific routes before parameterized routes

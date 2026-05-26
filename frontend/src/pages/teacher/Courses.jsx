@@ -32,92 +32,92 @@ function Courses() {
   }, [token])
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <div className="w-[100%] min-h-screen p-4 sm:p-6   bg-gray-100">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3 ">
+    <div className="flex min-h-screen bg-white">
+      <div className="w-[100%] min-h-screen p-4 sm:p-6 bg-white">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
           <div className='flex items-center justify-center gap-3'>
-            <ArrowBackLongIcon className=' w-[22px] h-[22px] cursor-pointer' onClick={() => navigate("/teacher/dashboard")} />
-            <h1 className="text-xl font-semibold">Courses</h1>
+            <ArrowBackLongIcon className='w-[22px] h-[22px] cursor-pointer border-2 border-black p-1 box-content hover:bg-black hover:text-white transition-none' onClick={() => navigate("/teacher/dashboard")} />
+            <h1 className="text-xl font-black uppercase tracking-tight">Courses</h1>
           </div>
 
-          <button className="bg-[black] text-white px-4 py-2 rounded" onClick={() => navigate("/createcourses")}>
-            Create Course
+          <button className="bg-black text-white font-black text-sm uppercase tracking-wider px-6 py-3 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all" onClick={() => navigate("/createcourses")}>
+            Create Course →
           </button>
         </div>
 
         {/* For larger screens (table layout) */}
-        <div className="hidden md:block bg-white rounded-xl shadow p-4 overflow-x-auto">
+        <div className="hidden md:block border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
           <table className="min-w-full text-sm">
-            <thead className="border-b bg-gray-50">
+            <thead className="bg-black text-white">
               <tr>
-                <th className="text-left py-3 px-4">Course</th>
-                <th className="text-left py-3 px-4">Price</th>
-                <th className="text-left py-3 px-4">Status</th>
-                <th className="text-left py-3 px-4">Action</th>
+                <th className="text-left py-3 px-4 font-black uppercase text-xs tracking-wider">Course</th>
+                <th className="text-left py-3 px-4 font-black uppercase text-xs tracking-wider">Price</th>
+                <th className="text-left py-3 px-4 font-black uppercase text-xs tracking-wider">Status</th>
+                <th className="text-left py-3 px-4 font-black uppercase text-xs tracking-wider">Action</th>
               </tr>
             </thead>
             <tbody>
               {creatorCourseData?.map((course, index) => (
-                <tr key={index} className="border-b hover:bg-gray-50 transition duration-200">
+                <tr key={index} className="border-b-2 border-black hover:bg-gray-100 transition-none">
                   <td className="py-3 px-4 flex items-center gap-4">
                     {course?.thumbnail ? <img
                       src={course?.thumbnail}
                       alt=""
-                      className="w-25 h-14 object-cover rounded-md"
-                    /> : <img src={img1} alt='' className="w-14 h-14 object-cover rounded-md object-fit" />}
-                    <span>{course?.title}</span>
+                      className="w-24 h-14 object-cover border-2 border-black"
+                    /> : <img src={img1} alt='' className="w-14 h-14 object-cover border-2 border-black" />}
+                    <span className="font-bold text-sm">{course?.title}</span>
                   </td>
-                  {course?.price ? <td className="py-3 px-4">₹{course?.price}</td> : <td className="py-3 px-4">₹ NA</td>}
+                  {course?.price ? <td className="py-3 px-4 font-bold">₹{course?.price}</td> : <td className="py-3 px-4 font-bold">₹ NA</td>}
                   <td className="py-3 px-4">
-                    <span className={`px-3 py-1 rounded-full text-xs ${course?.isPublished ? "text-white bg-black" : "text-black bg-gray-200"}`}>
+                    <span className={`inline-block px-3 py-1 text-xs font-black uppercase tracking-wider border-2 border-black ${course?.isPublished ? "bg-black text-white" : "bg-white text-black"}`}>
                       {course?.isPublished ? "Published" : "Draft"}
                     </span>
                   </td>
                   <td className="py-3 px-4">
-                    <div className="flex items-center gap-2">
-                      <EditIcon className="text-gray-600 hover:text-black cursor-pointer" onClick={() => navigate(`/addcourses/${course?._id}`)} />
-                      <button onClick={() => navigate(`/admin/create-doubt-session/${course?._id}`)} className="bg-black text-white px-2 py-1 rounded text-xs">Create Doubt Session</button>
-                      <button onClick={() => navigate(`/teacher/attendance/${course?._id}`)} className="bg-black text-white px-2 py-1 rounded text-xs">Attendance</button>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <EditIcon className="text-black cursor-pointer border-2 border-black p-1 box-content hover:bg-black hover:text-white transition-none" onClick={() => navigate(`/addcourses/${course?._id}`)} />
+                      <button onClick={() => navigate(`/admin/create-doubt-session/${course?._id}`)} className="bg-black text-white font-black uppercase text-[10px] tracking-wider px-3 py-2 border-2 border-black">Doubt Session</button>
+                      <button onClick={() => navigate(`/teacher/attendance/${course?._id}`)} className="bg-black text-white font-black uppercase text-[10px] tracking-wider px-3 py-2 border-2 border-black">Attendance</button>
                     </div>
                   </td>
                 </tr>
-              ))
-              }
+              ))}
             </tbody>
           </table>
-          <p className="text-center text-sm text-gray-400 mt-6">
+          <p className="text-center text-sm text-gray-500 mt-4 mb-4 font-bold uppercase tracking-wider">
             A list of your recent courses.
           </p>
         </div>
 
+        {/* Mobile view */}
         <div className="md:hidden space-y-4">
           {creatorCourseData?.map((course, index) => (
-            <div key={index} className="bg-white rounded-lg shadow p-4 flex flex-col gap-3 ">
+            <div key={index} className="border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-4 flex flex-col gap-3">
               <div className="flex gap-4 items-center">
                 {course?.thumbnail ? <img
                   src={course?.thumbnail}
                   alt=""
-                  className="w-16 h-16 rounded-md object-cover"
+                  className="w-16 h-16 object-cover border-2 border-black"
                 /> : <img
                   src={img1}
                   alt=""
-                  className="w-16 h-16 rounded-md object-cover"
+                  className="w-16 h-16 object-cover border-2 border-black"
                 />}
                 <div className="flex-1">
-                  <h2 className="font-medium text-sm">{course?.title}</h2>
-                  {course?.price ? <p className="text-gray-600 text-xs mt-1">₹{course?.price}</p> : <p className="text-gray-600 text-xs mt-1">₹ NA</p>}
+                  <h2 className="font-black text-sm uppercase">{course?.title}</h2>
+                  {course?.price ? <p className="text-gray-600 font-bold text-xs mt-1">₹{course?.price}</p> : <p className="text-gray-600 font-bold text-xs mt-1">₹ NA</p>}
                 </div>
-                <EditIcon className="text-gray-600 hover:text-black cursor-pointer" onClick={() => navigate(`/addcourses/${course?._id}`)} />
+                <EditIcon className="text-black cursor-pointer border-2 border-black p-1 box-content hover:bg-black hover:text-white transition-none" onClick={() => navigate(`/addcourses/${course?._id}`)} />
               </div>
-              <div className="flex items-center justify-between mt-2">
-                <span className={`w-fit px-3 py-1 text-xs rounded-full  ${course?.isPublished ? "text-white bg-black" : "text-black bg-gray-200"}`}>
+              <div className="flex items-center justify-between mt-2 gap-2 flex-wrap">
+                <span className={`px-3 py-1 text-xs font-black uppercase tracking-wider border-2 border-black ${course?.isPublished ? "bg-black text-white" : "bg-white text-black"}`}>
                   {course?.isPublished ? "Published" : "Draft"}
                 </span>
-                <button onClick={() => navigate(`/teacher/attendance/${course?._id}`)} className="bg-black text-white px-2 py-1 rounded text-xs">Manage Attendance</button>
+                <button onClick={() => navigate(`/teacher/attendance/${course?._id}`)} className="bg-black text-white font-black uppercase text-[10px] tracking-wider px-3 py-2 border-2 border-black">Manage Attendance</button>
               </div>
             </div>
           ))}
-          <p className="text-center text-sm text-gray-400 mt-4 pl-[80px]">
+          <p className="text-center text-sm text-gray-500 font-bold uppercase tracking-wider mt-6">
             A list of your recent courses.
           </p>
         </div>
@@ -126,5 +126,4 @@ function Courses() {
   );
 }
 
-export default Courses
-
+export default Courses;

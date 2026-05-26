@@ -8,7 +8,7 @@ import { generateCourseModules } from '../services/multiAgentCourseService.js';
  */
 export const generateAICourse = async (req, res) => {
   try {
-    const { topic, difficultyLevel } = req.body;
+    const { topic, difficultyLevel, description } = req.body;
     const studentId = req.userId;
 
     // Validate input
@@ -28,13 +28,14 @@ export const generateAICourse = async (req, res) => {
       });
     }
 
-    console.log(`🎓 Generating AI course for student ${studentId}: ${topic} (${difficultyLevel})`);
+    console.log(`🎓 Generating AI course for student ${studentId}: ${topic} (${difficultyLevel})${description ? ` — ${description.substring(0, 80)}...` : ''}`);
 
     // Generate course modules using the multi-agent service
     const courseData = await generateCourseModules({
       studentId,
       topic,
-      difficultyLevel
+      difficultyLevel,
+      description
     });
 
     // Create new MultiAgentCourse document with status set to PendingEducatorReview

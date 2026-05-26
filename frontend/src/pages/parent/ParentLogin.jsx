@@ -1,141 +1,117 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { serverUrl } from '../../App';
-import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
 import { setUserData, setToken } from '../../redux/userSlice';
 
-function ParentLogin() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+const ParentLogin = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e) => {
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) {
-      toast.error('All fields are required.');
+    if (!form.email || !form.password) {
+      toast.error('Please fill in all fields');
       return;
     }
-
     setLoading(true);
     try {
-      const response = await axios.post(`${serverUrl}/api/parent/login`, {
-        email,
-        password,
-      });
-
-      if (response.data.success) {
-        const { user, token } = response.data;
-        
-        if (!user.emailVerified) {
-          toast.info('Please verify your email first.');
-          navigate('/parent/signup', { state: { email: user.email, step: 'verify' } });
-          return;
-        }
-
-        dispatch(setUserData(user));
-        dispatch(setToken(token));
-        localStorage.setItem('token', token);
-        
-        toast.success('Parent Portal Access Granted.');
-        navigate('/parent/dashboard');
-      }
-    } catch (error) {
-      console.error('Parent login error:', error);
-      toast.error(error.response?.data?.message || 'Login failed. Please try again.');
+      const res = await axios.post(`${serverUrl}/api/parent/login`, form);
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      dispatch(setToken(res.data.token));
+      dispatch(setUserData(res.data.user));
+      toast.success('Logged in successfully');
+      navigate('/parent/dashboard');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col justify-between font-sans">
-      {/* Header */}
-      <header className="border-b border-neutral-800 py-6 px-8 flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold tracking-widest text-white hover:opacity-80 transition-opacity">
-          JAGAT ACADEMY
-        </Link>
-        <span className="text-xs uppercase tracking-widest text-neutral-400">
-          Parent Portal Access
-        </span>
-      </header>
+    <div className="min-h-screen bg-white flex items-center justify-center px-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-flex items-center gap-3">
+            <div className="w-12 h-12 bg-black flex items-center justify-center text-white font-black text-lg">
+              JA
+            </div>
+            <div className="text-left">
+              <p className="text-black font-black text-xl leading-none">JAGAT ACADEMY</p>
+              <p className="text-gray-500 text-xs font-bold tracking-widest uppercase mt-1">Parent Portal</p>
+            </div>
+          </Link>
+        </div>
 
-      {/* Main Form */}
-      <main className="flex-grow flex items-center justify-center p-6">
-        <div className="w-full max-w-md bg-neutral-950 border border-neutral-800 p-8 rounded-none shadow-2xl">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold tracking-tight uppercase mb-2">
-              Parent Login
-            </h1>
-            <p className="text-xs text-neutral-400 uppercase tracking-wider">
-              Enter your credentials to monitor student progress.
-            </p>
+        {/* Login Card */}
+        <div className="bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-8">
+          <div className="border-b-4 border-black pb-4 mb-6">
+            <h1 className="text-2xl font-black uppercase tracking-tight text-black">Parent Login</h1>
+            <p className="text-gray-500 text-xs font-bold mt-1">Monitor your child's progress</p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-xs uppercase tracking-wider text-neutral-400 mb-2">
-                Parent Email Address
-              </label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-black mb-2">Email</label>
               <input
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-black border border-neutral-800 px-4 py-3 text-white text-sm focus:outline-none focus:border-white transition-colors rounded-none"
-                placeholder="parent@example.com"
-                required
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="your@email.com"
+                className="w-full border-2 border-black px-4 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-black bg-white text-black placeholder-gray-400"
               />
             </div>
 
             <div>
-              <label className="block text-xs uppercase tracking-wider text-neutral-400 mb-2">
-                Password
-              </label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-black mb-2">Password</label>
               <input
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-black border border-neutral-800 px-4 py-3 text-white text-sm focus:outline-none focus:border-white transition-colors rounded-none"
-                placeholder="********"
-                required
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                className="w-full border-2 border-black px-4 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-black bg-white text-black placeholder-gray-400"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-white text-black hover:bg-neutral-200 transition-colors py-3 text-xs uppercase font-bold tracking-widest cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-black border-2 border-black text-white font-black py-4 uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all disabled:opacity-50"
             >
-              {loading ? 'Authorizing...' : 'Log In'}
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto" />
+              ) : 'Login →'}
             </button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-neutral-900 text-center space-y-3">
-            <p className="text-xs text-neutral-400">
-              Need a parent account?{' '}
-              <Link to="/parent/signup" className="text-white underline font-semibold hover:text-neutral-200">
-                Register here
+          <div className="mt-6 text-center space-y-2">
+            <p className="text-gray-500 text-sm font-bold">
+              Don't have an account?{' '}
+              <Link to="/parent/signup" className="text-black underline hover:text-gray-600">
+                Sign Up
               </Link>
             </p>
-            <p className="text-xs text-neutral-500">
-              Looking for student login?{' '}
-              <Link to="/login" className="text-neutral-300 underline hover:text-white">
-                Student Portal
-              </Link>
-            </p>
+            <Link to="/login" className="block text-xs text-gray-400 font-bold hover:text-black transition-colors">
+              ← Back to Student Login
+            </Link>
           </div>
         </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-neutral-800 py-6 px-8 text-center text-xs text-neutral-600 uppercase tracking-wider">
-        &copy; {new Date().getFullYear()} JAGAT ACADEMY. HIGH-CONTRAST SECURE FRAME.
-      </footer>
+      </div>
     </div>
   );
-}
+};
 
 export default ParentLogin;

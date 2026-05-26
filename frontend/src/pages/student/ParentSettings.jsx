@@ -1,293 +1,137 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { serverUrl } from '../../App';
-import { toast } from 'react-toastify';
 import Nav from '../../components/Nav';
+import Footer from '../../components/Footer';
+import { toast } from 'react-toastify';
+import ArrowBackLongIcon from '@mui/icons-material/ArrowBack';
 
-function ParentSettings() {
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [data, setData] = useState({
-    linkingCode: '',
-    age: 18,
-    parents: [],
-    pendingRequests: [],
-    parentAccessControls: {
-      showGrades: true,
-      showAttendance: true,
-      showAnalytics: true,
-      showAssignments: true
-    }
-  });
+const ParentSettings = () => {
+  const navigate = useNavigate();
+  const [parentEmail, setParentEmail] = useState('');
+  const [parentPhone, setParentPhone] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [currentData, setCurrentData] = useState(null);
 
-  const fetchPortalData = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  useEffect(() => {
+    fetchParentSettings();
+  }, []);
+
+  const fetchParentSettings = async () => {
     try {
-      const response = await axios.get(`${serverUrl}/api/student/parent-portal`, {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${serverUrl}/api/student/parent-settings`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (response.data.success) {
-        setData({
-          linkingCode: response.data.linkingCode,
-          age: response.data.age,
-          parents: response.data.parents,
-          pendingRequests: response.data.pendingRequests,
-          parentAccessControls: response.data.parentAccessControls
-        });
+      if (res.data.settings) {
+        setParentEmail(res.data.settings.parentEmail || '');
+        setParentPhone(res.data.settings.parentPhone || '');
+        setCurrentData(res.data.settings);
       }
-    } catch (error) {
-      console.error('Failed to load parent portal details:', error);
-      toast.error('Failed to load parent portal settings.');
+    } catch (err) {
+      console.error('Failed to fetch parent settings:', err);
+    }
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    if (!parentEmail && !parentPhone) {
+      toast.error('Please enter at least one contact method');
+      return;
+    }
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`${serverUrl}/api/student/parent-settings`,
+        { parentEmail, parentPhone },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success('Parent contact updated successfully');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchPortalData();
-  }, []);
-
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText(data.linkingCode);
-    toast.success('Linking code copied to clipboard!');
-  };
-
-  const handleUpdatePrivacy = async (key, val) => {
-    const updatedControls = { ...data.parentAccessControls, [key]: val };
-    setData((prev) => ({ ...prev, parentAccessControls: updatedControls }));
-
-    const token = localStorage.getItem('token');
-    try {
-      await axios.put(
-        `${serverUrl}/api/student/parent-privacy`,
-        { [key]: val },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success('Privacy control updated.');
-    } catch (error) {
-      console.error('Failed to update privacy control:', error);
-      toast.error('Failed to save settings.');
-    }
-  };
-
-  const handleAgeChange = async (newAge) => {
-    const ageVal = parseInt(newAge) || 18;
-    setData((prev) => ({ ...prev, age: ageVal }));
-
-    const token = localStorage.getItem('token');
-    try {
-      await axios.put(
-        `${serverUrl}/api/student/parent-privacy`,
-        { age: ageVal },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success('Student age updated.');
-    } catch (error) {
-      console.error('Failed to update age:', error);
-      toast.error('Failed to save age.');
-    }
-  };
-
-  const handleApproval = async (parentId, action) => {
-    setSaving(true);
-    const token = localStorage.getItem('token');
-    const endpoint = action === 'approve' ? 'approve-parent' : 'reject-parent';
-
-    try {
-      const response = await axios.post(
-        `${serverUrl}/api/student/${endpoint}`,
-        { parentId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (response.data.success) {
-        toast.success(response.data.message);
-        fetchPortalData();
-      }
-    } catch (error) {
-      console.error(`Failed to ${action} parent request:`, error);
-      toast.error('Action failed. Please try again.');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center font-sans">
-        <span className="text-xs uppercase tracking-widest">Loading Settings...</span>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-black text-white font-sans flex flex-col">
+    <div className="min-h-screen bg-white">
       <Nav />
 
-      <main className="flex-grow p-6 md:p-12 max-w-4xl mx-auto w-full space-y-12">
-        {/* Header Title */}
-        <div className="border-b border-neutral-800 pb-6">
-          <h1 className="text-3xl font-bold tracking-tight uppercase">
-            Parent Portal Settings
+      <div className="max-w-3xl mx-auto px-4 py-12 pt-32">
+        {/* Header */}
+        <div className="border-b-4 border-black pb-4 mb-8">
+          <ArrowBackLongIcon className='w-5 h-5 cursor-pointer text-black hover:opacity-70 mb-2' onClick={() => navigate(-1)} />
+          <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-black">
+            Parent Settings
           </h1>
-          <p className="text-xs uppercase text-neutral-400 tracking-wider mt-2">
-            Configure access controls, manage linked parents, and share academic progress.
+          <p className="text-gray-500 text-sm font-bold mt-1">Manage your parent/guardian contact information</p>
+        </div>
+
+        {/* Info box */}
+        <div className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-8 h-8 bg-black flex items-center justify-center text-white font-black text-xs">!</div>
+            <p className="text-sm font-bold text-black uppercase tracking-wider">Why share parent contacts?</p>
+          </div>
+          <p className="text-gray-600 text-sm">
+            Parent contact information allows Jagat Academy to share progress reports, 
+            attendance updates, and important announcements with your parents or guardians.
           </p>
         </div>
 
-        {/* 1. Linking Code Section */}
-        <section className="bg-neutral-950 border border-neutral-800 p-8 space-y-6">
+        {/* Form */}
+        <form onSubmit={handleSave} className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8 space-y-6">
           <div>
-            <h2 className="text-lg font-bold tracking-wider uppercase mb-1">
-              Your Profile Link Details
-            </h2>
-            <p className="text-xs text-neutral-400 uppercase tracking-wider">
-              Share your linking code or registered email address with a parent.
-            </p>
+            <label className="block text-sm font-bold text-black uppercase tracking-wider mb-2">
+              Parent/Guardian Email
+            </label>
+            <input
+              type="email"
+              value={parentEmail}
+              onChange={(e) => setParentEmail(e.target.value)}
+              placeholder="parent@example.com"
+              className="w-full border-2 border-black px-4 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-black bg-white text-black placeholder-gray-400"
+            />
           </div>
 
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-black p-4 border border-neutral-900">
-            <div>
-              <span className="block text-[10px] text-neutral-500 uppercase tracking-widest mb-1">
-                Profile Linking Code
-              </span>
-              <span className="text-lg font-mono tracking-widest text-white">
-                {data.linkingCode || 'NOT_GENERATED'}
-              </span>
-            </div>
-            <button
-              onClick={handleCopyCode}
-              className="bg-white text-black hover:bg-neutral-200 transition-colors px-6 py-2 text-xs uppercase font-bold tracking-widest cursor-pointer self-start md:self-auto"
-            >
-              [COPY CODE]
-            </button>
-          </div>
-
-        </section>
-
-        {/* 2. Privacy Settings Section */}
-        <section className="bg-neutral-950 border border-neutral-800 p-8 space-y-6">
           <div>
-            <h2 className="text-lg font-bold tracking-wider uppercase mb-1">
-              Visibility Permissions
-            </h2>
-            <p className="text-xs text-neutral-400 uppercase tracking-wider">
-              Toggle checkmarks to grant or block parent view permissions in real-time.
-            </p>
+            <label className="block text-sm font-bold text-black uppercase tracking-wider mb-2">
+              Parent/Guardian Phone
+            </label>
+            <input
+              type="tel"
+              value={parentPhone}
+              onChange={(e) => setParentPhone(e.target.value)}
+              placeholder="+91 98765 43210"
+              className="w-full border-2 border-black px-4 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-black bg-white text-black placeholder-gray-400"
+            />
           </div>
 
-          <div className="space-y-4 pt-2">
-            <div className="flex items-center justify-between py-2 border-b border-neutral-900">
-              <div>
-                <span className="block text-xs font-bold uppercase tracking-wider text-white">
-                  Share Grades
-                </span>
-                <span className="text-[10px] text-neutral-500 uppercase tracking-wider">
-                  Grades, quiz submissions, and teacher feedback evaluation.
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                checked={data.parentAccessControls.showGrades}
-                onChange={(e) => handleUpdatePrivacy('showGrades', e.target.checked)}
-                className="w-5 h-5 accent-white cursor-pointer border border-neutral-800 bg-black"
-              />
+          {currentData && (
+            <div className="bg-gray-50 border-2 border-black p-4">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Previously Saved</p>
+              {currentData.parentEmail && <p className="text-sm text-black font-bold">Email: {currentData.parentEmail}</p>}
+              {currentData.parentPhone && <p className="text-sm text-black font-bold">Phone: {currentData.parentPhone}</p>}
             </div>
-
-            <div className="flex items-center justify-between py-2 border-b border-neutral-900">
-              <div>
-                <span className="block text-xs font-bold uppercase tracking-wider text-white">
-                  Share Attendance Logs
-                </span>
-                <span className="text-[10px] text-neutral-500 uppercase tracking-wider">
-                  Attendance logs, lecture watch states, and presence rates.
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                checked={data.parentAccessControls.showAttendance}
-                onChange={(e) => handleUpdatePrivacy('showAttendance', e.target.checked)}
-                className="w-5 h-5 accent-white cursor-pointer border border-neutral-800 bg-black"
-              />
-            </div>
-
-            <div className="flex items-center justify-between py-2 border-b border-neutral-900">
-              <div>
-                <span className="block text-xs font-bold uppercase tracking-wider text-white">
-                  Share Course Progress Analytics
-                </span>
-                <span className="text-[10px] text-neutral-500 uppercase tracking-wider">
-                  Analytics trends, time logs, and completion levels.
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                checked={data.parentAccessControls.showAnalytics}
-                onChange={(e) => handleUpdatePrivacy('showAnalytics', e.target.checked)}
-                className="w-5 h-5 accent-white cursor-pointer border border-neutral-800 bg-black"
-              />
-            </div>
-
-            <div className="flex items-center justify-between py-2">
-              <div>
-                <span className="block text-xs font-bold uppercase tracking-wider text-white">
-                  Share Assignments
-                </span>
-                <span className="text-[10px] text-neutral-500 uppercase tracking-wider">
-                  Upcoming course tasks, projects, and deadlines.
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                checked={data.parentAccessControls.showAssignments}
-                onChange={(e) => handleUpdatePrivacy('showAssignments', e.target.checked)}
-                className="w-5 h-5 accent-white cursor-pointer border border-neutral-800 bg-black"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* 3. Linked Parents */}
-        <section className="bg-neutral-950 border border-neutral-800 p-8 space-y-6">
-          <div>
-            <h2 className="text-lg font-bold tracking-wider uppercase mb-1">
-              Linked Parents
-            </h2>
-            <p className="text-xs text-neutral-400 uppercase tracking-wider">
-              Active parent connections with access.
-            </p>
-          </div>
-
-          {data.parents.length === 0 ? (
-            <div className="border border-dashed border-neutral-800 p-6 text-center">
-              <span className="text-xs uppercase tracking-wider text-neutral-600 block">
-                No parents linked
-              </span>
-            </div>
-          ) : (
-            <ul className="space-y-4">
-              {data.parents.map((p) => (
-                <li key={p._id} className="p-4 bg-black border border-neutral-900 flex justify-between items-center">
-                  <div>
-                    <span className="block text-xs font-bold uppercase tracking-wider text-white">
-                      {p.name}
-                    </span>
-                    <span className="text-[10px] font-mono text-neutral-500">
-                      {p.email}
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
           )}
-        </section>
-      </main>
 
-      <footer className="border-t border-neutral-800 py-6 px-8 text-center text-xs text-neutral-600 uppercase tracking-widest">
-        &copy; {new Date().getFullYear()} JAGAT ACADEMY. HIGH-CONTRAST SECURE FRAME.
-      </footer>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-black border-2 border-black text-white font-black py-4 uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all disabled:opacity-50"
+          >
+            {loading ? 'Saving...' : 'Save Contact Info →'}
+          </button>
+        </form>
+      </div>
+
+      <Footer />
     </div>
   );
-}
+};
 
 export default ParentSettings;

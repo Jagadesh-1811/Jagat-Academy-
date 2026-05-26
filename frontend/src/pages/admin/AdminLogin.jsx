@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners';
-import SecurityIcon from '@mui/icons-material/Security';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
+import EmailIcon from '@mui/icons-material/Email';
+import LockIcon from '@mui/icons-material/Lock';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import axios from 'axios';
 import { serverUrl } from '../../App';
@@ -17,192 +16,149 @@ const AdminLogin = () => {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const [focused, setFocused] = useState('');
+    const [focused, setFocused] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (!email || !password) {
-            toast.error('Please enter email and password');
+            toast.error('Please fill in all fields');
             return;
         }
-
         setLoading(true);
-
         try {
             const response = await axios.post(`${serverUrl}/api/admin/login`, {
                 email,
                 password
             });
-
             if (response.data.token) {
                 localStorage.setItem('adminToken', response.data.token);
                 localStorage.setItem('adminData', JSON.stringify(response.data.admin));
-                toast.success('Login successful!');
+                toast.success('Welcome Admin!');
                 navigate('/admin/dashboard');
             } else {
-                toast.error('Login failed. No token received.');
+                toast.error(response.data.message || 'Login failed');
             }
         } catch (error) {
-            console.error('Admin login error:', error);
-            toast.error(error.response?.data?.message || 'Invalid credentials. Please check your email and password.');
+            toast.error(error.response?.data?.message || 'Login failed');
+        } finally {
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
     return (
-        <div className="min-h-screen bg-black flex items-center justify-center p-4 overflow-hidden">
-            {/* Animated Background */}
-            <div className="absolute inset-0">
-                <div className="absolute inset-0 opacity-[0.02]">
-                    <div
-                        className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-white rounded-full blur-3xl"
-                        style={{ animation: 'pulse 4s ease-in-out infinite' }}
-                    />
-                    <div
-                        className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-white rounded-full blur-3xl"
-                        style={{ animation: 'pulse 4s ease-in-out infinite 1s' }}
-                    />
-                </div>
-                {/* Grid pattern */}
-                <div
-                    className="absolute inset-0 opacity-[0.03]"
-                    style={{
-                        backgroundImage: 'linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)',
-                        backgroundSize: '50px 50px'
-                    }}
-                />
-            </div>
-
-            <div
-                className="relative w-full max-w-md"
-                style={{ animation: 'adminFadeIn 0.6s ease-out' }}
+        <div className="min-h-screen bg-black flex items-center justify-center relative overflow-hidden px-4">
+            {/* Back button */}
+            <Link
+                to="/"
+                className="absolute top-6 left-6 z-20 flex items-center gap-2 text-white/80 hover:text-white transition-colors border-2 border-white/30 px-4 py-2 text-xs font-black uppercase tracking-wider"
             >
-                {/* Main Card */}
-                <div
-                    className="bg-white rounded-3xl shadow-2xl p-10 border border-gray-100"
-                    style={{
-                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
-                    }}
-                >
-                    {/* Logo */}
-                    <div className="flex justify-center mb-8">
-                        <div
-                            className="w-24 h-24 bg-black rounded-2xl flex items-center justify-center shadow-xl transition-transform duration-300 hover:scale-110 hover:rotate-3"
-                            style={{ boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)' }}
-                        >
-                            <SecurityIcon sx={{ fontSize: 48, color: 'white' }} />
-                        </div>
-                    </div>
+                <ArrowBackIcon /> Back to Home
+            </Link>
+            {/* Background grid pattern */}
+            <div className="absolute inset-0 opacity-10" 
+                style={{
+                    backgroundImage: 'linear-gradient(#444 1px, transparent 1px), linear-gradient(90deg, #444 1px, transparent 1px)',
+                    backgroundSize: '40px 40px'
+                }}
+            />
+            
+            {/* Decorative pulsing elements */}
+            <div className="absolute top-20 left-20 w-32 h-32 border border-white/10" 
+                style={{animation: 'pulse 4s ease-in-out infinite'}} />
+            <div className="absolute bottom-20 right-20 w-48 h-48 border border-white/10" 
+                style={{animation: 'pulse 4s ease-in-out infinite 1s'}} />
+            <div className="absolute top-1/2 right-40 w-24 h-24 bg-white/5" />
 
-                    {/* Title */}
-                    <div className="text-center mb-10">
-                        <h1 className="text-4xl font-bold text-black mb-3 tracking-tight">Admin Portal</h1>
-                        <p className="text-gray-500">Sign in to access the dashboard</p>
-                    </div>
-
-                    {/* Form */}
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Email Field */}
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Email Address
-                            </label>
-                            <div className="relative group">
-                                <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors duration-200 ${focused === 'email' ? 'text-black' : 'text-gray-400'}`}>
-                                    <EmailOutlinedIcon sx={{ fontSize: 20 }} />
-                                </div>
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    onFocus={() => setFocused('email')}
-                                    onBlur={() => setFocused('')}
-                                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl text-black placeholder-gray-400 focus:outline-none focus:border-black focus:bg-white transition-all duration-300"
-                                    placeholder="admin@example.com"
-                                />
-                                <div className={`absolute bottom-0 left-1/2 h-0.5 bg-black transition-all duration-300 ${focused === 'email' ? 'w-[calc(100%-2rem)] -translate-x-1/2' : 'w-0 -translate-x-1/2'}`} />
-                            </div>
-                        </div>
-
-                        {/* Password Field */}
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Password
-                            </label>
-                            <div className="relative group">
-                                <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors duration-200 ${focused === 'password' ? 'text-black' : 'text-gray-400'}`}>
-                                    <LockOutlinedIcon sx={{ fontSize: 20 }} />
-                                </div>
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    onFocus={() => setFocused('password')}
-                                    onBlur={() => setFocused('')}
-                                    className="w-full pl-12 pr-14 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl text-black placeholder-gray-400 focus:outline-none focus:border-black focus:bg-white transition-all duration-300"
-                                    placeholder="••••••••"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-black transition-all duration-200 hover:scale-110"
-                                >
-                                    {showPassword ? <VisibilityOffOutlinedIcon sx={{ fontSize: 20 }} /> : <VisibilityOutlinedIcon sx={{ fontSize: 20 }} />}
-                                </button>
-                                <div className={`absolute bottom-0 left-1/2 h-0.5 bg-black transition-all duration-300 ${focused === 'password' ? 'w-[calc(100%-2rem)] -translate-x-1/2' : 'w-0 -translate-x-1/2'}`} />
-                            </div>
-                        </div>
-
-                        {/* Submit Button */}
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full py-4 bg-black text-white font-semibold rounded-xl hover:bg-gray-900 focus:outline-none transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 group hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
-                            style={{ boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)' }}
-                        >
-                            {loading ? (
-                                <ClipLoader size={24} color="white" />
-                            ) : (
-                                <>
-                                    <LockOutlinedIcon sx={{ fontSize: 16 }} className="transition-transform group-hover:scale-110" />
-                                    <span>Sign In</span>
-                                </>
-                            )}
-                        </button>
-                    </form>
-
-                    {/* Footer */}
-                    <div className="mt-10 text-center">
-                        <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
-                            <div className="w-2 h-2 bg-gray-800 rounded-full animate-pulse" />
-                            <span>Secure admin access</span>
-                        </div>
+            {/* Login Card */}
+            <div className="relative w-full max-w-md bg-white border-4 border-black p-8"
+                style={{boxShadow: '12px 12px 0px 0px rgba(0,0,0,1)'}}>
+                
+                {/* Logo area */}
+                <div className="flex items-center justify-center mb-8">
+                    <div className="w-14 h-14 bg-black flex items-center justify-center">
+                        <span className="text-white font-black text-xl">JA</span>
                     </div>
                 </div>
 
-                {/* Back to Home */}
-                <div className="mt-8 text-center">
+                <h1 className="text-2xl font-black text-center uppercase tracking-tight mb-1">
+                    Admin Login
+                </h1>
+                <p className="text-gray-500 text-xs text-center uppercase font-bold mb-8">
+                    Jagat Academy Management
+                </p>
+
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    {/* Email */}
+                    <div className="space-y-1">
+                        <label className="text-xs font-black uppercase tracking-wider text-gray-600">Email</label>
+                        <div className="relative">
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+                                <EmailIcon className="text-black" style={{fontSize: '18px'}} />
+                            </div>
+                            <input
+                                type="email"
+                                placeholder="admin@jagatacademy.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                onFocus={() => setFocused('email')}
+                                onBlur={() => setFocused(null)}
+                                className="w-full border-3 border-black py-3 pl-10 pr-3 text-sm font-bold focus:outline-none bg-white placeholder-gray-400"
+                                style={{borderWidth: '3px'}}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Password */}
+                    <div className="space-y-1">
+                        <label className="text-xs font-black uppercase tracking-wider text-gray-600">Password</label>
+                        <div className="relative">
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+                                <LockIcon className="text-black" style={{fontSize: '18px'}} />
+                            </div>
+                            <input
+                                type={showPassword ? 'text' : 'password'}
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                onFocus={() => setFocused('password')}
+                                onBlur={() => setFocused(null)}
+                                className="w-full border-3 border-black py-3 pl-10 pr-10 text-sm font-bold focus:outline-none bg-white placeholder-gray-400"
+                                style={{borderWidth: '3px'}}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2"
+                            >
+                                {showPassword ? (
+                                    <VisibilityOffIcon className="text-gray-500" style={{fontSize: '18px'}} />
+                                ) : (
+                                    <VisibilityIcon className="text-gray-500" style={{fontSize: '18px'}} />
+                                )}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Submit */}
                     <button
-                        onClick={() => navigate('/')}
-                        className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-all duration-300 text-sm group"
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-black text-white font-black py-4 uppercase text-sm tracking-wider border-2 border-black hover:bg-gray-800 active:translate-y-0.5 transition-none disabled:opacity-50"
+                        style={{boxShadow: '6px 6px 0px 0px rgba(0,0,0,1)'}}
                     >
-                        <ArrowBackIcon sx={{ fontSize: 16 }} className="transition-transform group-hover:-translate-x-1" />
-                        <span>Back to Home</span>
+                        {loading ? <ClipLoader size={20} color="white" /> : 'Sign In →'}
                     </button>
-                </div>
+                </form>
+
+                <p className="text-center text-xs text-gray-500 mt-6 font-bold uppercase tracking-wider">
+                    Authorized personnel only
+                </p>
             </div>
 
-            {/* Add keyframes */}
             <style>{`
                 @keyframes pulse {
-                    0%, 100% { transform: scale(1); opacity: 0.02; }
-                    50% { transform: scale(1.1); opacity: 0.05; }
-                }
-                @keyframes adminFadeIn {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
+                    0%, 100% { opacity: 0.1; transform: scale(1); }
+                    50% { opacity: 0.3; transform: scale(1.05); }
                 }
             `}</style>
         </div>
@@ -210,4 +166,3 @@ const AdminLogin = () => {
 };
 
 export default AdminLogin;
-

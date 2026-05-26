@@ -12,31 +12,28 @@ dotenv.config();
  * @param {string} modelName - Gemini model to use
  * @returns {Promise<string>} Response text from Gemini
  */
-export const queryGemini = async (prompt, systemInstruction = '', modelName = 'gemini-1.5-flash') => {
+export const queryGemini = async (prompt, systemInstruction = '', modelName = 'gemini-2.0-flash') => {
   const geminiKey = process.env.GEMINI_API_KEY;
   if (!geminiKey) {
     throw new Error('GEMINI_API_KEY is not configured in .env');
   }
 
   const genAI = new GoogleGenerativeAI(geminiKey);
-  const modelsToTry = [modelName];
-  if (modelName !== 'gemini-1.5-flash') modelsToTry.push('gemini-1.5-flash');
+  const model = modelName;
 
-  for (const model of modelsToTry) {
-    try {
-      console.log(`Gemini: Sending request to model ${model}...`);
-      const genModel = genAI.getGenerativeModel({
-        model,
-        ...(systemInstruction ? { systemInstruction } : {})
-      });
-      const result = await genModel.generateContent(prompt);
-      const text = (await result.response).text().trim();
-      console.log(`Gemini: Request successful (${model}).`);
-      return text;
-    } catch (error) {
-      console.warn(`Gemini model ${model} failed: ${error.message}`);
-      if (model === modelsToTry[modelsToTry.length - 1]) throw error;
-    }
+  try {
+    console.log(`Gemini: Sending request to model ${model}...`);
+    const genModel = genAI.getGenerativeModel({
+      model,
+      ...(systemInstruction ? { systemInstruction } : {})
+    });
+    const result = await genModel.generateContent(prompt);
+    const text = (await result.response).text().trim();
+    console.log(`Gemini: Request successful (${model}).`);
+    return text;
+  } catch (error) {
+    console.error(`Gemini model ${model} failed: ${error.message}`);
+    throw error;
   }
 };
 
@@ -70,14 +67,14 @@ export const queryOpenAI = async (prompt) => {
         }
       ],
       temperature: 0.7,
-      max_tokens: 3500
+      max_tokens: 8192
     },
     {
       headers: {
         Authorization: `Bearer ${openAIKey}`,
         'Content-Type': 'application/json'
       },
-      timeout: 45000
+      timeout: 120000
     }
   );
 

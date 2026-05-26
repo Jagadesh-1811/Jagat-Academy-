@@ -21,27 +21,14 @@ const TeacherCallRequests = () => {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [processingId, setProcessingId] = useState(null);
-    const [isWeekend, setIsWeekend] = useState(false);
     const [startingRoom, setStartingRoom] = useState(false);
 
     useEffect(() => {
-        checkWeekendStatus();
         fetchRequests();
-
         // Poll for new requests every 5 seconds
         const interval = setInterval(fetchRequests, 5000);
-
         return () => clearInterval(interval);
     }, []);
-
-    const checkWeekendStatus = async () => {
-        try {
-            const response = await axios.get(`${serverUrl}/api/voice-room/weekend-status`);
-            setIsWeekend(response.data.isWeekend);
-        } catch (err) {
-            console.error("Weekend check error:", err);
-        }
-    };
 
     const fetchRequests = async () => {
         try {
@@ -165,41 +152,31 @@ const TeacherCallRequests = () => {
                     <p style={styles.subtitle}>Students requesting to talk with you</p>
                 </div>
 
-                {/* Weekend Status */}
-                {!isWeekend && (
-                    <div style={styles.weekendNotice}>
-                        <span style={{ fontSize: '20px' }}><CalendarTodayIcon /></span>
-                        <span>Voice calls are only available on weekends. Current requests will remain pending.</span>
-                    </div>
-                )}
-
-                {/* Start Voice Room Button */}
-                {isWeekend && (
-                    <div style={styles.startRoomSection}>
-                        <button
-                            style={{
-                                ...styles.startRoomButton,
-                                backgroundColor: '#000000', // Enforce black button
-                                boxShadow: 'none' // Remove color shadow
-                            }}
-                            onClick={handleStartRoom}
-                            disabled={startingRoom}
-                        >
-                            {startingRoom ? (
-                                <>
-                                    <SyncIcon style={{ marginRight: '8px', animation: 'spin 1s linear infinite' }} /> Starting...
-                                </>
-                            ) : (
-                                <>
-                                    <MicIcon style={{ marginRight: '8px' }} /> Start Voice Room Now
-                                </>
-                            )}
-                        </button>
-                        <p style={styles.startRoomHint}>
-                            Start a live session immediately. Students will be able to join.
-                        </p>
-                    </div>
-                )}                {/* Requests List */}
+                {/* Start Voice Room Button - always visible */}
+                <div style={styles.startRoomSection}>
+                    <button
+                        style={{
+                            ...styles.startRoomButton,
+                            backgroundColor: '#000000',
+                            boxShadow: 'none'
+                        }}
+                        onClick={handleStartRoom}
+                        disabled={startingRoom}
+                    >
+                        {startingRoom ? (
+                            <>
+                                <SyncIcon style={{ marginRight: '8px', animation: 'spin 1s linear infinite' }} /> Starting...
+                            </>
+                        ) : (
+                            <>
+                                <MicIcon style={{ marginRight: '8px' }} /> Start Voice Room Now
+                            </>
+                        )}
+                    </button>
+                    <p style={styles.startRoomHint}>
+                        Start a live session immediately. Students will be able to join.
+                    </p>
+                </div>                {/* Requests List */}
                 <div style={styles.requestsSection}>
                     {loading ? (
                         <div style={styles.loadingContainer}>
@@ -244,10 +221,10 @@ const TeacherCallRequests = () => {
                                         <button
                                             style={{
                                                 ...styles.acceptButton,
-                                                backgroundColor: '#000000', // Enforce black button
+                                                backgroundColor: '#000000',
                                             }}
                                             onClick={() => handleAccept(request._id)}
-                                            disabled={processingId === request._id || !isWeekend}
+                                            disabled={processingId === request._id}
                                         >
                                             {processingId === request._id ? 'Connecting...' : (
                                                 <><CheckIcon style={{ marginRight: '5px' }} /> Accept Call</>

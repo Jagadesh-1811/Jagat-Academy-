@@ -1,53 +1,67 @@
 import React from 'react';
 
-
-
-
 const CertificationModal = ({ isOpen, onClose, message, formLink }) => {
   return (
-    <AnimatePresence>
+    <>
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          onClick={onClose} // Close modal when clicking outside
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          onClick={onClose}
         >
-          <motion.div
-            initial={{ y: "-100vh", opacity: 0 }}
-            animate={{ y: "0", opacity: 1 }}
-            exit={{ y: "100vh", opacity: 0 }}
-            transition={{ type: "spring", stiffness: 100, damping: 20 }}
-            className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full mx-4"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white border-4 border-black p-8 max-w-md w-full mx-4 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]"
           >
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">Certification</h2>
-            <p className="text-gray-700 mb-6">{message}</p>
+            {/* Header */}
+            <div className="flex items-center justify-between border-b-4 border-black pb-4 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-black flex items-center justify-center text-white font-black text-sm">
+                  JA
+                </div>
+                <h2 className="text-2xl font-black text-black uppercase tracking-tight">Certification</h2>
+              </div>
+              <button
+                onClick={onClose}
+                className="w-10 h-10 border-2 border-black flex items-center justify-center font-black text-xl hover:bg-black hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="bg-gray-50 border-2 border-black p-4 mb-6">
+              <p className="text-gray-800 font-bold text-sm leading-relaxed">
+                {message}
+              </p>
+            </div>
+
+            {/* Actions */}
             {formLink ? (
               <a
                 href={formLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full bg-black text-white text-center py-3 rounded-md hover:bg-gray-800 transition duration-300"
+                className="block w-full bg-black border-2 border-black text-white text-center font-black py-4 uppercase text-sm tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all mb-3"
               >
-                Apply for Certificate
+                Apply for Certificate →
               </a>
             ) : (
-              <p className="text-gray-500">No application form available at the moment.</p>
+              <div className="bg-gray-200 border-2 border-black p-4 mb-3 text-center">
+                <p className="text-gray-600 font-bold text-sm">No application form available at the moment.</p>
+              </div>
             )}
+
             <button
               onClick={onClose}
-              className="mt-4 w-full bg-gray-300 text-gray-800 py-2 rounded-md hover:bg-gray-400 transition duration-300"
+              className="w-full border-2 border-black text-black font-black py-4 uppercase text-sm tracking-wider hover:bg-gray-100 transition-all"
             >
               Close
             </button>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       )}
-    </AnimatePresence>
+    </>
   );
 };
 
 export default CertificationModal;
-

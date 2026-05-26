@@ -19,7 +19,7 @@ const SubmissionCard = ({ submission, grades, feedback, onGradeChange, onFeedbac
     };
 
     return (
-        <div key={submission._id} className="bg-gray-50 p-4 rounded-md shadow-sm">
+        <div key={submission._id} className="bg-gray-50 p-4 border-2 border-black">
             <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-medium">Student: {submission.student.name}</h3>
                 <p className="text-gray-500 text-sm">Submitted: {new Date(submission.submittedAt).toLocaleDateString()}</p>
@@ -33,11 +33,11 @@ const SubmissionCard = ({ submission, grades, feedback, onGradeChange, onFeedbac
                     <p className="text-gray-700">Feedback: {submission.grade.feedback}</p>
                 </div>
             ) : (
-                <div className="mt-4 p-3 bg-gray-200 rounded-md">
-                    <h4 className="font-semibold mb-2">Assign Grade</h4>
+                <div className="mt-4 p-3 bg-gray-200 border-2 border-black">
+                    <h4 className="font-bold mb-2 uppercase text-sm">Assign Grade</h4>
                     <div className="flex flex-col sm:flex-row gap-3">
                         <select
-                            className="w-full sm:w-1/3 border px-3 py-2 rounded-md bg-white"
+                            className="w-full sm:w-1/3 border-2 border-black px-3 py-2 bg-white"
                             value={grades[submission._id] || ''}
                             onChange={(e) => onGradeChange(submission._id, e.target.value)}
                         >
@@ -48,13 +48,13 @@ const SubmissionCard = ({ submission, grades, feedback, onGradeChange, onFeedbac
                             <option value="D">D</option>
                         </select>
                         <textarea
-                            className="w-full sm:flex-1 border px-3 py-2 rounded-md resize-none"
+                            className="w-full sm:flex-1 border-2 border-black px-3 py-2 resize-none"
                             placeholder="Add feedback (optional)"
                             value={feedback[submission._id] || ''}
                             onChange={(e) => onFeedbackChange(submission._id, e.target.value)}
                         ></textarea>
                         <button
-                            className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-700 w-full sm:w-auto"
+                            className="bg-black text-white px-4 py-2 border-2 border-black hover:bg-white hover:text-black transition-none w-full sm:w-auto font-bold"
                             onClick={() => onAssignGrade(submission._id)}
                             disabled={submittingGrade}
                         >
@@ -152,7 +152,7 @@ function ViewSubmissions() {
     }
 
     return (
-        <div className="max-w-5xl mx-auto p-6 mt-10 bg-white rounded-lg shadow-md">
+        <div className="max-w-5xl mx-auto p-6 mt-10 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                     <FaArrowLeft className="w-5 h-5 cursor-pointer" onClick={() => navigate(`/admin/assignments/${courseId}`)} />

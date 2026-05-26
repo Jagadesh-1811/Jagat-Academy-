@@ -1,89 +1,59 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { serverUrl } from '../../App';
 import { toast } from 'react-toastify';
-import { serverUrl } from '../../App.jsx';
-import LinkIcon from '@mui/icons-material/Link';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { ClipLoader } from 'react-spinners';
 
 const CreateDoubtSession = () => {
-    const { courseId } = useParams();
     const navigate = useNavigate();
+    const { courseId } = useParams();
+    const { token } = useSelector((state) => state.user);
     const [meetingLink, setMeetingLink] = useState('');
     const [loading, setLoading] = useState(false);
-    const { token } = useSelector(state => state.user);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!meetingLink.trim()) {
-            toast.error('Please enter a meeting link');
-            return;
-        }
-
+        if (!meetingLink.trim()) { toast.error('Please enter a meeting link'); return; }
         setLoading(true);
         try {
-            await axios.post(`${serverUrl}/api/doubt-session/doubt-session`, {
-                courseId,
-                meetingLink
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            await axios.post(`${serverUrl}/api/doubt-session/doubt-session`, 
+                { courseId, meetingLink }, {
+                headers: { Authorization: `Bearer ${token}` }
             });
-            toast.success('Doubt session created successfully!');
-            setMeetingLink('');
-            navigate(-1); // Go back to previous page
+            toast.success('Doubt session created');
+            navigate(-1);
         } catch (error) {
-            console.log(error);
             toast.error(error.response?.data?.message || 'Failed to create doubt session');
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 py-12 px-4">
-            <div className="max-w-xl mx-auto">
-                <button
-                    onClick={() => navigate(-1)}
-                    className="flex items-center gap-2 text-gray-600 hover:text-black mb-6 transition-colors"
-                >
-                    <ArrowBackIcon /> Back
-                </button>
+        <div className="min-h-screen bg-white">
+            <div className="bg-black border-b-4 border-black px-6 py-4">
+                <div className="max-w-xl mx-auto flex items-center gap-4">
+                    <button onClick={() => navigate(-1)} className="text-white hover:text-gray-300">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <h1 className="text-white font-black uppercase tracking-tight text-lg">Create Doubt Session</h1>
+                </div>
+            </div>
 
-                <div className="bg-white rounded-2xl shadow-lg p-8">
-                    <h1 className="text-2xl font-bold mb-2">Create Doubt Session</h1>
-                    <p className="text-gray-500 mb-6">Enter the meeting link for students to join</p>
-
-                    <form onSubmit={handleSubmit}>
-                        <div className="mb-6">
-                            <label className="block text-gray-700 font-medium mb-2">
-                                Meeting Link
-                            </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <LinkIcon className="text-gray-400" />
-                                </div>
-                                <input
-                                    type="url"
-                                    value={meetingLink}
-                                    onChange={(e) => setMeetingLink(e.target.value)}
-                                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                                    placeholder="https://meet.google.com/abc-xyz-123"
-                                    required
-                                />
-                            </div>
-                            <p className="text-sm text-gray-400 mt-2">
-                                Paste your Google Meet, Zoom, or any video call link
-                            </p>
+            <div className="max-w-xl mx-auto p-6">
+                <div className="border-4 border-black p-6 bg-gray-50">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-black uppercase tracking-wider text-gray-600">Meeting Link</label>
+                            <input type="url" value={meetingLink} onChange={(e) => setMeetingLink(e.target.value)}
+                                placeholder="https://meet.google.com/..."
+                                className="w-full border-2 border-black p-3 text-sm font-bold bg-white focus:outline-none" />
                         </div>
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full bg-black text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {loading ? 'Creating...' : 'Create Session'}
+                        <button type="submit" disabled={loading}
+                            className="w-full bg-black text-white font-black py-4 text-xs uppercase border-2 border-black hover:bg-gray-800 transition-none disabled:opacity-50">
+                            {loading ? <ClipLoader size={20} color="white" /> : 'Create Session →'}
                         </button>
                     </form>
                 </div>

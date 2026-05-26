@@ -1,91 +1,76 @@
 import axios from "axios";
 import React, { useState } from "react";
-import ArrowBackLongIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from "react-router-dom";
 import { serverUrl } from "../../App";
 import { toast } from "react-toastify";
 import { ClipLoader } from "react-spinners";
 import { useSelector } from "react-redux";
+
 const CreateCourse = () => {
-    let navigate = useNavigate()
-    let [loading, setLoading] = useState(false)
-    const [title, setTitle] = useState("")
-    const [category, setCategory] = useState("")
-    const { token } = useSelector(state => state.user);
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+    const [title, setTitle] = useState("");
+    const [category, setCategory] = useState("");
+    const { token } = useSelector((state) => state.user);
 
     const CreateCourseHandler = async () => {
-        setLoading(true)
+        setLoading(true);
         try {
-            const result = await axios.post(serverUrl + "/api/course/create", { title, category }, { headers: { Authorization: `Bearer ${token}` } })
-            console.log(result.data)
-            toast.success("Course Created")
-            navigate("/courses")
-            setTitle("")
-            setLoading(false)
+            const result = await axios.post(serverUrl + "/api/course/create", { title, category }, 
+                { headers: { Authorization: `Bearer ${token}` } });
+            toast.success("Course Created");
+            navigate("/courses");
         } catch (error) {
-            console.log(error)
-            setLoading(false)
-            toast.error(error.response.data.message)
+            toast.error(error.response?.data?.message || "Failed to create course");
+        } finally {
+            setLoading(false);
         }
-
-    }
+    };
 
     return (
-
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-10">
-            <div className="max-w-xl w-[600px] mx-auto p-6 bg-white shadow-md rounded-md mt-10 relative">
-                <ArrowBackLongIcon className='top-[8%] absolute left-[5%] w-[22px] h-[22px] cursor-pointer' onClick={() => navigate("/courses")} />
-                <h2 className="text-2xl font-semibold mb-6 text-center">Create Course</h2>
-
-                <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
-                    {/* Course Title */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Course Title
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Enter course title"
-                            className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[black]"
-                            onChange={(e) => setTitle(e.target.value)} value={title}
-                        />
-                    </div>
-
-                    {/* Category */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Category
-                        </label>
-                        <select
-                            className="w-full border border-gray-300 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[black]"
-                            onChange={(e) => setCategory(e.target.value)}
-                        >
-                            <option value="">Select category</option>
-                            <option value="App Development">App Development</option>
-                            <option value="AI/ML">AI/ML</option>
-                            <option value="AI Tools">AI Tools
-                            </option>
-                            <option value="Data Science">Data Science</option>
-                            <option value="Data Analytics">Data Analytics</option>
-                            <option value="Ethical Hacking">Ethical Hacking</option>
-                            <option value="UI UX Designing">UI UX Designing</option>
-                            <option value="Web Development">Web Development</option>
-                            <option value="Others">Others</option>
-                        </select>
-                    </div>
-
-                    {/* Submit Button */}
-                    <button
-                        type="submit"
-                        className="w-full bg-[black] text-white py-2 px-4 rounded-md active:bg-[#3a3a3a] transition" disabled={loading} onClick={CreateCourseHandler}
-                    >
-                        {loading ? <ClipLoader size={30} color='white' /> : "Create"}
+        <div className="min-h-screen bg-white">
+            <div className="bg-black border-b-4 border-black px-6 py-4">
+                <div className="max-w-xl mx-auto flex items-center gap-4">
+                    <button onClick={() => navigate("/courses")} className="text-white hover:text-gray-300">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                     </button>
-                </form>
+                    <h1 className="text-white font-black uppercase tracking-tight text-lg">Create Course</h1>
+                </div>
+            </div>
+            <div className="max-w-xl mx-auto p-6">
+                <div className="border-4 border-black p-6 bg-gray-50">
+                    <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-black uppercase tracking-wider text-gray-600">Course Title</label>
+                            <input type="text" placeholder="Enter course title" value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                className="w-full border-2 border-black px-4 py-3 text-sm font-bold focus:outline-none bg-white" />
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-black uppercase tracking-wider text-gray-600">Category</label>
+                            <select value={category} onChange={(e) => setCategory(e.target.value)}
+                                className="w-full border-2 border-black px-4 py-3 text-sm font-bold bg-white focus:outline-none">
+                                <option value="">Select category</option>
+                                <option value="App Development">App Development</option>
+                                <option value="AI/ML">AI/ML</option>
+                                <option value="AI Tools">AI Tools</option>
+                                <option value="Data Science">Data Science</option>
+                                <option value="Data Analytics">Data Analytics</option>
+                                <option value="Ethical Hacking">Ethical Hacking</option>
+                                <option value="UI UX Designing">UI UX Designing</option>
+                                <option value="Web Development">Web Development</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
+                        <button type="submit" disabled={loading} onClick={CreateCourseHandler}
+                            className="w-full bg-black text-white font-black py-4 text-xs uppercase border-2 border-black hover:bg-gray-800 transition-none disabled:opacity-50">
+                            {loading ? <ClipLoader size={20} color="white" /> : 'Create Course →'}
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     );
 };
 
 export default CreateCourse;
-

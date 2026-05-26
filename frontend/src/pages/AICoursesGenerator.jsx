@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { serverUrl } from '../App';
+import Nav from '../components/Nav';
+import Footer from '../components/Footer';
 
 const AICoursesGenerator = () => {
   const navigate = useNavigate();
@@ -11,11 +13,13 @@ const AICoursesGenerator = () => {
   
   const [formData, setFormData] = useState({
     topic: '',
-    difficultyLevel: 'Beginner'
+    difficultyLevel: 'Beginner',
+    description: ''
   });
   const [loading, setLoading] = useState(false);
   const [generatedCourses, setGeneratedCourses] = useState([]);
   const [showGeneratedCourses, setShowGeneratedCourses] = useState(false);
+  const [showApprovedOnly, setShowApprovedOnly] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [activeVideos, setActiveVideos] = useState({});
 
@@ -69,7 +73,7 @@ const AICoursesGenerator = () => {
       if (response.data.success) {
         toast.success('AI course generated successfully');
         setGeneratedCourses(prev => [response.data.course, ...prev]);
-        setFormData({ topic: '', difficultyLevel: 'Beginner' });
+        setFormData({ topic: '', difficultyLevel: 'Beginner', description: '' });
         setShowGeneratedCourses(true);
       }
     } catch (error) {
@@ -105,8 +109,14 @@ const AICoursesGenerator = () => {
     }
   };
 
+  const displayedCourses = showApprovedOnly
+    ? generatedCourses.filter(course => (course.status || '').toLowerCase() === 'approved')
+    : generatedCourses;
+
   return (
-    <div className="min-h-screen bg-white py-8 text-black">
+    <div className="min-h-screen flex flex-col bg-white text-black">
+      <Nav />
+      <div className="flex-grow w-full py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -139,6 +149,25 @@ const AICoursesGenerator = () => {
                     className="w-full px-4 py-3 border-2 border-black bg-white focus:outline-none focus:bg-gray-100 transition-none"
                     disabled={loading}
                   />
+                </div>
+
+                {/* Description Field */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Course Description & Details
+                  </label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    placeholder="Describe what you want to learn in detail — topics you're interested in, specific skills you want to build, projects you want to work on..."
+                    rows="4"
+                    className="w-full px-4 py-3 border-2 border-black bg-white focus:outline-none focus:bg-gray-100 transition-none resize-none text-sm"
+                    disabled={loading}
+                  />
+                  <p className="text-[10px] text-gray-500 font-semibold mt-1 uppercase tracking-wider">
+                    This helps AI generate more relevant content and find better YouTube videos for you.
+                  </p>
                 </div>
 
                 {/* Difficulty Level */}
@@ -191,6 +220,27 @@ const AICoursesGenerator = () => {
                 >
                   My Courses
                 </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextValue = !showApprovedOnly;
+                    setShowApprovedOnly(nextValue);
+                    // Always refresh when switching to approved-only to avoid stale list
+                    if (nextValue) {
+                      fetchMyAICourses();
+                    }
+                  }}
+                  disabled={loading}
+                  className={`w-full py-3 px-4 border-2 border-black font-black uppercase text-sm transition-none ${
+                    loading
+                      ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                      : showApprovedOnly
+                        ? 'bg-black text-white'
+                        : 'bg-white text-black hover:bg-black hover:text-white'
+                  }`}
+                >
+                  {showApprovedOnly ? 'Showing Approved' : 'Show Approved Only'}
+                </button>
               </form>
 
               {/* Info Box */}
@@ -198,7 +248,7 @@ const AICoursesGenerator = () => {
                 <p className="text-sm text-gray-900">
                   <span className="font-semibold">How it works:</span>
                   <br />
-                  OpenAI writes the module lessons, YouTube supplies playable video lessons, and the platform structures everything into a course ready for review.
+                  OpenAI writes in-depth module lessons (~5000 words each in flowing paragraphs), YouTube supplies playable video lessons matched to your description, and the platform structures everything into a course ready for review.
                 </p>
               </div>
             </div>
@@ -213,10 +263,12 @@ const AICoursesGenerator = () => {
                 activeVideos={activeVideos}
                 setActiveVideos={setActiveVideos}
               />
-            ) : showGeneratedCourses && generatedCourses.length > 0 ? (
+            ) : showGeneratedCourses && displayedCourses.length > 0 ? (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900">Generated Courses</h2>
-                {generatedCourses.map((course) => (
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {showApprovedOnly ? 'Approved Courses' : 'Generated Courses'}
+                </h2>
+                {displayedCourses.map((course) => (
                   <AIGeneratedCourseCard 
                     key={course._id} 
                     course={course} 
@@ -227,10 +279,10 @@ const AICoursesGenerator = () => {
                   />
                 ))}
               </div>
-            ) : showGeneratedCourses && generatedCourses.length === 0 ? (
+            ) : showGeneratedCourses && displayedCourses.length === 0 ? (
               <div className="bg-white border-4 border-black shadow-[8px_8px_0_#000] p-12 text-center">
                 <p className="text-gray-500 text-lg">
-                  No AI courses generated yet. Create your first one!
+                  {showApprovedOnly ? 'No approved AI courses yet.' : 'No AI courses generated yet. Create your first one!'}
                 </p>
               </div>
             ) : (
@@ -249,11 +301,11 @@ const AICoursesGenerator = () => {
                     </div>
                     <div className="flex items-start">
                       <span className="font-semibold text-black mr-3">2.</span>
-                      <p className="text-gray-700"><strong>Content Generation:</strong> OpenAI-powered lesson writing</p>
+                      <p className="text-gray-700"><strong>Content Generation:</strong> OpenAI-powered lesson writing (~5000 words per module)</p>
                     </div>
                     <div className="flex items-start">
                       <span className="font-semibold text-black mr-3">3.</span>
-                      <p className="text-gray-700"><strong>Video Matching:</strong> YouTube lessons selected for each module</p>
+                      <p className="text-gray-700"><strong>Video Matching:</strong> YouTube lessons matched to your description</p>
                     </div>
                     <div className="flex items-start">
                       <span className="font-semibold text-black mr-3">4.</span>
@@ -288,6 +340,8 @@ const AICoursesGenerator = () => {
           </div>
         </div>
       )}
+      </div>
+      <Footer />
     </div>
   );
 };
@@ -483,6 +537,19 @@ const AICourseDetailView = ({ course, onBack, activeVideos, setActiveVideos }) =
       {/* Course Header */}
       <div className="border-4 border-black p-6 bg-gray-50 shadow-[6px_6px_0_#000]">
         <h2 className="text-2xl font-bold text-black mb-1">{course.topic}</h2>
+        
+        {/* Course Description */}
+        {course.courseDescription && (
+          <div className="mt-3 p-4 bg-white border-2 border-black">
+            <p className="font-black uppercase text-xs tracking-wider text-gray-600 mb-2">About This Course</p>
+            <div className="text-sm text-gray-700 leading-relaxed space-y-2">
+              {course.courseDescription.split('\n').filter(line => line.trim()).map((para, i) => (
+                <p key={i}>{para}</p>
+              ))}
+            </div>
+          </div>
+        )}
+        
         <div className="grid grid-cols-3 gap-4 text-sm mt-4 pt-4 border-t border-gray-200">
           <div>
             <p className="text-gray-500 font-medium">Difficulty Level</p>

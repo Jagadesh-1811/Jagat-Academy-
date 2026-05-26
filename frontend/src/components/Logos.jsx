@@ -6,23 +6,23 @@ import { BiSupport } from "react-icons/bi";
 import { FaUsers } from "react-icons/fa";
 function Logos() {
     return (
-        <div className='w-full max-w-7xl mx-auto min-h-[90px] flex items-center justify-center flex-wrap gap-4 md:mb-[50px] px-6'>
+        <div className='w-full max-w-7xl mx-auto flex items-center justify-center flex-wrap gap-4 md:mb-[50px] px-6 py-8'>
 
-            <div className='flex items-center justify-center gap-2 px-5 py-3 rounded-3xl bg-gray-200 border border-gray-300 cursor-pointer'>
-                <SiOpenaccess className='w-[30px] h-[30px] fill-black' />
-                <span className='text-black'>Lifetime Access</span>
+            <div className='flex items-center justify-center gap-3 px-6 py-3 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all cursor-pointer'>
+                <SiOpenaccess className='w-[22px] h-[22px] fill-black' />
+                <span className='text-black font-black text-sm uppercase tracking-wider'>Lifetime Access</span>
             </div>
-            <div className='flex items-center justify-center gap-2 px-5 py-3 rounded-3xl bg-gray-200 border border-gray-300 cursor-pointer'>
-                <FaSackDollar className='w-[30px] h-[30px] fill-black' />
-                <span className='text-black'>Value For Money</span>
+            <div className='flex items-center justify-center gap-3 px-6 py-3 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all cursor-pointer'>
+                <FaSackDollar className='w-[22px] h-[22px] fill-black' />
+                <span className='text-black font-black text-sm uppercase tracking-wider'>Value For Money</span>
             </div>
-            <div className='flex items-center justify-center gap-2 px-5 py-3 rounded-3xl bg-gray-200 border border-gray-300 cursor-pointer'>
-                <BiSupport className='w-[35px] h-[35px] fill-black' />
-                <span className='text-black'>Lifetime Support</span>
+            <div className='flex items-center justify-center gap-3 px-6 py-3 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all cursor-pointer'>
+                <BiSupport className='w-[25px] h-[25px] fill-black' />
+                <span className='text-black font-black text-sm uppercase tracking-wider'>Lifetime Support</span>
             </div>
-            <div className='flex items-center justify-center gap-2 px-5 py-3 rounded-3xl bg-gray-200 border border-gray-300 cursor-pointer'>
-                <FaUsers className='w-[35px] h-[35px] fill-black' />
-                <span className='text-black'>Community Support</span>
+            <div className='flex items-center justify-center gap-3 px-6 py-3 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all cursor-pointer'>
+                <FaUsers className='w-[25px] h-[25px] fill-black' />
+                <span className='text-black font-black text-sm uppercase tracking-wider'>Community Support</span>
             </div>
 
         </div>

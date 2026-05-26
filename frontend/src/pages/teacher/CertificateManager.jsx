@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { serverUrl } from '../../App'; // Assuming serverUrl is defined here
+import { serverUrl } from '../../App';
 import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners';
 import { useSelector } from 'react-redux';
+import { FaArrowLeft } from 'react-icons/fa';
 
 function CertificateManager() {
+    const navigate = useNavigate();
     const { token } = useSelector(state => state.user);
     const [certificationLink, setCertificationLink] = useState('');
     const [loading, setLoading] = useState(true);
@@ -60,19 +63,26 @@ function CertificateManager() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-            <div className="w-full max-w-xl bg-white rounded-xl shadow-lg p-6 space-y-6">
-                <h2 className="text-2xl font-semibold text-gray-800 text-center">Manage Certification Link</h2>
+        <div className="min-h-screen bg-white flex items-center justify-center p-4 relative">
+            {/* Back button */}
+            <button
+                onClick={() => navigate('/teacher/dashboard')}
+                className="absolute top-6 left-6 flex items-center gap-2 border-2 border-black px-4 py-2 text-xs font-black uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
+            >
+                <FaArrowLeft /> Back
+            </button>
+            <div className="w-full max-w-xl bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8 space-y-6">
+                <h2 className="text-2xl font-black text-black text-center uppercase tracking-tight">Manage Certification Link</h2>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label htmlFor="certificationLink" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="certificationLink" className="block text-sm font-bold text-gray-700 mb-1 uppercase tracking-wider">
                             Certification Form/Page Link
                         </label>
                         <input
                             type="url"
                             id="certificationLink"
-                            className="w-full p-3 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-black focus:outline-none"
+                            className="w-full p-3 border-2 border-black bg-white text-sm focus:bg-gray-100 transition-none outline-none"
                             placeholder="e.g., https://forms.gle/RqNdh925UHiokUYG9"
                             value={certificationLink}
                             onChange={(e) => setCertificationLink(e.target.value)}
@@ -83,7 +93,7 @@ function CertificateManager() {
                     <div className="pt-4">
                         <button
                             type="submit"
-                            className="w-full bg-black text-white py-3 rounded-md text-sm font-medium hover:bg-gray-700 transition"
+                            className="w-full bg-black text-white py-4 border-2 border-black text-sm font-black uppercase tracking-wider hover:bg-white hover:text-black transition-none"
                             disabled={submitting}
                         >
                             {submitting ? <ClipLoader size={20} color='white' /> : 'Save Certification Link'}

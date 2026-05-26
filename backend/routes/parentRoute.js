@@ -11,7 +11,8 @@ import {
   getStudentAssignments,
   getStudentOrders,
   messageEducator,
-  getConversations
+  getConversations,
+  getDashboard
 } from '../controllers/parentController.js';
 import isAuth from '../middlewares/isAuth.js';
 
@@ -29,5 +30,6 @@ router.get('/student/:id/assignments', isAuth, getStudentAssignments);
 router.get('/student/:id/orders', isAuth, getStudentOrders);
 router.post('/message-educator', isAuth, messageEducator);
 router.get('/conversations', isAuth, getConversations);
+router.get('/dashboard', isAuth, getDashboard);
 
 export default router;

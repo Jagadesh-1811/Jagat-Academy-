@@ -1,5 +1,5 @@
 import express from "express"
-import { googleSignup, login, logOut, signUp, deleteAccount, emailLinkSignup, supabaseSync, supabaseLogin, signupWithVerification, verifyEmail, getEducatorStatus, sendEducatorVerificationCode, verifyEducatorCode } from "../controllers/authController.js"
+import { googleSignup, login, logOut, signUp, deleteAccount, emailLinkSignup, supabaseSync, supabaseLogin, signupWithVerification, verifyEmail, getEducatorStatus, sendEducatorVerificationCode, verifyEducatorCode, educatorSignup } from "../controllers/authController.js"
 import { syncFirebaseUser } from "../controllers/firebaseAuthController.js"
 import isAuth from "../middlewares/isAuth.js"
 
@@ -8,6 +8,7 @@ const authRouter = express.Router()
 authRouter.post("/signup", signUp)
 authRouter.post("/signup-verify", signupWithVerification)  // Signup with email verification
 authRouter.get("/verify-email/:token", verifyEmail)        // Verify email from link
+authRouter.post("/educator-signup", educatorSignup)        // Dedicated educator signup with coupon code
 
 authRouter.post("/login", login)
 authRouter.get("/logout", logOut)

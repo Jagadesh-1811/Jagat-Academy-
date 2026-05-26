@@ -116,14 +116,13 @@ function QuizManager() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-md p-6 mt-8">
-            <h2 className="text-xl font-bold mb-4">Quiz Manager</h2>
+        <div className="max-w-6xl mx-auto bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 mt-8">
+            <h2 className="text-xl font-black uppercase tracking-tight mb-4">Quiz Manager</h2>
 
-            <div className="mb-4">
-                <label htmlFor="courseSelect" className="block text-sm font-medium text-gray-700">Select Course:</label>
+            <div className="mb-4">                        <label htmlFor="courseSelect" className="block text-sm font-bold text-gray-700 uppercase tracking-wider">Select Course:</label>
                 <select
                     id="courseSelect"
-                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-black focus:border-black sm:text-sm rounded-md"
+                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-2 border-black focus:outline-none sm:text-sm bg-white"
                     value={selectedCourse}
                     onChange={(e) => setSelectedCourse(e.target.value)}
                 >
@@ -137,55 +136,55 @@ function QuizManager() {
             {selectedCourse && (
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label htmlFor="quizLink" className="block text-sm font-medium text-gray-700">Quiz Link (Google Forms, Typeform, etc.):</label>
+                        <label htmlFor="quizLink" className="block text-sm font-bold text-gray-700 uppercase tracking-wider">Quiz Link (Google Forms, Typeform, etc.):</label>
                         <input
                             type="url"
                             id="quizLink"
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
+                            className="mt-1 block w-full border-2 border-black py-2 px-3 focus:outline-none focus:bg-gray-100 transition-none sm:text-sm"
                             value={quizLink}
                             onChange={(e) => setQuizLink(e.target.value)}
                             required
                         />
                     </div>
                     <div>
-                        <label htmlFor="liveSessionLink" className="block text-sm font-medium text-gray-700">Live Session Link (Google Meet, Zoom, etc.):</label>
+                        <label htmlFor="liveSessionLink" className="block text-sm font-bold text-gray-700 uppercase tracking-wider">Live Session Link (Google Meet, Zoom, etc.):</label>
                         <input
                             type="url"
                             id="liveSessionLink"
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
+                            className="mt-1 block w-full border-2 border-black py-2 px-3 focus:outline-none focus:bg-gray-100 transition-none sm:text-sm"
                             value={liveSessionLink}
                             onChange={(e) => setLiveSessionLink(e.target.value)}
                             required
                         />
                     </div>
                     <div>
-                        <label htmlFor="instructions" className="block text-sm font-medium text-gray-700">Instructions:</label>
+                        <label htmlFor="instructions" className="block text-sm font-bold text-gray-700 uppercase tracking-wider">Instructions:</label>
                         <textarea
                             id="instructions"
                             rows="3"
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
+                            className="mt-1 block w-full border-2 border-black py-2 px-3 focus:outline-none focus:bg-gray-100 transition-none sm:text-sm"
                             value={instructions}
                             onChange={(e) => setInstructions(e.target.value)}
                             required
                         ></textarea>
                     </div>
                     <div>
-                        <label htmlFor="rewards" className="block text-sm font-medium text-gray-700">Reward Details:</label>
+                        <label htmlFor="rewards" className="block text-sm font-bold text-gray-700 uppercase tracking-wider">Reward Details:</label>
                         <input
                             type="text"
                             id="rewards"
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
+                            className="mt-1 block w-full border-2 border-black py-2 px-3 focus:outline-none focus:bg-gray-100 transition-none sm:text-sm"
                             value={rewards}
                             onChange={(e) => setRewards(e.target.value)}
                             required
                         />
                     </div>
                     <div>
-                        <label htmlFor="schedule" className="block text-sm font-medium text-gray-700">Schedule (Date and Time):</label>
+                        <label htmlFor="schedule" className="block text-sm font-bold text-gray-700 uppercase tracking-wider">Schedule (Date and Time):</label>
                         <input
                             type="datetime-local"
                             id="schedule"
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
+                            className="mt-1 block w-full border-2 border-black py-2 px-3 focus:outline-none focus:bg-gray-100 transition-none sm:text-sm"
                             value={schedule}
                             onChange={(e) => setSchedule(e.target.value)}
                             required
@@ -193,7 +192,7 @@ function QuizManager() {
                     </div>
                     <button
                         type="submit"
-                        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                        className="inline-flex justify-center py-3 px-6 border-2 border-black text-sm font-black uppercase text-white bg-black hover:bg-white hover:text-black transition-none"
                         disabled={loading}
                     >
                         {loading ? <ClipLoader size={20} color="#fff" /> : (editingQuizId ? "Update Quiz" : "Create Quiz")}
@@ -209,7 +208,7 @@ function QuizManager() {
                                 setRewards('');
                                 setSchedule('');
                             }}
-                            className="ml-2 inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                            className="ml-2 inline-flex justify-center py-3 px-6 border-2 border-black text-sm font-black uppercase text-black bg-white hover:bg-black hover:text-white transition-none"
                         >
                             Cancel Edit
                         </button>

@@ -1,9 +1,10 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import ArrowBackLongIcon from '@mui/icons-material/ArrowBack';
 import axios from 'axios'
 import { serverUrl } from '../App'
+import Nav from '../components/Nav'
+import Footer from '../components/Footer'
 import { setUserData, setToken } from '../redux/userSlice'
 import UserFeedbackList from '../components/UserFeedbackList'
 import StreakCounter from '../components/StreakCounter';
@@ -48,42 +49,43 @@ function Profile() {
     }
   }
   return (
-    <div className="min-h-screen bg-gray-100 px-4 py-10 flex flex-col items-center justify-start gap-6">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Nav />
+      <div className="flex-grow w-full px-4 py-10 flex flex-col items-center justify-start gap-6">
       {/* Streak Counter */}
       <div className="max-w-xl w-full flex justify-end">
         <StreakCounter />
       </div>
 
-      <div className="bg-white shadow-lg rounded-2xl p-8 max-w-xl w-full relative border-4 border-black">
-        <ArrowBackLongIcon className='absolute top-[8%] left-[5%] w-[22px] h-[22px] cursor-pointer' onClick={() => navigate("/")} />
+      <div className="bg-white border-4 border-black p-8 max-w-xl w-full relative shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
         {/* Profile Header */}
         <div className="flex flex-col items-center text-center">
           {userData?.photoUrl ? <img
             src={userData?.photoUrl}
             alt=""
-            className="w-24 h-24 rounded-full object-cover border-4 border-[black]"
-          /> : <div className='w-24 h-24 rounded-full text-white flex items-center justify-center text-[30px] border-2 bg-black  border-white cursor-pointer'>
+            className="w-24 h-24 object-cover border-4 border-black"
+          /> : <div className='w-24 h-24 text-white flex items-center justify-center text-3xl border-2 bg-black border-white cursor-pointer font-black'>
             {userData?.name ? userData.name.slice(0, 1).toUpperCase() : ''}
           </div>}
-          <h2 className="text-2xl font-bold mt-4 text-gray-800 uppercase">{userData?.name || ''}</h2>
-          <p className="text-xs text-gray-500 font-bold uppercase">{userData?.role || ''}</p>
+          <h2 className="text-2xl font-black mt-4 text-black uppercase tracking-tight">{userData?.name || ''}</h2>
+          <p className="text-xs text-gray-500 font-black uppercase tracking-wider">{userData?.role || ''}</p>
         </div>
 
         {/* Profile Info */}
-        <div className="mt-6 space-y-4">
-          <div className="text-sm">
-            <span className="font-semibold text-gray-700">Email: </span>
-            <span>{userData.email}</span>
+        <div className="mt-6 space-y-4 border-t-2 border-black pt-4">
+          <div className="text-sm font-bold">
+            <span className="font-black text-black uppercase text-xs tracking-wider">Email: </span>
+            <span className="text-gray-600">{userData.email}</span>
           </div>
 
-          <div className="text-sm">
-            <span className="font-semibold text-gray-700">Bio: </span>
-            <span>{userData.description}</span>
+          <div className="text-sm font-bold">
+            <span className="font-black text-black uppercase text-xs tracking-wider">Bio: </span>
+            <span className="text-gray-600">{userData.description}</span>
           </div>
 
-          <div className="text-sm">
-            <span className="font-semibold text-gray-700">Enrolled Courses: </span>
-            <span>{userData?.enrolledCourses ? userData.enrolledCourses.length : 0}</span>
+          <div className="text-sm font-bold">
+            <span className="font-black text-black uppercase text-xs tracking-wider">Enrolled Courses: </span>
+            <span className="text-gray-600">{userData?.enrolledCourses ? userData.enrolledCourses.length : 0}</span>
           </div>
 
           {/* Gamification Accolades Block */}
@@ -132,11 +134,11 @@ function Profile() {
         </div>
 
         {/* Actions */}
-        <div className="mt-6 flex justify-center gap-4 border-t border-gray-200 pt-4">
-          <button className="px-5 py-2 border-2 border-black bg-black text-white hover:bg-white hover:text-black cursor-pointer font-bold uppercase text-xs" onClick={() => navigate("/editprofile")}>
+        <div className="mt-6 flex justify-center gap-4 border-t-2 border-black pt-4">
+          <button className="px-6 py-3 border-2 border-black bg-black text-white hover:bg-white hover:text-black cursor-pointer font-black uppercase text-xs tracking-wider shadow-[3px_3px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all" onClick={() => navigate("/editprofile")}>
             Edit Profile
           </button>
-          <button className="px-5 py-2 border-2 border-red-600 bg-white text-red-600 hover:bg-red-600 hover:text-white cursor-pointer font-bold uppercase text-xs" onClick={handleDelete}>
+          <button className="px-6 py-3 border-2 border-black bg-white text-black hover:bg-black hover:text-white cursor-pointer font-black uppercase text-xs tracking-wider shadow-[3px_3px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all" onClick={handleDelete}>
             Delete Account
           </button>
         </div>
@@ -153,6 +155,8 @@ function Profile() {
           Submit New Feedback
         </button>
       </div>
+      </div>
+      <Footer />
     </div>
   )
 }

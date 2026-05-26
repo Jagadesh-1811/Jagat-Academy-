@@ -17,10 +17,19 @@ const uploadOnCloudinary = async (localFilePath) => {
 
         console.log("📤 Attempting to upload file to Cloudinary:", localFilePath)
 
-        //upload file on cloudinary
-        const response = await cloudinary.uploader.upload(localFilePath, {
-            resource_type: "auto"
-        })
+        let response;
+        if (localFilePath.match(/\.(mp4|mkv|mov|avi|wmv|flv|webm)$/i)) {
+             // Use upload_large for videos to prevent timeout
+             response = await cloudinary.uploader.upload_large(localFilePath, {
+                 resource_type: "video",
+                 chunk_size: 6000000
+             });
+        } else {
+             // Use regular upload for images/thumbnails
+             response = await cloudinary.uploader.upload(localFilePath, {
+                 resource_type: "auto"
+             });
+        }
 
         //file has been uploaded successfully
         console.log("✅ File uploaded to Cloudinary successfully:", response.url)

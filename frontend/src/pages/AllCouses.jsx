@@ -42,73 +42,48 @@ setFilterCourses(courseData)
   },[category])
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-white">
       <Nav/>
       {/* Toggle Button */}
       <button
         onClick={() => setIsSidebarVisible(prev => !prev)}
-        className="fixed top-20 left-4 z-50 bg-white text-black px-3 py-1 rounded md:hidden border-2 border-black"
+        className="fixed top-20 left-4 z-50 bg-white text-black px-3 py-1 md:hidden border-2 border-black font-black uppercase text-xs tracking-wider"
       >
-        {isSidebarVisible ? 'Hide' : 'Show'} Filters
+        {isSidebarVisible ? '✕ Hide' : '☰ Filters'}
       </button>
 
       {/* Sidebar */}
-      <aside className={`w-[260px] h-screen overflow-y-auto bg-black fixed  top-0 left-0 p-6 py-[130px] border-r border-gray-200 shadow-md transition-transform duration-300 z-5 
+      <aside className={`w-[260px] h-screen overflow-y-auto bg-black fixed top-0 left-0 p-6 py-[130px] border-r-4 border-white transition-transform duration-300 z-5 
         ${isSidebarVisible ? 'translate-x-0' : '-translate-x-full'} 
         md:block md:translate-x-0`}>
           
-        <h2 className="text-xl font-bold flex items-center justify-center gap-2 text-gray-50 mb-6"><FaArrowLeftLong className='text-white' onClick={()=>navigate("/")}/>Filter by Category</h2>
+        <div className="flex items-center gap-3 mb-8 border-b-2 border-white pb-4">
+          <FaArrowLeftLong className='text-white cursor-pointer hover:opacity-70' onClick={()=>navigate("/")}/>
+          <h2 className="text-lg font-black text-white uppercase tracking-tight">Filter by Category</h2>
+        </div>
 
-        <form className="space-y-4 text-sm  bg-gray-600 border-white text-[white] border  p-[20px] rounded-2xl" onSubmit={(e)=>e.preventDefault()}>
-          <button className='px-[10px] py-[10px]  bg-black text-white  rounded-[10px] text-[15px] font-light flex items-center justify-center gap-2 cursor-pointer' onClick={()=>navigate("/searchwithai")}>Search with AI <img src={ai} className='w-[30px] h-[30px] rounded-full' alt="" /></button>
-          <label  className="flex items-center gap-3 cursor-pointer hover:text-gray-200 transition">
-              <input type="checkbox" className="accent-black w-4 h-4 rounded-md" value={'App Development'} onChange={toggleCategory}/>
-              App Development
-            </label>
-          <label  className="flex items-center gap-3 cursor-pointer hover:text-gray-200 transition">
-              <input type="checkbox" className="accent-black w-4 h-4 rounded-md" value={'AI/ML'} onChange={toggleCategory}/>
-              AI/ML
-            </label>
-            
-            <label  className="flex items-center gap-3 cursor-pointer hover:text-gray-200 transition">
-              <input type="checkbox" className="accent-black w-4 h-4 rounded-md" value={'AI Tools'} onChange={toggleCategory} />
-              AI Tools
-            </label>
-            <label  className="flex items-center gap-3 cursor-pointer hover:text-gray-200 transition">
-              <input type="checkbox" className="accent-black w-4 h-4 rounded-md" value={'Data Science'} onChange={toggleCategory}/>
-              Data Science
-            </label>
-            <label  className="flex items-center gap-3 cursor-pointer hover:text-gray-200 transition">
-              <input type="checkbox" className="accent-black w-4 h-4 rounded-md" value={'Data Analytics'} onChange={toggleCategory} />
-              Data Analytics
-            </label>
-            <label  className="flex items-center gap-3 cursor-pointer hover:text-gray-200 transition">
-              <input type="checkbox" className="accent-black w-4 h-4 rounded-md" value={'Ethical Hacking'} onChange={toggleCategory}/>
-              Ethical Hacking
-            </label>
-            <label  className="flex items-center gap-3 cursor-pointer hover:text-gray-200 transition">
-              <input type="checkbox" className="accent-black w-4 h-4 rounded-md" value={'UI UX Designing'} onChange={toggleCategory}/>
-              UI UX Designing
-            </label>
-            <label  className="flex items-center gap-3 cursor-pointer hover:text-gray-200 transition">
-              <input type="checkbox" className="accent-black w-4 h-4 rounded-md" value={'Web Development'} onChange={toggleCategory}/>
-              Web Development
-            </label>
-            <label  className="flex items-center gap-3 cursor-pointer hover:text-gray-200 transition">
-              <input type="checkbox" className="accent-black w-4 h-4 rounded-md" value={'Others'} onChange={toggleCategory} />
-              Others
-            </label>
+        <form className="space-y-3 text-sm" onSubmit={(e)=>e.preventDefault()}>
+          <button className='w-full px-4 py-3 bg-white text-black font-black uppercase text-xs tracking-wider border-2 border-white shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all flex items-center justify-center gap-2 cursor-pointer' onClick={()=>navigate("/searchwithai")}>
+            <img src={ai} className='w-5 h-5' alt="" />
+            Search with AI
+          </button>
+          <div className='border-2 border-white p-4 mt-4 space-y-3'>
+            <p className='text-white font-black uppercase text-[10px] tracking-widest mb-3'>CATEGORIES</p>
+            {['App Development', 'AI/ML', 'AI Tools', 'Data Science', 'Data Analytics', 'Ethical Hacking', 'UI UX Designing', 'Web Development', 'Others'].map((cat) => (
+              <label key={cat} className="flex items-center gap-3 cursor-pointer text-white font-bold text-xs hover:text-gray-300 transition-colors">
+                <input type="checkbox" className="accent-white w-4 h-4 border-2 border-white" value={cat} onChange={toggleCategory}/>
+                {cat}
+              </label>
+            ))}
+          </div>
         </form>
       </aside>
 
       {/* Main Courses Section */}
-      <main className="w-full transition-all duration-300 py-[130px] md:pl-[300px]  flex items-start justify-center md:justify-start flex-wrap gap-6 px-[10px]">
-        {
-        filterCourses?.map((item,index)=>(
+      <main className="w-full transition-all duration-300 py-[130px] md:pl-[300px] flex items-start justify-center md:justify-start flex-wrap gap-6 px-[10px]">
+        {filterCourses?.map((item,index)=>(
           <Card key={index} thumbnail={item.thumbnail} title={item.title} price={item.price} category={item.category} id={item._id} reviews={item.reviews} />
-
-        ))
-      }
+        ))}
       </main>
     </div>
   );

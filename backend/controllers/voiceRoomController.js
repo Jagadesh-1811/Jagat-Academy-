@@ -41,10 +41,9 @@ const generateZegoToken = (appId, userId, serverSecret, effectiveTimeInSeconds, 
     return token;
 };
 
-// Check if current day is weekend (Saturday = 6, Sunday = 0)
+// Voice rooms are available every day
 const isWeekend = () => {
-    const day = new Date().getDay();
-    return day === 0 || day === 6;
+    return true; // Enabled every day as per user request
 };
 
 // Middleware to check weekend access
@@ -583,17 +582,14 @@ export const getMyPendingRequests = async (req, res) => {
 // Check weekend status
 export const getWeekendStatus = async (req, res) => {
     try {
-        const weekend = isWeekend();
         const currentDay = new Date().getDay();
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
         res.status(200).json({
             success: true,
-            isWeekend: weekend,
+            isWeekend: true, // Voice rooms available every day
             currentDay: dayNames[currentDay],
-            message: weekend
-                ? "Voice rooms are available today!"
-                : "Voice rooms are only available on weekends (Saturday & Sunday)"
+            message: "Voice rooms are available today!"
         });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

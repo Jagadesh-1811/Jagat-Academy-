@@ -141,3 +141,18 @@ export const deleteAssignment = async (req, res) => {
         });
     }
 };
+
+export const getCourseAssignments = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const assignments = await Assignment.find({ course: courseId }).sort({ createdAt: -1 });
+        return res.status(200).json(assignments);
+    } catch (error) {
+        console.error("Error fetching assignments:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An unexpected error occurred.",
+            error: error.message,
+        });
+    }
+};

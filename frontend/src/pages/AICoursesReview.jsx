@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { serverUrl } from '../App';
+import { FaArrowLeft } from 'react-icons/fa';
+import Nav from '../components/Nav';
+import Footer from '../components/Footer';
 
 const AICoursesReview = () => {
   const navigate = useNavigate();
@@ -216,10 +219,18 @@ const AICoursesReview = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white mt-20 px-4 py-8">
+    <div className="min-h-screen flex flex-col bg-white">
+      <Nav />
+      <div className="flex-grow w-full px-4 py-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
+        {/* Header with back button */}
         <div className="mb-8">
+          <button
+            onClick={() => navigate('/teacher/dashboard')}
+            className="flex items-center gap-2 border-2 border-black px-4 py-2 font-black uppercase text-xs tracking-wider mb-4 hover:bg-black hover:text-white transition-colors"
+          >
+            <FaArrowLeft /> Back to Dashboard
+          </button>
           <h1 className="text-3xl font-bold text-black mb-2">AI Courses Review</h1>
           <p className="text-gray-600">Review and provide feedback on student-generated AI courses</p>
         </div>
@@ -295,11 +306,26 @@ const AICoursesReview = () => {
                       <h2 className="text-2xl font-bold text-black mb-1">{selectedCourse.topic}</h2>
                       <p className="text-gray-600 font-medium text-sm">Student: {selectedCourse.studentId?.name || 'Unknown'}</p>
                       <p className="text-xs text-gray-500 mt-1">Generated: {new Date(selectedCourse.createdAt).toLocaleDateString()}</p>
+                      {selectedCourse.description && (
+                        <p className="text-xs text-gray-500 mt-1 italic">
+                          Student's request: "{selectedCourse.description.substring(0, 120)}{selectedCourse.description.length > 120 ? '...' : ''}"
+                        </p>
+                      )}
                     </div>
                     <span className={`px-4 py-1.5 font-black uppercase text-xs ${getStatusBadgeColor(selectedCourse.status)}`}>
                       {getStatusLabel(selectedCourse.status)}
                     </span>
                   </div>
+                  {selectedCourse.courseDescription && (
+                    <div className="mt-4 p-4 bg-white border-2 border-black">
+                      <p className="font-black uppercase text-xs tracking-wider text-gray-600 mb-2">Course Overview</p>
+                      <div className="text-sm text-gray-700 leading-relaxed space-y-2">
+                        {selectedCourse.courseDescription.split('\n').filter(line => line.trim()).map((para, i) => (
+                          <p key={i}>{para}</p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div className="grid grid-cols-3 gap-4 text-sm mt-4 pt-4 border-t border-gray-200">
                     <div>
                       <p className="text-gray-500 font-medium">Difficulty Level</p>
@@ -504,6 +530,8 @@ const AICoursesReview = () => {
           </div>
         </div>
       )}
+      </div>
+      <Footer />
     </div>
   );
 };

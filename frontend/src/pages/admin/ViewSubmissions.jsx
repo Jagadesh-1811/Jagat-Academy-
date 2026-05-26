@@ -1,185 +1,128 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { serverUrl } from '../../App';
 import { toast } from 'react-toastify';
-import { FaArrowLeft } from 'react-icons/fa';
 import { ClipLoader } from 'react-spinners';
-import { useSelector } from 'react-redux';
 
-const SubmissionCard = ({ submission, grades, feedback, onGradeChange, onFeedbackChange, onAssignGrade, submittingGrade }) => {
-    const getGradeColor = (grade, isBackground = false) => {
-        switch (grade) {
-            case 'A': return isBackground ? '#D4EDDA' : '#28A745'; // Green
-            case 'B': return isBackground ? '#CCE5FF' : '#007BFF'; // Blue
-            case 'C': return isBackground ? '#FFF3CD' : '#FFC107'; // Yellow
-            case 'D': return isBackground ? '#F8D7DA' : '#DC3545'; // Red
-            default: return isBackground ? '#E2E6EA' : '#6C757D'; // Gray
-        }
-    };
+const SubmissionCard = ({ submission, onGrade }) => {
+    const [grade, setGrade] = useState('');
+    const [feedback, setFeedback] = useState('');
 
     return (
-        <div key={submission._id} className="bg-gray-50 p-4 rounded-md shadow-sm">
-            <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-medium">Student: {submission.student.name}</h3>
-                <p className="text-gray-500 text-sm">Submitted: {new Date(submission.submittedAt).toLocaleDateString()}</p>
+        <div className="border-4 border-black p-4 bg-gray-50">
+            <div className="flex justify-between items-start mb-3">
+                <div>
+                    <p className="font-black text-xs uppercase">{submission.student?.name || 'Unknown'}</p>
+                    <p className="text-[10px] text-gray-500">{submission.student?.email}</p>
+                    <p className="text-[10px] text-gray-500 mt-1">Submitted: {new Date(submission.createdAt).toLocaleDateString()}</p>
+                </div>
+                {submission.fileUrl && (
+                    <a href={submission.fileUrl} target="_blank" rel="noopener noreferrer"
+                        className="bg-black text-white px-3 py-1 text-[10px] font-black uppercase border-2 border-black">
+                        View
+                    </a>
+                )}
             </div>
-            <p className="text-gray-700">Submission Link: <a href={submission.submissionLink} target="_blank" rel="noopener noreferrer" className="text-black hover:underline">{submission.submissionLink}</a></p>
 
             {submission.grade ? (
-                <div className="mt-4 p-3 rounded-md"
-                    style={{ backgroundColor: getGradeColor(submission.grade.grade, true) }}>
-                    <p className="font-semibold">Grade: <span style={{ color: getGradeColor(submission.grade.grade) }}>{submission.grade.grade}</span></p>
-                    <p className="text-gray-700">Feedback: {submission.grade.feedback}</p>
+                <div className={`border-2 p-3 ${submission.grade === 'A' ? 'border-green-600 bg-green-50' : submission.grade === 'B' ? 'border-blue-600 bg-blue-50' : submission.grade === 'C' ? 'border-yellow-600 bg-yellow-50' : 'border-red-600 bg-red-50'}`}>
+                    <span className="font-black text-sm uppercase">Grade: {submission.grade}</span>
+                    {submission.feedback && <p className="text-xs mt-1 text-gray-600">{submission.feedback}</p>}
                 </div>
             ) : (
-                <div className="mt-4 p-3 bg-gray-200 rounded-md">
-                    <h4 className="font-semibold mb-2">Assign Grade</h4>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                        <select
-                            className="w-full sm:w-1/3 border px-3 py-2 rounded-md bg-white"
-                            value={grades[submission._id] || ''}
-                            onChange={(e) => onGradeChange(submission._id, e.target.value)}
-                        >
-                            <option value="">Select Grade</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                            <option value="D">D</option>
-                        </select>
-                        <textarea
-                            className="w-full sm:flex-1 border px-3 py-2 rounded-md resize-none"
-                            placeholder="Add feedback (optional)"
-                            value={feedback[submission._id] || ''}
-                            onChange={(e) => onFeedbackChange(submission._id, e.target.value)}
-                        ></textarea>
-                        <button
-                            className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-700 w-full sm:w-auto"
-                            onClick={() => onAssignGrade(submission._id)}
-                            disabled={submittingGrade}
-                        >
-                            {submittingGrade ? <ClipLoader size={20} color='white' /> : 'Submit Grade'}
-                        </button>
-                    </div>
+                <div className="border-2 border-black p-3 bg-white space-y-2">
+                    <select value={grade} onChange={(e) => setGrade(e.target.value)}
+                        className="w-full border-2 border-black p-2 text-xs font-bold bg-white focus:outline-none">
+                        <option value="">Select Grade</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                    <textarea value={feedback} onChange={(e) => setFeedback(e.target.value)}
+                        placeholder="Feedback..."
+                        className="w-full border-2 border-black p-2 text-xs bg-white focus:outline-none" />
+                    <button onClick={() => onGrade(submission._id, grade, feedback)} disabled={!grade}
+                        className="w-full bg-black text-white py-2 text-[10px] font-black uppercase border-2 border-black hover:bg-gray-800 transition-none disabled:opacity-50">
+                        Submit Grade
+                    </button>
                 </div>
             )}
         </div>
     );
 };
 
-function ViewSubmissions() {
-    const { token } = useSelector(state => state.user);
+const ViewSubmissions = () => {
     const { courseId, assignmentId } = useParams();
     const navigate = useNavigate();
+    const { token } = useSelector((state) => state.user);
     const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [grades, setGrades] = useState({}); // State to hold grades for each submission
-    const [feedback, setFeedback] = useState({}); // State to hold feedback for each submission
-    const [submittingGrade, setSubmittingGrade] = useState(false);
 
     useEffect(() => {
-        const fetchSubmissions = async () => {
-            try {
-                const result = await axios.get(`${serverUrl}/api/submission/${assignmentId}`, { headers: { Authorization: `Bearer ${token}` } });
-                setSubmissions(result.data.submissions);
-                // Initialize grades and feedback states
-                const initialGrades = {};
-                const initialFeedback = {};
-                result.data.submissions.forEach(sub => {
-                    if (sub.grade) {
-                        initialGrades[sub._id] = sub.grade.grade; // Assuming grade object is populated
-                        initialFeedback[sub._id] = sub.grade.feedback; // Assuming grade object is populated
-                    }
-                });
-                setGrades(initialGrades);
-                setFeedback(initialFeedback);
-            } catch (error) {
-                console.error("Error fetching submissions:", error);
-                toast.error(error.response?.data?.message || "Failed to fetch submissions.");
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchSubmissions();
-    }, [assignmentId, token]);
+    }, [assignmentId]);
 
-    const handleGradeChange = (submissionId, value) => {
-        setGrades(prev => ({ ...prev, [submissionId]: value }));
-    };
-
-    const handleFeedbackChange = (submissionId, value) => {
-        setFeedback(prev => ({ ...prev, [submissionId]: value }));
-    };
-
-    const assignGrade = async (submissionId) => {
-        setSubmittingGrade(true);
+    const fetchSubmissions = async () => {
         try {
-            const selectedGrade = grades[submissionId];
-            const selectedFeedback = feedback[submissionId];
-
-            if (!selectedGrade) {
-                toast.error("Please select a grade.");
-                setSubmittingGrade(false);
-                return;
-            }
-
-            const result = await axios.post(
-                `${serverUrl}/api/grade/assign`,
-                { submissionId, grade: selectedGrade, feedback: selectedFeedback },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-            toast.success(result.data.message);
-            // Update the submission in state to reflect the new grade
-            setSubmissions(prevSubmissions =>
-                prevSubmissions.map(sub =>
-                    sub._id === submissionId ? { ...sub, grade: result.data.grade } : sub
-                )
-            );
+            const res = await axios.get(`${serverUrl}/api/submission/${assignmentId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setSubmissions(res.data || []);
         } catch (error) {
-            console.error("Error assigning grade:", error);
-            toast.error(error.response?.data?.message || "Failed to assign grade.");
+            toast.error('Failed to fetch submissions');
         } finally {
-            setSubmittingGrade(false);
+            setLoading(false);
+        }
+    };
+
+    const assignGrade = async (submissionId, grade, feedback) => {
+        try {
+            await axios.post(`${serverUrl}/api/grade/assign`, { submissionId, grade, feedback }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            toast.success('Grade assigned');
+            fetchSubmissions();
+        } catch (error) {
+            toast.error('Failed to assign grade');
         }
     };
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center min-h-screen">
-                <ClipLoader size={50} color={'#000'} />
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <ClipLoader size={40} color="#000" />
             </div>
         );
     }
 
     return (
-        <div className="max-w-5xl mx-auto p-6 mt-10 bg-white rounded-lg shadow-md">
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                    <FaArrowLeft className="w-5 h-5 cursor-pointer" onClick={() => navigate(`/admin/assignments/${courseId}`)} />
-                    <h2 className="text-2xl font-semibold">Submissions for Assignment</h2>
+        <div className="min-h-screen bg-white">
+            <div className="bg-black border-b-4 border-black px-6 py-4">
+                <div className="max-w-4xl mx-auto flex items-center gap-4">
+                    <button onClick={() => navigate(-1)} className="text-white hover:text-gray-300">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <h1 className="text-white font-black uppercase tracking-tight text-lg">Submissions</h1>
+                    <span className="text-gray-400 text-xs font-bold uppercase ml-auto">{submissions.length} Submissions</span>
                 </div>
             </div>
 
-            {submissions.length === 0 ? (
-                <p className="text-center text-gray-600">No submissions found for this assignment.</p>
-            ) : (
-                <div className="space-y-4">
-                    {submissions.map((submission) => (
-                        <SubmissionCard
-                            key={submission._id}
-                            submission={submission}
-                            grades={grades}
-                            feedback={feedback}
-                            onGradeChange={handleGradeChange}
-                            onFeedbackChange={handleFeedbackChange}
-                            onAssignGrade={assignGrade}
-                            submittingGrade={submittingGrade}
-                        />
-                    ))}
-                </div>
-            )}
+            <div className="max-w-4xl mx-auto p-6 space-y-4">
+                {submissions.length === 0 ? (
+                    <div className="border-4 border-black p-12 text-center">
+                        <h3 className="font-black uppercase text-sm text-gray-500">No Submissions Yet</h3>
+                    </div>
+                ) : (
+                    submissions.map((sub) => (
+                        <SubmissionCard key={sub._id} submission={sub} onGrade={assignGrade} />
+                    ))
+                )}
+            </div>
         </div>
     );
-}
+};
 
 export default ViewSubmissions;

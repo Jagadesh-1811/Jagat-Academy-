@@ -47,7 +47,7 @@ const UserFeedbackList = ({ userEmail }) => {
         setDeleting(null);
     };
 
-    const getStatusColor = (status) => {
+    const getStatusStyle = (status) => {
         switch (status) {
             case 'pending': return 'bg-gray-100 text-gray-700';
             case 'reviewed': return 'bg-gray-200 text-gray-800';
@@ -83,9 +83,9 @@ const UserFeedbackList = ({ userEmail }) => {
 
     if (feedbacks.length === 0) {
         return (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8">
                 <FaCommentDots className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-                <p>No feedback or issues submitted yet</p>
+                <p className="text-gray-500 font-bold text-sm">No feedback or issues submitted yet</p>
             </div>
         );
     }
@@ -93,24 +93,24 @@ const UserFeedbackList = ({ userEmail }) => {
     return (
         <div className="space-y-3">
             {feedbacks.map(feedback => (
-                <div key={feedback._id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div key={feedback._id} className="border-2 border-black p-4 bg-white">
                     <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
                             {feedback.type === 'feedback'
                                 ? <FaCommentDots className="w-4 h-4 text-black" />
                                 : <FaBug className="w-4 h-4 text-gray-600" />
                             }
-                            <span className="font-medium text-gray-900">{feedback.subject}</span>
+                            <span className="font-black text-sm uppercase tracking-tight text-black">{feedback.subject}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(feedback.status)}`}>
+                            <span className={`flex items-center gap-1 px-2 py-1 text-xs font-black uppercase ${getStatusStyle(feedback.status)} border-2 border-black`}>
                                 {getStatusIcon(feedback.status)}
                                 {feedback.status}
                             </span>
                             <button
                                 onClick={() => deleteFeedback(feedback._id)}
                                 disabled={deleting === feedback._id}
-                                className="p-1 text-gray-400 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
+                                className="p-1 border border-black text-gray-400 hover:bg-gray-100 transition-none disabled:opacity-50"
                             >
                                 {deleting === feedback._id
                                     ? <ClipLoader size={14} color="red" />
@@ -119,9 +119,9 @@ const UserFeedbackList = ({ userEmail }) => {
                             </button>
                         </div>
                     </div>
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-2">{feedback.message}</p>
-                    <div className="flex items-center justify-between text-xs text-gray-400">
-                        <span className="capitalize">{feedback.type}</span>
+                    <p className="text-sm font-bold text-gray-600 line-clamp-2 mb-2">{feedback.message}</p>
+                    <div className="flex items-center justify-between text-xs font-bold text-gray-400 border-t border-gray-200 pt-2">
+                        <span className="uppercase tracking-wider">{feedback.type}</span>
                         <span>{formatDate(feedback.createdAt)}</span>
                     </div>
                 </div>
@@ -131,4 +131,3 @@ const UserFeedbackList = ({ userEmail }) => {
 };
 
 export default UserFeedbackList;
-

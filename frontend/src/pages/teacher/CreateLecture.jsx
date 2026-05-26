@@ -1,323 +1,113 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import AddIcon from '@mui/icons-material/Add';
-import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import { serverUrl } from '../../App';
+import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners';
-import { useDispatch, useSelector } from 'react-redux';
-import { setModuleData, toggleModuleExpand, addModule, updateModule, removeModule } from '../../redux/moduleSlice';
 import { setLectureData } from '../../redux/lectureSlice';
 import ModuleCard from '../../components/ModuleCard';
 
-function CreateLecture() {
-  const navigate = useNavigate();
-  const { courseId } = useParams();
-  const dispatch = useDispatch();
+const TeacherCreateLecture = () => {
+    const navigate = useNavigate();
+    const { courseId } = useParams();
+    const dispatch = useDispatch();
+    const { token } = useSelector((state) => state.user);
+    const { lectureData } = useSelector((state) => state.lecture);
+    const [lectureTitle, setLectureTitle] = useState('');
+    const [loading, setLoading] = useState(false);
 
-  const { moduleData, expandedModules } = useSelector(state => state.module);
-  const { token } = useSelector(state => state.user);
+    useEffect(() => {
+        fetchLectures();
+    }, [courseId]);
 
-  const [loading, setLoading] = useState(false);
-  const [showModuleModal, setShowModuleModal] = useState(false);
-  const [newModuleTitle, setNewModuleTitle] = useState('');
-  const [newModuleDescription, setNewModuleDescription] = useState('');
-  const [lectureInputs, setLectureInputs] = useState({}); // moduleId -> lectureTitle
-
-  // Fetch modules and their lectures
-  useEffect(() => {
-    const fetchModules = async () => {
-      if (courseId && token) {
+    const fetchLectures = async () => {
         try {
-          const result = await axios.get(
-            `${serverUrl}/api/module/course/${courseId}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-          dispatch(setModuleData(result.data.modules));
-
-          // Extract all lectures from modules and populate lectureSlice
-          const allLectures = result.data.modules.flatMap(module => module.lectures || []);
-          dispatch(setLectureData(allLectures));
-
+            const res = await axios.get(`${serverUrl}/api/course/getcourselectures/${courseId}`);
+            dispatch(setLectureData(res.data.lectures || []));
         } catch (error) {
-          console.error('Error fetching modules:', error);
-          if (error.response?.status !== 404) {
-            toast.error(error.response?.data?.message || 'Failed to fetch modules');
-          }
+            toast.error('Failed to fetch lectures');
         }
-      }
     };
 
-    if (courseId && token) {
-      fetchModules();
-    }
-  }, [courseId, token, dispatch]);
+    const createLectureHandler = async () => {
+        if (!lectureTitle.trim()) { toast.error('Enter a lecture title'); return; }
+        setLoading(true);
+        try {
+            await axios.post(`${serverUrl}/api/course/createlecture/${courseId}`, { lectureTitle }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            toast.success('Lecture created');
+            setLectureTitle('');
+            fetchLectures();
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  // Create new module
-  const handleCreateModule = async () => {
-    if (!newModuleTitle.trim()) {
-      toast.error('Module title is required');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const result = await axios.post(
-        `${serverUrl}/api/module/create/${courseId}`,
-        {
-          title: newModuleTitle,
-          description: newModuleDescription
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      dispatch(addModule(result.data.module));
-      toast.success('Module created successfully');
-      setShowModuleModal(false);
-      setNewModuleTitle('');
-      setNewModuleDescription('');
-    } catch (error) {
-      console.error('Error creating module:', error);
-      toast.error(error.response?.data?.message || 'Failed to create module');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Update module
-  const handleUpdateModule = async (moduleId, data) => {
-    try {
-      const result = await axios.put(
-        `${serverUrl}/api/module/${moduleId}`,
-        data,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      dispatch(updateModule(result.data.module));
-      toast.success('Module updated successfully');
-    } catch (error) {
-      console.error('Error updating module:', error);
-      toast.error(error.response?.data?.message || 'Failed to update module');
-    }
-  };
-
-  // Delete module
-  const handleDeleteModule = async (moduleId) => {
-    if (!window.confirm('Delete this module and all its lectures?')) return;
-
-    try {
-      await axios.delete(
-        `${serverUrl}/api/module/${moduleId}?deleteLectures=true`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      dispatch(removeModule(moduleId));
-      toast.success('Module deleted successfully');
-    } catch (error) {
-      console.error('Error deleting module:', error);
-      toast.error(error.response?.data?.message || 'Failed to delete module');
-    }
-  };
-
-  // Create lecture in module
-  const handleCreateLecture = async (moduleId) => {
-    const lectureTitle = lectureInputs[moduleId];
-
-    if (!lectureTitle?.trim()) {
-      toast.error('Lecture title is required');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const result = await axios.post(
-        `${serverUrl}/api/module/${moduleId}/lecture`,
-        { lectureTitle },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      // Refresh modules to get updated lectures
-      const modulesResult = await axios.get(
-        `${serverUrl}/api/module/course/${courseId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      dispatch(setModuleData(modulesResult.data.modules));
-
-      // Extract all lectures from modules and update lectureSlice
-      const allLectures = modulesResult.data.modules.flatMap(module => module.lectures || []);
-      dispatch(setLectureData(allLectures));
-
-      toast.success('Lecture created successfully');
-      setLectureInputs(prev => ({ ...prev, [moduleId]: '' }));
-    } catch (error) {
-      console.error('Error creating lecture:', error);
-      toast.error(error.response?.data?.message || 'Failed to create lecture');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="bg-white shadow-lg rounded-xl p-6 mb-6">
-          <button
-            className="flex items-center gap-2 px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-sm font-medium mb-4"
-            onClick={() => navigate(`/addcourses/${courseId}`)}
-          >
-            <ArrowBackIcon /> Back to Course
-          </button>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800">Course Modules & Lectures</h1>
-              <p className="text-gray-600 mt-2">Organize your course content into modules and lectures</p>
-            </div>
-
-            <button
-              className="flex items-center gap-2 px-6 py-3 rounded-lg bg-black text-white font-semibold shadow-lg transition-all hover:bg-gray-800"
-              onClick={() => setShowModuleModal(true)}
-            >
-              <AddIcon /> Create Module
-            </button>
-          </div>
-        </div>
-
-        {/* Modules List */}
-        <div className="space-y-4">
-          {moduleData.length === 0 ? (
-            <div className="bg-white shadow-lg rounded-xl p-12 text-center">
-              <p className="text-gray-500 text-lg mb-4">No modules created yet</p>
-              <p className="text-gray-400 text-sm">Start by creating your first module to organize lectures</p>
-            </div>
-          ) : (
-            moduleData.map((module) => (
-              <div key={module._id}>
-                <ModuleCard
-                  module={module}
-                  isExpanded={expandedModules[module._id]}
-                  onToggle={() => dispatch(toggleModuleExpand(module._id))}
-                  onEdit={handleUpdateModule}
-                  onDelete={handleDeleteModule}
-                  onAddLecture={() => { }} // Handled inline below
-                  onEditLecture={(lectureId) => {
-                    console.log('Navigating to edit lecture:', lectureId, 'in course:', courseId);
-                    if (!lectureId) {
-                      toast.error('Lecture ID is missing');
-                      return;
-                    }
-                    if (!courseId) {
-                      toast.error('Course ID is missing');
-                      return;
-                    }
-                    navigate(`/editlecture/${courseId}/${lectureId}`);
-                  }}
-                  lectures={module.lectures || []}
-                />
-
-                {/* Lecture Input for this module (shown when expanded) */}
-                {expandedModules[module._id] && (
-                  <div className="bg-white border border-gray-200 rounded-lg p-4 mt-2 ml-8">
-                    <div className="flex gap-3">
-                      <input
-                        type="text"
-                        placeholder="Enter lecture title..."
-                        className="flex-1 border border-gray-300 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
-                        value={lectureInputs[module._id] || ''}
-                        onChange={(e) => setLectureInputs(prev => ({
-                          ...prev,
-                          [module._id]: e.target.value
-                        }))}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            handleCreateLecture(module._id);
-                          }
-                        }}
-                      />
-                      <button
-                        className="px-6 py-3 rounded-md bg-black text-white font-medium shadow hover:bg-gray-800"
-                        onClick={() => handleCreateLecture(module._id)}
-                        disabled={loading}
-                      >
-                        {loading ? <ClipLoader size={20} color="white" /> : 'Add Lecture'}
-                      </button>
+    return (
+        <div className="min-h-screen bg-white">
+            <div className="bg-black border-b-4 border-black px-6 py-4">
+                <div className="max-w-4xl mx-auto flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => navigate(`/addcourses/${courseId}`)} className="text-white hover:text-gray-300">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <h1 className="text-white font-black uppercase tracking-tight text-lg">Manage Lectures</h1>
                     </div>
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Create Module Modal */}
-        {showModuleModal && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-            onClick={() => setShowModuleModal(false)}
-          >
-            <div
-              className="bg-white rounded-xl p-8 max-w-md w-full shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Create New Module</h2>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Module Title *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., Introduction to Python"
-                    className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
-                    value={newModuleTitle}
-                    onChange={(e) => setNewModuleTitle(e.target.value)}
-                    autoFocus
-                  />
+                    <Link to={`/admin/assignments/${courseId}`}
+                        className="border-2 border-white text-white px-4 py-2 text-xs font-black uppercase hover:bg-white hover:text-black transition-none">
+                        Assignments
+                    </Link>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description (Optional)
-                  </label>
-                  <textarea
-                    placeholder="Brief description of this module..."
-                    className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
-                    rows="3"
-                    value={newModuleDescription}
-                    onChange={(e) => setNewModuleDescription(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-3 mt-6">
-                <button
-                  className="flex-1 px-6 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 font-medium"
-                  onClick={() => {
-                    setShowModuleModal(false);
-                    setNewModuleTitle('');
-                    setNewModuleDescription('');
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="flex-1 px-6 py-3 rounded-lg bg-black text-white font-medium shadow hover:bg-gray-800"
-                  onClick={handleCreateModule}
-                  disabled={loading}
-                >
-                  {loading ? <ClipLoader size={20} color="white" /> : 'Create Module'}
-                </button>
-              </div>
             </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
-export default CreateLecture;
+            <div className="max-w-4xl mx-auto p-6 space-y-6">
+                <div className="border-4 border-black p-6 bg-gray-50">
+                    <h2 className="font-black uppercase text-xs mb-4">Add New Lecture</h2>
+                    <div className="flex gap-3">
+                        <input type="text" placeholder="Lecture title..." value={lectureTitle}
+                            onChange={(e) => setLectureTitle(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && createLectureHandler()}
+                            className="flex-1 border-2 border-black p-3 text-sm font-bold bg-white focus:outline-none" />
+                        <button onClick={createLectureHandler} disabled={loading}
+                            className="bg-black text-white px-6 py-3 text-xs font-black uppercase border-2 border-black hover:bg-gray-800 transition-none disabled:opacity-50">
+                            {loading ? <ClipLoader size={16} color="white" /> : 'Create'}
+                        </button>
+                    </div>
+                </div>
 
+                <div className="border-4 border-black">
+                    <div className="border-b-2 border-black p-4 bg-gray-50">
+                        <h2 className="font-black uppercase text-xs">Lectures ({lectureData?.length || 0})</h2>
+                    </div>
+                    <div className="divide-y-2 divide-black">
+                        {lectureData?.length > 0 ? lectureData.map((lecture, i) => (
+                            <div key={lecture._id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-none">
+                                <div className="flex items-center gap-3">
+                                    <span className="w-6 h-6 bg-black text-white flex items-center justify-center text-[10px] font-black">{i + 1}</span>
+                                    <div>
+                                        <span className="font-bold text-sm">{lecture.title}</span>
+                                        {lecture.isPreviewFree && <span className="ml-2 text-[8px] bg-black text-white px-1.5 py-0.5 font-black uppercase">Free</span>}
+                                    </div>
+                                </div>
+                                <Link to={`/editlecture/${courseId}/${lecture._id}`}
+                                    className="border-2 border-black px-3 py-1 text-[10px] font-black uppercase hover:bg-black hover:text-white transition-none">
+                                    Edit
+                                </Link>
+                            </div>
+                        )) : (
+                            <div className="p-8 text-center">
+                                <p className="text-gray-500 text-sm font-bold">No lectures yet</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default TeacherCreateLecture;

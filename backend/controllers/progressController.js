@@ -93,7 +93,7 @@ export const markLectureCompleted = async (req, res) => {
             // Check and trigger certificate auto-issuance (requires progress >= 80% and attendance > 75%)
             try {
                 const protocol = req.protocol || 'http';
-                const host = req.get ? req.get("host") : 'localhost:8000';
+                const host = req.get ? req.get("host") : `localhost:${process.env.PORT || 8000}`;
                 const autoCertResult = await autoIssueCertificateIfEligible(studentId, courseId, protocol, host);
                 if (autoCertResult.success) {
                     console.log(`🎓 Certificate successfully auto-generated for student ${studentId} in course ${courseId}`);

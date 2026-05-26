@@ -12,6 +12,7 @@ import Dashboard from './pages/teacher/Dashboard'
 import Courses from './pages/teacher/Courses'
 import AllCouses from './pages/AllCouses'
 import AddCourses from './pages/teacher/AddCourses'
+import TeacherAssignments from './pages/teacher/Assignments'
 import CreateCourse from './pages/teacher/CreateCourse'
 import CreateLecture from './pages/teacher/CreateLecture'
 import EditLecture from './pages/teacher/EditLecture'
@@ -59,8 +60,10 @@ import ParentDashboard from './pages/parent/ParentDashboard';
 import ParentSettings from './pages/student/ParentSettings';
 import StudentAnalytics from './pages/student/StudentAnalytics';
 import ParentAnalytics from './pages/parent/ParentAnalytics';
+import ParentMessages from './pages/parent/ParentMessages';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import CourseDiscussion from './pages/CourseDiscussion';
+import ResumeGenerator from './pages/student/ResumeGenerator';
 
 // Lazy loaded heavy components
 const GamificationHub = React.lazy(() => import('./pages/student/GamificationHub'));
@@ -85,7 +88,8 @@ const AdminProtectedRoute = ({ children }) => {
 };
 
 
-export const serverUrl = "http://localhost:8000"
+// Remove trailing slash from URL if present to avoid double slashes in routes
+export const serverUrl = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000").replace(/\/$/, "");
 function App() {
 
   let { userData } = useSelector(state => state.user)
@@ -172,6 +176,7 @@ function App() {
           <Route path='/createcourses' element={userData?.role === "educator" ? <CreateCourse /> : <Navigate to={"/signup"} />} />
           <Route path='/createlecture/:courseId' element={userData?.role === "educator" ? <CreateLecture /> : <Navigate to={"/signup"} />} />
           <Route path='/editlecture/:courseId/:lectureId' element={userData?.role === "educator" ? <EditLecture /> : <Navigate to={"/signup"} />} />
+          <Route path='/admin/assignments/:courseId' element={userData?.role === "educator" ? <TeacherAssignments /> : <Navigate to={"/signup"} />} />
           <Route path='/admin/create-assignment/:courseId' element={userData?.role === "educator" ? <CreateAssignment /> : <Navigate to={"/signup"} />} />
           <Route path='/admin/create-doubt-session/:courseId' element={userData?.role === "educator" ? <CreateDoubtSession /> : <Navigate to={"/signup"} />} />
           <Route path='/admin/certificate-manager' element={userData?.role === "educator" ? <CertificateManager /> : <Navigate to={"/signup"} />} />
@@ -181,7 +186,7 @@ function App() {
           <Route path='/contact' element={<Contact />} />
           <Route path='/voice-request' element={userData?.role === "student" ? <StudentVoiceRequest /> : <Navigate to={"/signup"} />} />
           <Route path='/voice-room/:roomId' element={userData ? <VoiceRoom /> : <Navigate to={"/signup"} />} />
-          <Route path='/teacher/call-requests' element={userData?.role === "educator" ? <TeacherCallRequests /> : <Navigate to={"/signup"} />} />
+          <Route path='/teacher-call-requests' element={userData?.role === "educator" ? <TeacherCallRequests /> : <Navigate to={"/signup"} />} />
           <Route path='/admin/voice-monitor' element={<AdminProtectedRoute><AdminVoiceMonitor /></AdminProtectedRoute>} />
           <Route path='/admin/doubt-sessions' element={<AdminProtectedRoute><AdminDoubtSessions /></AdminProtectedRoute>} />
           <Route path='/admin/educator-approvals' element={<AdminProtectedRoute><EducatorApprovals /></AdminProtectedRoute>} />
@@ -193,9 +198,9 @@ function App() {
           <Route path='/refund' element={<RefundPolicy />} />
           <Route path='/cookies' element={<CookiePolicy />} />
 
-          {/* Email Link Authentication removed */}
-          <Route path='/verify-email/:token' element={<VerifyEmail />} />
-          <Route path='/verify-email-sent' element={<VerifyEmailPage />} />
+          {/* Email Verification Routes */}
+          <Route path='/verify-email/:token' element={<VerifyEmailPage />} />
+          <Route path='/verify-email-sent' element={<VerifyEmail />} />
           <Route path='/finishSignUp' element={<FinishSignUp />} />
 
           {/* Educator Authentication - Separate from Student Auth */}
@@ -204,6 +209,7 @@ function App() {
 
           {/* Attendance Management Routes */}
           <Route path='/attendance/:courseId' element={userData ? <AttendanceView /> : <Navigate to={"/signup"} />} />
+          <Route path='/attendance' element={userData ? <AttendanceView /> : <Navigate to={"/signup"} />} />
           <Route path='/teacher/attendance/:courseId' element={userData?.role === "educator" ? <AttendanceManager /> : <Navigate to={"/signup"} />} />
 
           {/* Parent Portal Routes */}
@@ -214,8 +220,10 @@ function App() {
 
           {/* Analytics & Reporting Routes */}
           <Route path='/student/analytics' element={userData?.role === "student" ? <StudentAnalytics /> : <Navigate to={"/signup"} />} />
+          <Route path='/resume-generator' element={userData?.role === "student" ? <ResumeGenerator /> : <Navigate to={"/signup"} />} />
           <Route path='/teacher/analytics' element={userData?.role === "educator" ? <EducatorAnalytics /> : <Navigate to={"/signup"} />} />
-          <Route path='/parent/analytics/:childId' element={userData?.role === "parent" ? <ParentAnalytics /> : <Navigate to={"/parent/login"} />} />
+          <Route path='/parent/analytics' element={userData?.role === "parent" ? <ParentAnalytics /> : <Navigate to={"/parent/login"} />} />
+          <Route path='/parent/messages' element={userData?.role === "parent" ? <ParentMessages /> : <Navigate to={"/parent/login"} />} />
           <Route path='/admin/analytics' element={<AdminProtectedRoute><AdminAnalytics /></AdminProtectedRoute>} />
 
           {/* Public Certificate Verification – no login required (accessed via QR code) */}

@@ -79,6 +79,25 @@ const VoiceRoom = () => {
 
                 console.log('Joining room...');
 
+                // We generate the token and create Zego instance here, 
+                // but we DO NOT join room yet. We wait for the DOM container.
+                setLoading(false);
+                
+                // We'll return zp so the ref callback can use it
+                return zp;
+
+            } catch (err) {
+                console.error("Voice room init error:", err);
+                setError(err.message || "Failed to join voice room");
+                setLoading(false);
+                return null;
+            }
+        };
+
+        const setupRoom = async () => {
+            const zp = await initRoom();
+            if (zp && containerRef.current) {
+                console.log('Joining room with container...');
                 zp.joinRoom({
                     container: containerRef.current,
                     scenario: {
@@ -108,38 +127,20 @@ const VoiceRoom = () => {
                                 {},
                                 { headers: { Authorization: `Bearer ${token}` } }
                             );
-                            console.log('Room ended successfully');
                         } catch (err) {
                             console.error("Error ending room:", err);
                         }
                         navigate('/voice-request');
-                    },
-                    onUserJoin: (users) => {
-                        if (users.length > 0) {
-                            toast.success(`${users[0].userName || 'Someone'} joined the room`);
-                        }
-                    },
-                    onUserLeave: (users) => {
-                        if (users.length > 0) {
-                            toast.info(`${users[0].userName || 'A participant'} left the room`);
-                        }
                     }
                 });
-
-                setLoading(false);
 
                 durationInterval = setInterval(() => {
                     setCallDuration(prev => prev + 1);
                 }, 1000);
-
-            } catch (err) {
-                console.error("Voice room init error:", err);
-                setError(err.message || "Failed to join voice room");
-                setLoading(false);
             }
         };
 
-        initRoom();
+        setupRoom();
 
         return () => {
             if (durationInterval) clearInterval(durationInterval);
@@ -172,14 +173,7 @@ const VoiceRoom = () => {
         }
     };
 
-    if (loading) {
-        return (
-            <div style={styles.loadingContainer}>
-                <div style={styles.spinner}></div>
-                <p style={styles.loadingText}>Connecting to voice room...</p>
-            </div>
-        );
-    }
+    // We no longer early return for loading so the container mounts immediately.
 
     if (error) {
         return (
@@ -218,7 +212,18 @@ const VoiceRoom = () => {
                     End Call
                 </button>
             </div>
-            <div ref={containerRef} style={styles.videoContainer}></div>
+            <div 
+                ref={containerRef} 
+                style={styles.videoContainer}
+                className="zego-container"
+            >
+                {loading && !error && (
+                    <div style={{ ...styles.loadingContainer, position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10 }}>
+                        <div style={styles.spinner}></div>
+                        <p style={styles.loadingText}>Connecting to voice room...</p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
@@ -273,6 +278,7 @@ const styles = {
     videoContainer: {
         flex: 1,
         width: '100%',
+        position: 'relative'
     },
     loadingContainer: {
         width: '100vw',

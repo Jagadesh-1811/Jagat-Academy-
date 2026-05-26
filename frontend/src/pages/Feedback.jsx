@@ -5,10 +5,10 @@ import axios from 'axios';
 import { serverUrl } from '../App';
 import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners';
-import { FaCommentAlt, FaBug, FaPaperPlane, FaLightbulb } from 'react-icons/fa';
+import { FaCommentAlt, FaBug, FaPaperPlane } from 'react-icons/fa';
 
 const Feedback = () => {
-    const [formType, setFormType] = useState('feedback'); // 'feedback' or 'issue'
+    const [formType, setFormType] = useState('feedback');
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -52,39 +52,47 @@ const Feedback = () => {
             <Nav />
 
             {/* Hero Section */}
-            <section className="pt-32 pb-16 px-6 bg-black">
+            <div className="max-w-6xl mx-auto px-6 pt-6 hidden md:block">
+                <a
+                    href="/"
+                    className="inline-flex items-center gap-2 border-2 border-black px-4 py-2 text-xs font-black uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
+                >
+                    ← Back to Home
+                </a>
+            </div>
+            <section className="pt-32 pb-16 px-6 bg-black border-b-4 border-white">
                 <div className="max-w-4xl mx-auto text-center">
-                    <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+                    <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tight mb-4">
                         We'd Love to Hear From You
                     </h1>
-                    <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto">
+                    <p className="text-lg md:text-xl text-gray-300 font-bold max-w-2xl mx-auto">
                         Share your feedback or report any issues you've encountered. Your input helps us improve Jagat Academy.
                     </p>
                 </div>
             </section>
 
             {/* Form Section */}
-            <section className="py-16 px-6 bg-gray-50">
+            <section className="py-16 px-6 bg-gray-50 border-b-4 border-black">
                 <div className="max-w-2xl mx-auto">
                     {/* Toggle Buttons */}
                     <div className="flex justify-center mb-10">
-                        <div className="inline-flex bg-white rounded-full p-1 shadow-lg border border-gray-200">
+                        <div className="inline-flex bg-white border-4 border-black p-1">
                             <button
                                 onClick={() => setFormType('feedback')}
-                                className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 ${formType === 'feedback'
-                                    ? 'bg-black text-white shadow-md'
+                                className={`flex items-center gap-2 px-6 py-3 font-black uppercase text-xs tracking-wider transition-all ${formType === 'feedback'
+                                    ? 'bg-black text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)]'
                                     : 'text-gray-600 hover:text-black'
-                                    }`}
+                                }`}
                             >
                                 <FaCommentAlt className="w-4 h-4" />
                                 Feedback
                             </button>
                             <button
                                 onClick={() => setFormType('issue')}
-                                className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 ${formType === 'issue'
-                                    ? 'bg-black text-white shadow-md'
+                                className={`flex items-center gap-2 px-6 py-3 font-black uppercase text-xs tracking-wider transition-all ${formType === 'issue'
+                                    ? 'bg-black text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)]'
                                     : 'text-gray-600 hover:text-black'
-                                    }`}
+                                }`}
                             >
                                 <FaBug className="w-4 h-4" />
                                 Report Issue
@@ -93,12 +101,12 @@ const Feedback = () => {
                     </div>
 
                     {/* Form Card */}
-                    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 md:p-10">
-                        <div className="mb-8">
-                            <h2 className="text-2xl font-bold text-black mb-2">
+                    <div className="bg-white border-4 border-black p-8 md:p-10 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                        <div className="mb-8 border-b-2 border-black pb-4">
+                            <h2 className="text-2xl font-black text-black uppercase tracking-tight mb-2">
                                 {formType === 'feedback' ? 'Share Your Feedback' : 'Report an Issue'}
                             </h2>
-                            <p className="text-gray-500">
+                            <p className="text-gray-500 font-bold text-sm">
                                 {formType === 'feedback'
                                     ? 'Let us know what you think about our platform, courses, or features.'
                                     : 'Found a bug or experiencing problems? Describe the issue in detail.'}
@@ -106,10 +114,9 @@ const Feedback = () => {
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            {/* Name & Email Row */}
                             <div className="grid md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-black text-black uppercase mb-2 tracking-wider">
                                         Your Name
                                     </label>
                                     <input
@@ -118,12 +125,12 @@ const Feedback = () => {
                                         value={formData.name}
                                         onChange={handleChange}
                                         placeholder="John Doe"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
+                                        className="w-full px-4 py-3 border-2 border-black font-bold text-sm focus:outline-none focus:ring-2 focus:ring-black"
                                         required
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-black text-black uppercase mb-2 tracking-wider">
                                         Email Address
                                     </label>
                                     <input
@@ -132,15 +139,14 @@ const Feedback = () => {
                                         value={formData.email}
                                         onChange={handleChange}
                                         placeholder="you@example.com"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
+                                        className="w-full px-4 py-3 border-2 border-black font-bold text-sm focus:outline-none focus:ring-2 focus:ring-black"
                                         required
                                     />
                                 </div>
                             </div>
 
-                            {/* Subject */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-black text-black uppercase mb-2 tracking-wider">
                                     Subject
                                 </label>
                                 <input
@@ -149,14 +155,13 @@ const Feedback = () => {
                                     value={formData.subject}
                                     onChange={handleChange}
                                     placeholder={formType === 'feedback' ? 'What is your feedback about?' : 'Brief description of the issue'}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
+                                    className="w-full px-4 py-3 border-2 border-black font-bold text-sm focus:outline-none focus:ring-2 focus:ring-black"
                                     required
                                 />
                             </div>
 
-                            {/* Message */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-black text-black uppercase mb-2 tracking-wider">
                                     {formType === 'feedback' ? 'Your Feedback' : 'Issue Details'}
                                 </label>
                                 <textarea
@@ -167,16 +172,15 @@ const Feedback = () => {
                                     placeholder={formType === 'feedback'
                                         ? 'Share your thoughts, suggestions, or experience...'
                                         : 'Please describe the issue in detail. Include steps to reproduce if possible.'}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 resize-none"
+                                    className="w-full px-4 py-3 border-2 border-black font-bold text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none"
                                     required
                                 />
                             </div>
 
-                            {/* Submit Button */}
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full flex items-center justify-center gap-2 bg-black text-white py-4 rounded-lg font-medium transition-none disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full flex items-center justify-center gap-2 bg-black text-white py-4 font-black uppercase text-sm tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {loading ? (
                                     <ClipLoader size={24} color="white" />
@@ -192,21 +196,21 @@ const Feedback = () => {
 
                     {/* Info Cards */}
                     <div className="grid md:grid-cols-2 gap-6 mt-10">
-                        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                                <FaCommentAlt className="w-6 h-6 text-gray-700" />
+                        <div className="bg-white border-4 border-black p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                            <div className="w-12 h-12 bg-black flex items-center justify-center mb-4">
+                                <FaCommentAlt className="w-6 h-6 text-white" />
                             </div>
-                            <h3 className="text-lg font-semibold text-black mb-2">Feedback</h3>
-                            <p className="text-gray-500 text-sm">
+                            <h3 className="text-base font-black text-black uppercase tracking-tight mb-2">Feedback</h3>
+                            <p className="text-gray-500 text-sm font-bold">
                                 Share your experience, suggestions for improvements, or praise for features you love.
                             </p>
                         </div>
-                        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                                <FaBug className="w-6 h-6 text-gray-700" />
+                        <div className="bg-white border-4 border-black p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                            <div className="w-12 h-12 bg-black flex items-center justify-center mb-4">
+                                <FaBug className="w-6 h-6 text-white" />
                             </div>
-                            <h3 className="text-lg font-semibold text-black mb-2">Report Issues</h3>
-                            <p className="text-gray-500 text-sm">
+                            <h3 className="text-base font-black text-black uppercase tracking-tight mb-2">Report Issues</h3>
+                            <p className="text-gray-500 text-sm font-bold">
                                 Found a bug or technical problem? Let us know so we can fix it quickly.
                             </p>
                         </div>
@@ -220,4 +224,3 @@ const Feedback = () => {
 };
 
 export default Feedback;
-

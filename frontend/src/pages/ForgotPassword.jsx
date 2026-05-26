@@ -40,17 +40,17 @@ function ForgotPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white shadow-xl rounded-xl p-8 max-w-md w-full">
-        <div className="w-20 h-20 bg-black rounded-full flex items-center justify-center mx-auto mb-4">
-          {emailSent ? <span className="text-4xl text-gray-700"><CheckCircleIcon /></span> : <span className="text-black text-4xl"><LockIcon /></span>}
+    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <div className="bg-white border-4 border-black p-8 max-w-md w-full shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
+        <div className="w-20 h-20 bg-black flex items-center justify-center mx-auto mb-6 border-2 border-black">
+          {emailSent ? <CheckCircleIcon className="text-white text-4xl" /> : <LockIcon className="text-white text-4xl" />}
         </div>
 
-        <h2 className="text-2xl font-bold mb-2 text-center text-gray-800">
+        <h2 className="text-2xl font-black text-center text-black uppercase tracking-tight mb-3">
           {emailSent ? "Check Your Email" : "Forgot Password?"}
         </h2>
 
-        <p className="text-sm text-gray-500 text-center mb-8">
+        <p className="text-sm text-gray-500 font-bold text-center mb-8">
           {emailSent
             ? `We've sent a password reset link to ${email}. Click the link in the email to set a new password.`
             : "Enter your email address and we'll send you a link to reset your password."
@@ -60,12 +60,12 @@ function ForgotPassword() {
         {!emailSent ? (
           <form className="space-y-6" onSubmit={handleResetPassword}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-black text-black uppercase tracking-wider mb-2">
                 Email Address
               </label>
               <input
                 type="email"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-black focus:outline-none transition-shadow"
+                className="w-full px-4 py-3 border-2 border-black font-bold focus:outline-none focus:ring-2 focus:ring-black"
                 placeholder="you@example.com"
                 onChange={(e) => setEmail(e.target.value)}
                 value={email}
@@ -75,7 +75,7 @@ function ForgotPassword() {
 
             <button
               type="submit"
-              className="w-full bg-black text-white py-2.5 px-4 rounded-md font-medium cursor-pointer flex items-center justify-center transition-none"
+              className="w-full bg-black text-white py-3 px-4 font-black uppercase text-sm tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all cursor-pointer flex items-center justify-center"
               disabled={loading}
             >
               {loading ? <ClipLoader size={20} color='white' /> : "Send Reset Link"}
@@ -85,17 +85,17 @@ function ForgotPassword() {
           <div className="space-y-4">
             <button
               onClick={() => setEmailSent(false)}
-              className="w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-md font-medium hover:bg-gray-50 transition-colors"
+              className="w-full bg-white border-2 border-black text-black py-3 px-4 font-black uppercase text-sm tracking-wider hover:bg-gray-100 transition-colors"
             >
               Resend Link
             </button>
           </div>
         )}
 
-        <div className="mt-8 text-center">
+        <div className="mt-8 text-center border-t-2 border-black pt-6">
           <button
             onClick={() => navigate("/auth")}
-            className="text-sm text-gray-600 hover:text-black font-medium hover:underline flex items-center justify-center gap-1 mx-auto"
+            className="text-sm text-gray-500 hover:text-black font-black uppercase tracking-wider flex items-center justify-center gap-1 mx-auto"
           >
             <ArrowBackIcon className="mr-1" /> Back to Login
           </button>
@@ -106,4 +106,3 @@ function ForgotPassword() {
 }
 
 export default ForgotPassword
-

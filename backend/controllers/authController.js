@@ -153,6 +153,50 @@ export const verifyEmail = async (req, res) => {
     }
 }
 
+export const educatorSignup = async (req, res) => {
+    try {
+        const { name, email, password, qualification, couponCode } = req.body;
+
+        if (!name || !email || !password || !couponCode) {
+            return res.status(400).json({ message: "All fields including coupon code are required" });
+        }
+
+        const validCode = process.env.EDUCATOR_COUPON_CODE || "JAGAT-EDU-2026";
+        if (couponCode !== validCode) {
+            return res.status(400).json({ message: "Invalid educator registration code" });
+        }
+
+        if (!validator.isEmail(email)) {
+            return res.status(400).json({ message: "Please enter a valid email" });
+        }
+
+        let existUser = await User.findOne({ email });
+        if (existUser) {
+            return res.status(400).json({ message: "Email already exists" });
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({ message: "Please enter a strong password (min 8 chars)" });
+        }
+
+        const hashPassword = await bcrypt.hash(password, 10);
+        const user = await User.create({
+            name,
+            email,
+            password: hashPassword,
+            role: "educator",
+            description: qualification || "", // Storing qualification in description for now
+            approvalStatus: "pending"
+        });
+
+        // We don't generate token here since they need approval to login
+        return res.status(201).json({ message: "Registration successful! Pending admin approval.", user });
+    } catch (error) {
+        console.error("educatorSignup error:", error);
+        return res.status(500).json({ message: `Educator signup error: ${error.message}` });
+    }
+}
+
 export const login = async (req, res) => {
     try {
         let { email, password } = req.body
@@ -164,6 +208,17 @@ export const login = async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid password" })
         }
+        
+        // Educator Approval Gate
+        if (user.role === 'educator') {
+            if (user.approvalStatus === 'pending') {
+                return res.status(403).json({ message: "Your account is pending admin approval." });
+            }
+            if (user.approvalStatus === 'rejected') {
+                return res.status(403).json({ message: `Your account has been rejected. Reason: ${user.approvalNote}` });
+            }
+        }
+
         let token = await genToken(user._id)
         return res.status(200).json({ user, token })
 

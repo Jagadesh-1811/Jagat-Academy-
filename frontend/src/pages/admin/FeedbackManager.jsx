@@ -4,343 +4,181 @@ import axios from 'axios';
 import { serverUrl } from '../../App';
 import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners';
-import {
-    FaCommentDots,
-    FaBug,
-    FaArrowLeft,
-    FaCheck,
-    FaEye,
-    FaClock,
-    FaTrash,
-    FaSignOutAlt,
-    FaEnvelope
-} from 'react-icons/fa';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-const FeedbackManager = () => {
+const AdminFeedbackManager = () => {
     const navigate = useNavigate();
     const [feedbacks, setFeedbacks] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState('all');
+    const [typeFilter, setTypeFilter] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
-    const [selectedFeedback, setSelectedFeedback] = useState(null);
-    const [updating, setUpdating] = useState(false);
-    const [deleting, setDeleting] = useState(false);
+    const [selected, setSelected] = useState(null);
 
     useEffect(() => {
-        // Check admin authentication
         const token = localStorage.getItem('adminToken');
-        if (!token) {
-            navigate('/admin/login');
-            return;
-        }
+        if (!token) { navigate('/admin/login'); return; }
         fetchFeedbacks();
-    }, [navigate]);
-
-    const handleLogout = () => {
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminData');
-        toast.success('Logged out successfully');
-        navigate('/admin/login');
-    };
+    }, []);
 
     const fetchFeedbacks = async () => {
         try {
-            const response = await axios.get(`${serverUrl}/api/feedback/all`);
-            setFeedbacks(response.data);
+            const res = await axios.get(`${serverUrl}/api/feedback/all`);
+            setFeedbacks(res.data?.feedbacks || []);
         } catch (error) {
-            console.error('Fetch error:', error);
-            toast.error('Failed to fetch feedback');
+            toast.error('Failed to fetch feedbacks');
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
-    const updateStatus = async (id, newStatus) => {
-        setUpdating(true);
+    const updateStatus = async (id, status) => {
         try {
-            await axios.patch(`${serverUrl}/api/feedback/status/${id}`, { status: newStatus });
-            setFeedbacks(feedbacks.map(f => f._id === id ? { ...f, status: newStatus } : f));
-            if (selectedFeedback?._id === id) {
-                setSelectedFeedback({ ...selectedFeedback, status: newStatus });
-            }
+            await axios.patch(`${serverUrl}/api/feedback/status/${id}`, { status });
             toast.success('Status updated');
+            fetchFeedbacks();
         } catch (error) {
             toast.error('Failed to update status');
         }
-        setUpdating(false);
     };
 
-    const deleteFeedback = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this feedback?')) return;
-
-        setDeleting(true);
+    const handleDelete = async (id) => {
+        if (!window.confirm('Delete this feedback?')) return;
         try {
             await axios.delete(`${serverUrl}/api/feedback/${id}`);
-            setFeedbacks(feedbacks.filter(f => f._id !== id));
-            if (selectedFeedback?._id === id) {
-                setSelectedFeedback(null);
-            }
-            toast.success('Feedback deleted successfully');
+            toast.success('Feedback deleted');
+            setSelected(null);
+            fetchFeedbacks();
         } catch (error) {
-            toast.error('Failed to delete feedback');
+            toast.error('Failed to delete');
         }
-        setDeleting(false);
     };
 
-    const filteredFeedbacks = feedbacks.filter(f => {
-        const typeMatch = filter === 'all' || f.type === filter;
-        const statusMatch = statusFilter === 'all' || f.status === statusFilter;
-        return typeMatch && statusMatch;
+    const filtered = feedbacks.filter(f => {
+        if (typeFilter !== 'all' && f.type !== typeFilter) return false;
+        if (statusFilter !== 'all' && f.status !== statusFilter) return false;
+        return true;
     });
-
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'pending': return 'bg-gray-200 text-black';
-            case 'reviewed': return 'bg-black text-black';
-            case 'resolved': return 'bg-gray-800 text-gray-700';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    };
-
-    const getStatusIcon = (status) => {
-        switch (status) {
-            case 'pending': return <FaClock className="w-3 h-3" />;
-            case 'reviewed': return <FaEye className="w-3 h-3" />;
-            case 'resolved': return <FaCheck className="w-3 h-3" />;
-            default: return null;
-        }
-    };
-
-    const formatDate = (date) => {
-        return new Date(date).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-                <ClipLoader size={50} color="black" />
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <ClipLoader size={40} color="#000" />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            {/* Header */}
-            <div className="bg-black text-white py-6 px-6">
+        <div className="min-h-screen bg-white">
+            <div className="bg-black border-b-4 border-black px-6 py-4">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => navigate('/admin/dashboard')}
-                            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                        >
-                            <FaArrowLeft className="w-5 h-5" />
-                        </button>
+                        <button onClick={() => navigate('/admin/dashboard')} className="text-white hover:text-gray-300"><ArrowBackIcon /></button>
                         <div>
-                            <h1 className="text-2xl font-bold">Feedback Manager</h1>
-                            <p className="text-gray-400 text-sm">View and manage user feedback & issues</p>
+                            <h1 className="text-white font-black uppercase tracking-tight text-lg">Feedback Manager</h1>
+                            <p className="text-gray-400 text-xs font-bold uppercase">{feedbacks.length} Total Submissions</p>
                         </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="text-right">
-                            <p className="text-2xl font-bold">{feedbacks.length}</p>
-                            <p className="text-gray-400 text-sm">Total Submissions</p>
-                        </div>
-                        <button
-                            onClick={handleLogout}
-                            className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white rounded-lg transition-colors"
-                        >
-                            <FaSignOutAlt className="w-4 h-4" />
-                            Logout
-                        </button>
                     </div>
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto p-6">
-                {/* Filters */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
-                    <div className="flex flex-wrap gap-4 items-center justify-between">
-                        <div className="flex gap-2">
-                            <span className="text-gray-600 text-sm font-medium self-center">Type:</span>
-                            {['all', 'feedback', 'issue'].map(type => (
-                                <button
-                                    key={type}
-                                    onClick={() => setFilter(type)}
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === type
-                                        ? 'bg-black text-white'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                        }`}
-                                >
-                                    {type === 'all' ? 'All' : type === 'feedback' ? 'Feedback' : 'Issues'}
-                                </button>
-                            ))}
-                        </div>
-                        <div className="flex gap-2">
-                            <span className="text-gray-600 text-sm font-medium self-center">Status:</span>
-                            {['all', 'pending', 'reviewed', 'resolved'].map(status => (
-                                <button
-                                    key={status}
-                                    onClick={() => setStatusFilter(status)}
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${statusFilter === status
-                                        ? 'bg-black text-white'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                        }`}
-                                >
-                                    {status}
-                                </button>
-                            ))}
-                        </div>
+            <div className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* List */}
+                <div className="space-y-4">
+                    <div className="flex gap-2 flex-wrap border-b-2 border-black pb-4">
+                        {['all', 'feedback', 'issue'].map(t => (
+                            <button key={t} onClick={() => setTypeFilter(t)}
+                                className={`px-3 py-1.5 text-[10px] font-black uppercase border-2 transition-none ${
+                                    typeFilter === t ? 'bg-black text-white border-black' : 'border-black hover:bg-black hover:text-white'
+                                }`}>{t}</button>
+                        ))}
+                        <span className="w-px bg-gray-300 mx-1" />
+                        {['all', 'pending', 'reviewed', 'resolved'].map(s => (
+                            <button key={s} onClick={() => setStatusFilter(s)}
+                                className={`px-3 py-1.5 text-[10px] font-black uppercase border-2 transition-none ${
+                                    statusFilter === s ? 'bg-black text-white border-black' : 'border-black hover:bg-black hover:text-white'
+                                }`}>{s}</button>
+                        ))}
                     </div>
+
+                    {filtered.length === 0 ? (
+                        <div className="border-4 border-black p-8 text-center">
+                            <p className="text-gray-500 text-sm font-bold">No submissions found</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                            {filtered.map(f => (
+                                <div key={f._id} onClick={() => setSelected(f)}
+                                    className={`border-2 border-black p-3 cursor-pointer hover:bg-gray-100 transition-none ${
+                                        selected?._id === f._id ? 'bg-black text-white' : ''
+                                    }`}>
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <span className="font-black text-xs uppercase">{f.subject || f.type}</span>
+                                            <p className={`text-[10px] mt-0.5 ${selected?._id === f._id ? 'text-gray-300' : 'text-gray-500'}`}>
+                                                {f.name || 'Anonymous'} · {new Date(f.createdAt).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                        <span className={`text-[8px] font-black uppercase px-2 py-0.5 border ${
+                                            f.status === 'resolved' ? 'border-green-600 text-green-600' :
+                                            f.status === 'reviewed' ? 'border-blue-600 text-blue-600' :
+                                            'border-gray-500 text-gray-500'
+                                        }`}>
+                                            {f.status || 'pending'}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
-                {/* Main Content */}
-                <div className="grid lg:grid-cols-3 gap-6">
-                    {/* List */}
-                    <div className="lg:col-span-2">
-                        {filteredFeedbacks.length === 0 ? (
-                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-                                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <FaCommentDots className="w-8 h-8 text-gray-400" />
+                {/* Detail */}
+                <div className="border-4 border-black p-6 bg-gray-50">
+                    {selected ? (
+                        <div className="space-y-4">
+                            <h3 className="font-black uppercase text-sm border-b-2 border-black pb-2">Submission Details</h3>
+                            <div className="space-y-2 text-xs">
+                                <p><span className="font-black uppercase">From:</span> {selected.name || 'Anonymous'} ({selected.email || 'N/A'})</p>
+                                <p><span className="font-black uppercase">Type:</span> <span className="uppercase font-bold">{selected.type}</span></p>
+                                <p><span className="font-black uppercase">Subject:</span> {selected.subject || 'N/A'}</p>
+                                <div className="border border-black p-3 bg-white mt-2">
+                                    <p className="text-xs">{selected.message || selected.description}</p>
                                 </div>
-                                <h3 className="text-lg font-medium text-gray-800 mb-2">No submissions found</h3>
-                                <p className="text-gray-500">Try adjusting your filters</p>
+                                <p className="text-[10px] text-gray-500">{new Date(selected.createdAt).toLocaleString()}</p>
                             </div>
-                        ) : (
-                            <div className="space-y-4">
-                                {filteredFeedbacks.map(feedback => (
-                                    <div
-                                        key={feedback._id}
-                                        onClick={() => setSelectedFeedback(feedback)}
-                                        className={`bg-white rounded-xl shadow-sm border p-5 cursor-pointer transition-all hover:shadow-md ${selectedFeedback?._id === feedback._id
-                                            ? 'border-black ring-2 ring-black/10'
-                                            : 'border-gray-200'
-                                            }`}
-                                    >
-                                        <div className="flex items-start justify-between mb-3">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${feedback.type === 'feedback' ? 'bg-black' : 'bg-gray-200'
-                                                    }`}>
-                                                    {feedback.type === 'feedback'
-                                                        ? <FaCommentDots className="w-5 h-5 text-black" />
-                                                        : <FaBug className="w-5 h-5 text-gray-600" />
-                                                    }
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-semibold text-gray-900">{feedback.subject}</h3>
-                                                    <p className="text-sm text-gray-500">{feedback.name}</p>
-                                                </div>
-                                            </div>
-                                            <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(feedback.status)}`}>
-                                                {getStatusIcon(feedback.status)}
-                                                {feedback.status}
-                                            </span>
-                                        </div>
-                                        <p className="text-gray-600 text-sm line-clamp-2 mb-3">{feedback.message}</p>
-                                        <div className="flex items-center justify-between text-xs text-gray-400">
-                                            <span>{formatDate(feedback.createdAt)}</span>
-                                            <span className="flex items-center gap-1">
-                                                <FaEnvelope className="w-3 h-3" />
-                                                {feedback.email}
-                                            </span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
 
-                    {/* Detail Panel */}
-                    <div className="lg:col-span-1">
-                        {selectedFeedback ? (
-                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-6">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${selectedFeedback.type === 'feedback' ? 'bg-black' : 'bg-gray-200'
-                                        }`}>
-                                        {selectedFeedback.type === 'feedback'
-                                            ? <FaCommentDots className="w-6 h-6 text-black" />
-                                            : <FaBug className="w-6 h-6 text-gray-600" />
-                                        }
-                                    </div>
-                                    <div>
-                                        <span className="text-xs font-medium text-gray-500 uppercase">
-                                            {selectedFeedback.type}
-                                        </span>
-                                        <h2 className="font-bold text-gray-900">{selectedFeedback.subject}</h2>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4 mb-6">
-                                    <div>
-                                        <label className="text-xs font-medium text-gray-500 uppercase">From</label>
-                                        <p className="text-gray-900 font-medium">{selectedFeedback.name}</p>
-                                        <p className="text-gray-500 text-sm">{selectedFeedback.email}</p>
-                                    </div>
-                                    <div>
-                                        <label className="text-xs font-medium text-gray-500 uppercase">Message</label>
-                                        <p className="text-gray-700 whitespace-pre-wrap">{selectedFeedback.message}</p>
-                                    </div>
-                                    <div>
-                                        <label className="text-xs font-medium text-gray-500 uppercase">Submitted</label>
-                                        <p className="text-gray-700">{formatDate(selectedFeedback.createdAt)}</p>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="text-xs font-medium text-gray-500 uppercase mb-2 block">Update Status</label>
-                                    <div className="flex gap-2">
-                                        {['pending', 'reviewed', 'resolved'].map(status => (
-                                            <button
-                                                key={status}
-                                                onClick={() => updateStatus(selectedFeedback._id, status)}
-                                                disabled={updating || selectedFeedback.status === status}
-                                                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${selectedFeedback.status === status
-                                                    ? 'bg-black text-white'
-                                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                                    } disabled:opacity-50`}
-                                            >
-                                                {status}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <a
-                                    href={`mailto:${selectedFeedback.email}?subject=Re: ${selectedFeedback.subject}`}
-                                    className="mt-4 w-full flex items-center justify-center gap-2 bg-black text-white py-3 rounded-lg font-medium transition-colors"
-                                >
-                                    <FaEnvelope className="w-4 h-4" />
+                            <div className="flex gap-2 pt-2">
+                                {selected.status !== 'resolved' && (
+                                    <button onClick={() => updateStatus(selected._id, 'resolved')}
+                                        className="bg-black text-white px-4 py-2 text-[10px] font-black uppercase border-2 border-black hover:bg-gray-800 transition-none">
+                                        Mark Resolved
+                                    </button>
+                                )}
+                                {selected.status === 'pending' && (
+                                    <button onClick={() => updateStatus(selected._id, 'reviewed')}
+                                        className="border-2 border-black px-4 py-2 text-[10px] font-black uppercase hover:bg-black hover:text-white transition-none">
+                                        Mark Reviewed
+                                    </button>
+                                )}
+                                <a href={`mailto:${selected.email}`}
+                                    className="border-2 border-black px-4 py-2 text-[10px] font-black uppercase hover:bg-black hover:text-white transition-none">
                                     Reply via Email
                                 </a>
-
-                                <button
-                                    onClick={() => deleteFeedback(selectedFeedback._id)}
-                                    disabled={deleting}
-                                    className="mt-3 w-full flex items-center justify-center gap-2 bg-black text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
-                                >
-                                    {deleting ? <ClipLoader size={20} color="white" /> : <><FaTrash className="w-4 h-4" /> Delete</>}
+                                <button onClick={() => handleDelete(selected._id)}
+                                    className="border-2 border-red-600 text-red-600 px-4 py-2 text-[10px] font-black uppercase hover:bg-red-600 hover:text-white transition-none">
+                                    Delete
                                 </button>
                             </div>
-                        ) : (
-                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-                                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <FaEye className="w-8 h-8 text-gray-400" />
-                                </div>
-                                <h3 className="text-lg font-medium text-gray-800 mb-2">Select a submission</h3>
-                                <p className="text-gray-500 text-sm">Click on any feedback or issue to view details</p>
-                            </div>
-                        )}
-                    </div>
+                        </div>
+                    ) : (
+                        <div className="text-center py-12">
+                            <p className="text-gray-500 text-sm font-bold uppercase">Select a submission to view details</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
     );
 };
 
-export default FeedbackManager;
-
-
+export default AdminFeedbackManager;

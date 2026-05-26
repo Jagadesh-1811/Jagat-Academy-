@@ -25,14 +25,8 @@ Student's question: ${message}
 
 Please provide a helpful and educational response:`;
 
-    // Generate response using Gemini 2.0 Flash model (optimized for chatbot)
-    let text;
-    try {
-      text = await queryGemini(prompt, '', 'gemini-2.0-flash');
-    } catch (geminiError) {
-      console.warn(`⚠️ Chatbot Router: Falling back to Gemini 1.5 Flash...`);
-      text = await queryGemini(prompt, '', 'gemini-1.5-flash');
-    }
+    // Generate response using Gemini 2.0 Flash
+    const text = await queryGemini(prompt, '', 'gemini-2.0-flash');
     const resultText = text || "I am the Jagat Academy AI assistant. I'm here to support your learning journey. Please try your question again or let me know how I can help!";
 
     return res.status(200).json({
@@ -62,7 +56,7 @@ export const chatWithImage = async (req, res) => {
     }
 
     // Get the vision model
-    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     // Convert buffer to base64
     const imageData = {

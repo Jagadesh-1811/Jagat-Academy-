@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { serverUrl } from '../../App'; // Assuming serverUrl is defined here
+import { serverUrl } from '../../App';
 import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners';
-import { useSelector } from 'react-redux';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-function CertificateManager() {
-    const { token } = useSelector(state => state.user);
+const CertificateManager = () => {
+    const navigate = useNavigate();
     const [certificationLink, setCertificationLink] = useState('');
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const token = localStorage.getItem('token');
 
     useEffect(() => {
         fetchCertificationLink();
@@ -17,17 +19,14 @@ function CertificateManager() {
 
     const fetchCertificationLink = async () => {
         try {
-            setLoading(true);
-            const response = await axios.get(`${serverUrl}/api/certification/link`, { headers: { Authorization: `Bearer ${token}` } });
-            setCertificationLink(response.data.link);
+            const response = await axios.get(`${serverUrl}/api/certification/link`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (response.data?.link) {
+                setCertificationLink(response.data.link);
+            }
         } catch (error) {
             console.error('Error fetching certification link:', error);
-            if (error.response && error.response.status === 404) {
-                toast.info('No certification link set yet. Please create one.');
-                setCertificationLink(''); // Clear link if not found
-            } else {
-                toast.error(error.response?.data?.message || 'Failed to fetch certification link.');
-            }
         } finally {
             setLoading(false);
         }
@@ -37,15 +36,15 @@ function CertificateManager() {
         e.preventDefault();
         setSubmitting(true);
         try {
-            const response = await axios.post(
-                `${serverUrl}/api/certification/manage`,
-                { link: certificationLink },
+            const response = await axios.post(`${serverUrl}/api/certification/manage`, 
+                { certificationLink },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            toast.success(response.data.message);
+            if (response.data.success) {
+                toast.success('Certification link saved successfully');
+            }
         } catch (error) {
-            console.error('Error managing certification link:', error);
-            toast.error(error.response?.data?.message || 'Failed to save certification link.');
+            toast.error(error.response?.data?.message || 'Failed to save certification link');
         } finally {
             setSubmitting(false);
         }
@@ -53,47 +52,50 @@ function CertificateManager() {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center min-h-screen">
-                <ClipLoader size={50} color={'#000'} />
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <ClipLoader size={40} color="#000" />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-            <div className="w-full max-w-xl bg-white rounded-xl shadow-lg p-6 space-y-6">
-                <h2 className="text-2xl font-semibold text-gray-800 text-center">Manage Certification Link</h2>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="min-h-screen bg-white">
+            <div className="bg-black border-b-4 border-black px-6 py-4">
+                <div className="max-w-3xl mx-auto flex items-center gap-4">
+                    <button onClick={() => navigate('/admin/dashboard')} className="text-white hover:text-gray-300 transition-colors">
+                        <ArrowBackIcon />
+                    </button>
                     <div>
-                        <label htmlFor="certificationLink" className="block text-sm font-medium text-gray-700 mb-1">
-                            Certification Form/Page Link
-                        </label>
-                        <input
-                            type="url"
-                            id="certificationLink"
-                            className="w-full p-3 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-black focus:outline-none"
-                            placeholder="e.g., https://forms.gle/RqNdh925UHiokUYG9"
-                            value={certificationLink}
-                            onChange={(e) => setCertificationLink(e.target.value)}
-                            required
-                        />
+                        <h1 className="text-white font-black uppercase tracking-tight text-lg">Certificate Manager</h1>
+                        <p className="text-gray-400 text-xs font-bold uppercase">Manage Certification Application Link</p>
                     </div>
+                </div>
+            </div>
 
-                    <div className="pt-4">
-                        <button
-                            type="submit"
-                            className="w-full bg-black text-white py-3 rounded-md text-sm font-medium hover:bg-gray-700 transition"
-                            disabled={submitting}
-                        >
-                            {submitting ? <ClipLoader size={20} color='white' /> : 'Save Certification Link'}
+            <div className="max-w-3xl mx-auto p-6">
+                <div className="border-4 border-black p-6 bg-gray-50">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-1">
+                            <label className="text-xs font-black uppercase tracking-wider text-gray-600">
+                                Certification Form Link
+                            </label>
+                            <input
+                                type="url"
+                                value={certificationLink}
+                                onChange={(e) => setCertificationLink(e.target.value)}
+                                placeholder="https://forms.google.com/..."
+                                className="w-full border-2 border-black p-3 text-sm font-bold focus:outline-none bg-white"
+                            />
+                        </div>
+                        <button type="submit" disabled={submitting}
+                            className="w-full bg-black text-white font-black py-3 text-xs uppercase border-2 border-black hover:bg-gray-800 transition-none disabled:opacity-50">
+                            {submitting ? <ClipLoader size={16} color="white" /> : 'Save Certification Link'}
                         </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     );
-}
+};
 
 export default CertificateManager;
-

@@ -222,7 +222,15 @@ export const getStudentAnalytics = async (req, res) => {
 
     for (const course of enrolledCourses) {
       const progressRecord = await Progress.findOne({ student: student._id, course: course._id });
-      const completionHistory = [0, 15, 30, 48, progressRecord?.progressPercentage || 0]; // Simulated build metrics
+      const prog = progressRecord?.progressPercentage || 0;
+      // Generate a dynamic progression history ending at current progress for the forecast
+      const completionHistory = [
+        0, 
+        Math.floor(prog * 0.25), 
+        Math.floor(prog * 0.5), 
+        Math.floor(prog * 0.75), 
+        prog
+      ];
       const daysToComplete = forecastCompletionDays(completionHistory);
 
       progressList.push({
@@ -241,11 +249,15 @@ export const getStudentAnalytics = async (req, res) => {
       model: 'Grade'
     }).populate('assignment');
 
-    const assignmentGrades = submissions.map(s => ({
-      assignmentTitle: s.assignment?.title || 'Course Task',
-      score: s.grade?.grade ? parseInt(s.grade.grade) || 80 : 0,
-      feedback: s.grade?.feedback || ''
-    }));
+    const gradeScoreMap = { 'A': 100, 'B': 85, 'C': 70, 'D': 55 };
+    const assignmentGrades = submissions.map(s => {
+      const g = s.grade?.grade || '';
+      return {
+        assignmentTitle: s.assignment?.title || 'Course Task',
+        score: gradeScoreMap[g.toUpperCase()] || 0,
+        feedback: s.grade?.feedback || ''
+      };
+    });
 
     // Calculate Percentile (compared against other students based on progress)
     const studentTotalProgressRecord = await Progress.findOne({ student: student._id });
@@ -280,20 +292,20 @@ export const getStudentAnalytics = async (req, res) => {
     const totalAttendance = await Attendance.countDocuments({ student: student._id });
     const attendanceRate = totalAttendance === 0 ? 95 : Math.round((presentLogs / totalAttendance) * 100);
 
-    // E. AI Weak Areas via Gemini
-    let dummyQuizResults = [];
+    // E. AI Weak Areas via Gemini (using real assignment submissions)
+    let studentWorkHistory = [];
     if (submissions.length > 0) {
-      dummyQuizResults = submissions.map(s => ({
+      studentWorkHistory = submissions.map(s => ({
         quizTitle: s.assignment?.title || "Assignment",
         instructions: s.assignment?.description || "Course Assignment",
         feedback: s.grade?.feedback || "Evaluated by Educator"
       }));
     } else {
-      dummyQuizResults = [
+      studentWorkHistory = [
         { quizTitle: "Introduction", instructions: "Course Overview", feedback: "Student is at the beginning of the course." }
       ];
     }
-    const aiInsight = await getAiWeakAreasAndRecommendations(dummyQuizResults, enrolledCourses[0]?.title || "Full Stack Web Dev");
+    const aiInsight = await getAiWeakAreasAndRecommendations(studentWorkHistory, enrolledCourses[0]?.title || "Full Stack Web Dev");
 
     const payload = {
       success: true,

@@ -27,19 +27,9 @@ const getISTDate = () => {
   return new Date(utc + (3600000 * 5.5)); // UTC+5.5
 };
 
-// Validate if the current IST time is within the active slots: 8:00-09:00 or 17:00-18:00
+// Validate if the current IST time is within the active slots
 const isWithinTimeSlots = (date = null) => {
-  const now = date || getISTDate();
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-
-  // Morning slot: 08:00 - 09:00 (inclusive start, exclusive end)
-  if (hours === 8) return true;
-
-  // Evening slot: 17:00 - 18:00
-  if (hours === 17) return true;
-
-  return false;
+  return true; // Restriction removed as per user request
 };
 
 // 1. Generate live QR session (Educator)
@@ -414,3 +404,21 @@ export const getActiveSessions = async (req, res) => {
   }
 };
 
+// 8. Get All Global Student Attendance History (Global)
+export const getMyAttendance = async (req, res) => {
+  try {
+    const studentId = req.userId;
+    const records = await Attendance.find({ student: studentId })
+      .populate('lecture', 'lectureTitle')
+      .populate('course', 'title')
+      .sort({ checkInTime: -1 });
+
+    res.status(200).json({
+      success: true,
+      attendance: records
+    });
+  } catch (error) {
+    console.error('Error fetching global student attendance history:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch attendance history', error: error.message });
+  }
+};

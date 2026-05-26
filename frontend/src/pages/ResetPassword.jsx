@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { ClipLoader } from 'react-spinners'
 import { toast } from 'react-toastify'
 
-
 function ResetPassword() {
     const navigate = useNavigate()
     const [newPassword, setNewPassword] = useState("")
@@ -13,7 +12,6 @@ function ResetPassword() {
     const [checkingSession, setCheckingSession] = useState(true)
 
     useEffect(() => {
-        // Check if user has a valid recovery session
         const checkSession = async () => {
             try {
                 const { data: { session } } = await supabase.auth.getSession()
@@ -28,10 +26,8 @@ function ResetPassword() {
             }
             setCheckingSession(false)
         }
-
         checkSession()
 
-        // Listen for auth state changes (when user clicks the reset link)
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (event === 'PASSWORD_RECOVERY') {
                 setIsValidSession(true)
@@ -61,13 +57,9 @@ function ResetPassword() {
                 password: newPassword
             })
 
-            if (error) {
-                throw error
-            }
+            if (error) throw error
 
             toast.success("Password reset successfully!")
-
-            // Sign out and redirect to login
             await supabase.auth.signOut()
             navigate("/login")
         } catch (error) {
@@ -79,33 +71,35 @@ function ResetPassword() {
 
     if (checkingSession) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-100">
-                <ClipLoader size={50} color='black' />
+            <div className="min-h-screen flex items-center justify-center bg-white">
+                <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                    <ClipLoader size={50} color='black' />
+                </div>
             </div>
         )
     }
 
     if (!isValidSession) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-                <div className="bg-white shadow-md rounded-xl p-8 max-w-md w-full text-center">
-                    <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-gray-500 text-4xl">⚠️</span>
+            <div className="min-h-screen flex items-center justify-center bg-white px-4">
+                <div className="bg-white border-4 border-black p-8 max-w-md w-full text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="w-20 h-20 bg-black flex items-center justify-center mx-auto mb-4">
+                        <span className="text-white text-4xl font-black">!</span>
                     </div>
-                    <h2 className="text-2xl font-bold mb-4 text-gray-800">
+                    <h2 className="text-2xl font-black text-black uppercase tracking-tight mb-4">
                         Invalid or Expired Link
                     </h2>
-                    <p className="text-gray-600 mb-6">
+                    <p className="text-gray-500 font-bold mb-6">
                         This password reset link is invalid or has expired. Please request a new one.
                     </p>
                     <button
                         onClick={() => navigate("/forgotpassword")}
-                        className="w-full bg-black text-white py-2 px-4 rounded-md font-medium"
+                        className="w-full bg-black text-white py-3 px-4 font-black uppercase text-sm tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all"
                     >
                         Request New Link
                     </button>
                     <div
-                        className="text-sm text-center mt-4 text-gray-600 cursor-pointer hover:underline"
+                        className="text-sm text-center mt-4 text-gray-500 cursor-pointer hover:text-black font-black uppercase tracking-wider"
                         onClick={() => navigate("/login")}
                     >
                         Back to Login
@@ -116,24 +110,24 @@ function ResetPassword() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-            <div className="bg-white shadow-lg rounded-xl p-8 max-w-md w-full">
-                <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">
+        <div className="min-h-screen flex items-center justify-center bg-white px-4">
+            <div className="bg-white border-4 border-black p-8 max-w-md w-full shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
+                <h2 className="text-2xl font-black text-center text-black uppercase tracking-tight mb-2">
                     Reset Your Password
                 </h2>
-                <p className="text-sm text-gray-500 text-center mb-6">
+                <p className="text-sm text-gray-500 font-bold text-center mb-6">
                     Enter a new password below to regain access to your account.
                 </p>
 
                 <form className="space-y-5" onSubmit={handleResetPassword}>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-black text-black uppercase tracking-wider mb-2">
                             New Password
                         </label>
                         <input
                             type="password"
                             placeholder="Enter new password (min 8 characters)"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[black] focus:outline-none"
+                            className="w-full px-4 py-3 border-2 border-black font-bold focus:outline-none focus:ring-2 focus:ring-black"
                             onChange={(e) => setNewPassword(e.target.value)}
                             value={newPassword}
                             required
@@ -141,13 +135,13 @@ function ResetPassword() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-black text-black uppercase tracking-wider mb-2">
                             Confirm Password
                         </label>
                         <input
                             type="password"
                             placeholder="Re-enter new password"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[black] focus:outline-none"
+                            className="w-full px-4 py-3 border-2 border-black font-bold focus:outline-none focus:ring-2 focus:ring-black"
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             value={confirmPassword}
                             required
@@ -156,7 +150,7 @@ function ResetPassword() {
 
                     <button
                         type="submit"
-                        className="w-full bg-[black] text-white py-2 rounded-md font-medium flex items-center justify-center"
+                        className="w-full bg-black text-white py-3 rounded-none font-black uppercase text-sm tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all flex items-center justify-center"
                         disabled={loading}
                     >
                         {loading ? <ClipLoader size={25} color='white' /> : "Reset Password"}
@@ -164,7 +158,7 @@ function ResetPassword() {
                 </form>
 
                 <div
-                    className="text-center text-sm mt-4 text-gray-600 cursor-pointer hover:underline"
+                    className="text-center text-sm mt-6 text-gray-500 cursor-pointer hover:text-black font-black uppercase tracking-wider border-t-2 border-black pt-4"
                     onClick={() => navigate("/login")}
                 >
                     Back to Login
@@ -175,4 +169,3 @@ function ResetPassword() {
 }
 
 export default ResetPassword
-

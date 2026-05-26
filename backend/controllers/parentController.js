@@ -225,7 +225,8 @@ export const getLinkedStudents = async (req, res) => {
       select: 'name email photoUrl enrolledCourses age parentAccessControls',
       populate: {
         path: 'enrolledCourses',
-        select: 'title price lectures creator'
+        select: 'title price lectures creator',
+        populate: { path: 'creator', select: 'name email' }
       }
     });
 
@@ -270,7 +271,7 @@ export const getStudentProgress = async (req, res) => {
 
     // Get Progress details
     const progressRecords = await Progress.find({ student: studentId })
-      .populate('course', 'title category level')
+      .populate('course', 'title category level lectures')
       .populate('completedLectures', 'lectureTitle');
 
     return res.status(200).json({
@@ -529,3 +530,51 @@ export const getConversations = async (req, res) => {
     return res.status(500).json({ message: `Failed to fetch conversations: ${error.message}` });
   }
 };
+
+// 13. Get Dashboard Analytics
+export const getDashboard = async (req, res) => {
+  try {
+    const parentId = req.userId;
+    const parent = await User.findById(parentId).populate('students');
+    if (!parent) {
+      return res.status(404).json({ message: 'Parent account not found' });
+    }
+
+    const students = parent.students;
+    const studentIds = students.map(s => s._id);
+
+    // Calculate active courses across all children
+    const activeCourses = students.reduce((acc, student) => acc + (student.enrolledCourses ? student.enrolledCourses.length : 0), 0);
+
+    // Fetch recent activities (Attendance & Progress)
+    const recentAttendance = await Attendance.find({ student: { $in: studentIds } })
+      .sort({ checkInTime: -1 })
+      .limit(5)
+      .populate('student', 'name')
+      .populate('course', 'title');
+
+    const activities = recentAttendance.map(record => ({
+      _id: record._id,
+      childName: record.student?.name,
+      type: 'attendance',
+      description: `Marked ${record.status} in ${record.course?.title}`,
+      time: record.checkInTime,
+    }));
+
+    res.status(200).json({
+      success: true,
+      children: students,
+      childrenCount: students.length,
+      activeCourses,
+      recentActivity: activities,
+      notifications: [
+        { _id: '1', title: 'New assignment posted', message: 'Check math course for new assignment', time: new Date() },
+        { _id: '2', title: 'Upcoming doubt session', message: 'Physics doubt session scheduled for tomorrow', time: new Date() }
+      ]
+    });
+  } catch (error) {
+    console.error('getDashboard error:', error);
+    res.status(500).json({ message: `Failed to fetch dashboard data: ${error.message}` });
+  }
+};
+

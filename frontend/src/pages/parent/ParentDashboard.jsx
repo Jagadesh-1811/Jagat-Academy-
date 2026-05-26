@@ -1,869 +1,248 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { serverUrl } from '../../App';
-import { useNavigate, Link } from 'react-router-dom';
+import Nav from '../../components/Nav';
+import Footer from '../../components/Footer';
+import { FaUserGraduate, FaChartLine, FaBell, FaEnvelope } from 'react-icons/fa';
+import ArrowBackLongIcon from '@mui/icons-material/ArrowBack';
+import { ClipLoader } from 'react-spinners';
 import { toast } from 'react-toastify';
-// jsPDF is loaded via CDN inside index.html to prevent Vite 504 Optimizer bugs
 
-function ParentDashboard() {
+const ParentDashboard = () => {
   const navigate = useNavigate();
+  const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [linkingStudent, setLinkingStudent] = useState(false);
-  const [studentSearchVal, setStudentSearchVal] = useState('');
-  
-  // Data lists
-  const [linkedStudents, setLinkedStudents] = useState([]);
-  const [activeStudent, setActiveStudent] = useState(null); // Selected student user object
+  const [error, setError] = useState('');
+  const [linkingEmail, setLinkingEmail] = useState('');
+  const [isLinking, setIsLinking] = useState(false);
 
-  // Active student stats & details
-  const [studentProgress, setStudentProgress] = useState([]);
-  const [progressBlocked, setProgressBlocked] = useState(false);
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
 
-  const [studentGrades, setStudentGrades] = useState([]);
-  const [gradesBlocked, setGradesBlocked] = useState(false);
-
-  const [studentAttendance, setStudentAttendance] = useState([]);
-  const [attendanceSummary, setAttendanceSummary] = useState([]);
-  const [attendanceBlocked, setAttendanceBlocked] = useState(false);
-
-  const [studentAssignments, setStudentAssignments] = useState([]);
-  const [assignmentsBlocked, setAssignmentsBlocked] = useState(false);
-
-  const [studentOrders, setStudentOrders] = useState([]);
-
-  // Educator chat states
-  const [conversations, setConversations] = useState([]);
-  const [activeConv, setActiveConv] = useState(null);
-  const [chatMessages, setChatMessages] = useState([]);
-  const [newMessageText, setNewMessageText] = useState('');
-  const [newChatCourseId, setNewChatCourseId] = useState('');
-  const [composingMessage, setComposingMessage] = useState(false);
-  const [sendingMsg, setSendingMsg] = useState(false);
-
-  const messageEndRef = useRef(null);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    toast.success('Logged out successfully.');
-    navigate('/parent/login');
-  };
-
-  const fetchStudentsList = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+  const fetchDashboard = async () => {
     try {
-      const res = await axios.get(`${serverUrl}/api/parent/students`, {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${serverUrl}/api/parent/dashboard`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (res.data.success) {
-        setLinkedStudents(res.data.students);
-        if (res.data.students.length > 0 && !activeStudent) {
-          setActiveStudent(res.data.students[0]);
-        }
-      }
+      setDashboard(res.data);
     } catch (err) {
-      console.error('Failed to load students list:', err);
-      toast.error('Failed to load linked student profiles.');
+      setError(err.response?.data?.message || 'Failed to load dashboard');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLinkStudentSubmit = async (e) => {
+  const handleLinkStudent = async (e) => {
     e.preventDefault();
-    if (!studentSearchVal.trim()) {
-      toast.error('Please enter a student email or linking code.');
-      return;
-    }
-    setLinkingStudent(true);
-    const token = localStorage.getItem('token');
+    if (!linkingEmail.trim()) return;
+    setIsLinking(true);
     try {
-      const res = await axios.post(
-        `${serverUrl}/api/parent/link-student`,
-        { studentEmailOrCode: studentSearchVal.trim() },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (res.data.success) {
-        toast.success(res.data.message);
-        setStudentSearchVal('');
-        fetchStudentsList();
-      }
+      const token = localStorage.getItem('token');
+      const res = await axios.post(`${serverUrl}/api/parent/link-student`, {
+        studentEmailOrCode: linkingEmail
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success(res.data.message || 'Student linked successfully!');
+      setLinkingEmail('');
+      fetchDashboard();
     } catch (err) {
-      console.error('Linking error:', err);
-      toast.error(err.response?.data?.message || 'Linking failed.');
+      toast.error(err.response?.data?.message || 'Failed to link student');
     } finally {
-      setLinkingStudent(false);
+      setIsLinking(false);
     }
   };
-
-  const fetchStudentData = async (studentId) => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    try {
-      // Progress
-      const progRes = await axios.get(`${serverUrl}/api/parent/student/${studentId}/progress`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (progRes.data.success) {
-        setProgressBlocked(progRes.data.privacyBlocked);
-        setStudentProgress(progRes.data.progress || []);
-      }
-
-      // Grades
-      const gradeRes = await axios.get(`${serverUrl}/api/parent/student/${studentId}/grades`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (gradeRes.data.success) {
-        setGradesBlocked(gradeRes.data.privacyBlocked);
-        setStudentGrades(gradeRes.data.grades || []);
-      }
-
-      // Attendance
-      const attRes = await axios.get(`${serverUrl}/api/parent/student/${studentId}/attendance`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (attRes.data.success) {
-        setAttendanceBlocked(attRes.data.privacyBlocked);
-        setStudentAttendance(attRes.data.records || []);
-        setAttendanceSummary(attRes.data.summary || []);
-      }
-
-      // Assignments
-      const assignRes = await axios.get(`${serverUrl}/api/parent/student/${studentId}/assignments`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (assignRes.data.success) {
-        setAssignmentsBlocked(assignRes.data.privacyBlocked);
-        setStudentAssignments(assignRes.data.assignments || []);
-      }
-
-      // Orders
-      const orderRes = await axios.get(`${serverUrl}/api/parent/student/${studentId}/orders`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (orderRes.data.success) {
-        setStudentOrders(orderRes.data.orders || []);
-      }
-    } catch (err) {
-      console.error('Failed to load student data details:', err);
-    }
-  };
-
-  const fetchConversations = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    try {
-      const res = await axios.get(`${serverUrl}/api/parent/conversations`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.data.success) {
-        setConversations(res.data.conversations);
-      }
-    } catch (err) {
-      console.error('Failed to load conversations:', err);
-    }
-  };
-
-  const fetchChatMessages = async (convId) => {
-    const token = localStorage.getItem('token');
-    try {
-      const res = await axios.get(`${serverUrl}/api/chat/messages/${convId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.data.success) {
-        setChatMessages(res.data.messages || []);
-      }
-    } catch (err) {
-      console.error('Failed to load chat messages:', err);
-    }
-  };
-
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!newMessageText.trim()) return;
-
-    setSendingMsg(true);
-    const token = localStorage.getItem('token');
-    try {
-      if (activeConv) {
-        // Send to existing conversation
-        const res = await axios.post(
-          `${serverUrl}/api/chat/send`,
-          { conversationId: activeConv._id, message: newMessageText.trim(), senderRole: 'parent' },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        if (res.data.success) {
-          setChatMessages((prev) => [...prev, res.data.message]);
-          setNewMessageText('');
-          fetchConversations();
-        }
-      } else if (composingMessage && newChatCourseId) {
-        // Find course creator (educator)
-        const progressRecord = studentProgress.find((p) => p.course && p.course._id === newChatCourseId);
-        const courseRes = await axios.get(`${serverUrl}/api/course/${newChatCourseId}`);
-        const educatorId = courseRes.data.course?.creator;
-
-        if (!educatorId) {
-          toast.error('Could not identify educator for this course.');
-          return;
-        }
-
-        const res = await axios.post(
-          `${serverUrl}/api/parent/message-educator`,
-          { educatorId, courseId: newChatCourseId, messageText: newMessageText.trim() },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        if (res.data.success) {
-          toast.success('Message sent! Thread started.');
-          setNewMessageText('');
-          setComposingMessage(false);
-          setNewChatCourseId('');
-          fetchConversations();
-          setActiveConv(res.data.conversation);
-          fetchChatMessages(res.data.conversation._id);
-        }
-      }
-    } catch (err) {
-      console.error('Failed to send chat message:', err);
-      toast.error('Message failed to deliver.');
-    } finally {
-      setSendingMsg(false);
-    }
-  };
-
-  const handleExportPDF = () => {
-    if (!activeStudent) return;
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    
-    // PDF Header Frame
-    doc.setFillColor(0, 0, 0);
-    doc.rect(0, 0, 210, 40, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(22);
-    doc.text('JAGAT ACADEMY', 15, 20);
-    doc.setFontSize(10);
-    doc.setFont('Helvetica', 'normal');
-    doc.text('STUDENT PERFORMANCE & ACADEMIC CARD', 15, 30);
-    doc.text(`DATE GENERATED: ${new Date().toLocaleDateString()}`, 130, 20);
-
-    // Student Info Panel
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(12);
-    doc.setFont('Helvetica', 'bold');
-    doc.text('STUDENT INFORMATION', 15, 55);
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    doc.line(15, 57, 195, 57);
-
-    doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(10);
-    doc.text(`NAME: ${activeStudent.name.toUpperCase()}`, 15, 66);
-    doc.text(`EMAIL: ${activeStudent.email.toUpperCase()}`, 15, 73);
-    doc.text(`ROLE STATUS: LINKED PROFILE`, 15, 80);
-
-    let yOffset = 95;
-
-    // 1. Course Progress Table
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.text('1. COURSE WATCH PROGRESS', 15, yOffset);
-    doc.line(15, yOffset + 2, 195, yOffset + 2);
-    yOffset += 10;
-
-    doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(10);
-    if (progressBlocked) {
-      doc.text('[DATA PRIVACY LOCK: BLOCKED BY STUDENT]', 15, yOffset);
-      yOffset += 10;
-    } else if (!activeStudent.enrolledCourses || activeStudent.enrolledCourses.length === 0) {
-      doc.text('No active course watch records found.', 15, yOffset);
-      yOffset += 10;
-    } else {
-      activeStudent.enrolledCourses.forEach((course) => {
-        const p = studentProgress.find((record) => record.course && record.course._id === course._id);
-        const total = course.lectures?.length || 1;
-        const completed = p ? (p.completedLectures?.length || 0) : 0;
-        const rate = Math.round((completed / total) * 100);
-        doc.text(`${course.title.toUpperCase()}`, 15, yOffset);
-        doc.text(`${rate}% COMPLETE (${completed}/${total} LECTURES)`, 140, yOffset);
-        yOffset += 8;
-      });
-    }
-
-    yOffset += 8;
-
-    // 2. Attendance Summary
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.text('2. LECTURE ATTENDANCE RATES', 15, yOffset);
-    doc.line(15, yOffset + 2, 195, yOffset + 2);
-    yOffset += 10;
-
-    doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(10);
-    if (attendanceBlocked) {
-      doc.text('[DATA PRIVACY LOCK: BLOCKED BY STUDENT]', 15, yOffset);
-      yOffset += 10;
-    } else if (attendanceSummary.length === 0) {
-      doc.text('No attendance logs registered.', 15, yOffset);
-      yOffset += 10;
-    } else {
-      attendanceSummary.forEach((s) => {
-        doc.text(`${s.courseTitle.toUpperCase()}`, 15, yOffset);
-        doc.text(`${s.attendanceRate}% ATTENDANCE (${s.presentCount}/${s.totalSessions} PRESENT)`, 140, yOffset);
-        yOffset += 8;
-      });
-    }
-
-    yOffset += 8;
-
-    // 3. Quiz Grades Summary
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.text('3. ASSIGNMENT EVALUATION GRADES', 15, yOffset);
-    doc.line(15, yOffset + 2, 195, yOffset + 2);
-    yOffset += 10;
-
-    doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(10);
-    if (gradesBlocked) {
-      doc.text('[DATA PRIVACY LOCK: BLOCKED BY STUDENT]', 15, yOffset);
-      yOffset += 10;
-    } else if (studentGrades.length === 0) {
-      doc.text('No graded submissions published.', 15, yOffset);
-      yOffset += 10;
-    } else {
-      studentGrades.forEach((g) => {
-        const title = g.submission?.assignment?.title || 'Course Assignment';
-        doc.text(`${title.toUpperCase()}`, 15, yOffset);
-        doc.text(`SCORE: ${g.marks || 0} | FEEDBACK: ${g.remarks || 'EXCELLENT'}`, 140, yOffset);
-        yOffset += 8;
-      });
-    }
-
-    // Footnote
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(8);
-    doc.text('OFFICIAL VERIFIED PORTAL REPORT - SECURE B&W SYSTEM LAYOUT', 15, 280);
-
-    doc.save(`${activeStudent.name.replace(/\s+/g, '_')}_Progress_Card.pdf`);
-    toast.success('B&W Report PDF downloaded!');
-  };
-
-  useEffect(() => {
-    fetchStudentsList();
-    fetchConversations();
-  }, []);
-
-  useEffect(() => {
-    if (activeStudent) {
-      fetchStudentData(activeStudent._id);
-    }
-  }, [activeStudent]);
-
-  useEffect(() => {
-    if (activeConv) {
-      fetchChatMessages(activeConv._id);
-      const intv = setInterval(() => fetchChatMessages(activeConv._id), 4000);
-      return () => clearInterval(intv);
-    }
-  }, [activeConv]);
-
-  useEffect(() => {
-    if (messageEndRef.current) {
-      messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [chatMessages]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center font-sans">
-        <span className="text-xs uppercase tracking-widest">Initialising Secure Frame...</span>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans flex flex-col">
-      {/* Top Header */}
-      <header className="border-b border-neutral-800 py-6 px-8 flex justify-between items-center bg-neutral-950">
-        <div>
-          <h1 className="text-xl font-bold tracking-widest">JAGAT ACADEMY</h1>
-          <span className="text-[10px] text-neutral-400 uppercase tracking-widest">
-            Parent Control Dashboard
-          </span>
+    <div className="min-h-screen bg-gray-50 font-sans flex flex-col">
+      <Nav />
+
+      <div className="flex-grow w-full max-w-7xl mx-auto px-4 py-12 pt-32">
+        {/* Header Section */}
+        <div className="border-b-4 border-black pb-6 mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          <div className="flex items-start gap-4">
+            <ArrowBackLongIcon className='w-6 h-6 cursor-pointer text-black hover:-translate-x-1 transition-transform mt-2' onClick={() => navigate(-1)} />
+            <div>
+              <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-black leading-none">Parent Portal</h1>
+              <p className="text-gray-500 text-sm font-bold mt-2 tracking-wide uppercase">Command Center for your child's education</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-4">
+            <Link
+              to="/parent/messages"
+              className="group relative bg-white border-2 border-black px-6 py-3 font-black uppercase text-xs tracking-wider hover:bg-black hover:text-white transition-all overflow-hidden flex items-center gap-2"
+            >
+              <FaEnvelope className="text-lg group-hover:animate-bounce" />
+              <span>Messages</span>
+            </Link>
+            <Link
+              to="/parent/analytics"
+              className="group relative bg-black text-white border-2 border-black px-6 py-3 font-black uppercase text-xs tracking-wider hover:bg-white hover:text-black transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px]"
+            >
+              View Analytics & Reports →
+            </Link>
+          </div>
         </div>
-        <button
-          onClick={handleLogout}
-          className="bg-black border border-neutral-800 text-neutral-400 hover:text-white px-4 py-2 text-xs uppercase tracking-wider transition-colors cursor-pointer"
-        >
-          [LOG OUT]
-        </button>
-      </header>
 
-      {/* Main Grid Frame */}
-      <div className="flex-grow p-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* Left Side: Switcher and Link Profile Module */}
-        <aside className="lg:col-span-3 space-y-6">
-          
-          {/* Student Selector Card */}
-          <div className="bg-neutral-950 border border-neutral-800 p-6 space-y-4">
-            <h2 className="text-xs uppercase tracking-widest text-neutral-400 font-bold border-b border-neutral-900 pb-2">
-              Select Student Profile
-            </h2>
-            {linkedStudents.length === 0 ? (
-              <p className="text-xs text-neutral-500 uppercase">No student links verified yet.</p>
-            ) : (
-              <div className="space-y-2">
-                {linkedStudents.map((stu) => (
-                  <button
-                    key={stu._id}
-                    onClick={() => setActiveStudent(stu)}
-                    className={`w-full text-left p-3 text-xs uppercase tracking-wider transition-colors block border ${
-                      activeStudent?._id === stu._id
-                        ? 'bg-white text-black border-white'
-                        : 'bg-black text-white border-neutral-800 hover:border-white'
-                    }`}
-                  >
-                    {stu.name}
-                  </button>
-                ))}
-              </div>
-            )}
+        {loading ? (
+          <div className="flex items-center justify-center py-32">
+            <ClipLoader size={50} color="#000" />
           </div>
-
-          {/* Link Student Card */}
-          <div className="bg-neutral-950 border border-neutral-800 p-6 space-y-4">
-            <h2 className="text-xs uppercase tracking-widest text-neutral-400 font-bold border-b border-neutral-900 pb-2">
-              Link Profile Connection
-            </h2>
-            <form onSubmit={handleLinkStudentSubmit} className="space-y-4">
-              <div>
-                <label className="block text-[10px] uppercase text-neutral-400 mb-1.5">
-                  Student Email or Code
-                </label>
-                <input
-                  type="text"
-                  value={studentSearchVal}
-                  onChange={(e) => setStudentSearchVal(e.target.value)}
-                  placeholder="JAGT-STU-XXXXXX or email"
-                  className="w-full bg-black border border-neutral-850 px-3 py-2 text-xs text-white focus:outline-none focus:border-white font-mono rounded-none"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={linkingStudent}
-                className="w-full bg-white text-black hover:bg-neutral-200 transition-colors py-2 text-[10px] uppercase font-bold tracking-widest cursor-pointer disabled:opacity-50"
-              >
-                {linkingStudent ? 'LINKING...' : '[LINK PROFILE]'}
-              </button>
-            </form>
+        ) : error ? (
+          <div className="bg-red-50 border-4 border-red-600 p-8 shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
+            <p className="text-red-700 font-black text-center text-xl uppercase tracking-wider">{error}</p>
           </div>
-
-          {/* Conversations Chat Module */}
-          <div className="bg-neutral-950 border border-neutral-800 p-6 space-y-4">
-            <h2 className="text-xs uppercase tracking-widest text-neutral-400 font-bold border-b border-neutral-900 pb-2 flex justify-between items-center">
-              <span>Educator Chats</span>
-              <button
-                onClick={fetchConversations}
-                className="text-[9px] text-neutral-500 underline hover:text-white"
-              >
-                [REFRESH]
-              </button>
-            </h2>
-
-            {/* Direct Message New Starter Trigger */}
-            {activeStudent && (
-              <button
-                onClick={() => {
-                  setComposingMessage(true);
-                  setActiveConv(null);
-                }}
-                className="w-full text-center py-2 text-[10px] font-bold border border-dashed border-neutral-800 uppercase hover:border-white text-neutral-400 hover:text-white transition-colors cursor-pointer"
-              >
-                [+ INITIATE CHAT]
-              </button>
-            )}
-
-            {conversations.length === 0 ? (
-              <p className="text-[10px] text-neutral-600 uppercase pt-2">No chat threads found.</p>
-            ) : (
-              <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                {conversations.map((conv) => (
-                  <button
-                    key={conv._id}
-                    onClick={() => {
-                      setActiveConv(conv);
-                      setComposingMessage(false);
-                    }}
-                    className={`w-full text-left p-2.5 text-[10px] uppercase border transition-colors block ${
-                      activeConv?._id === conv._id
-                        ? 'bg-neutral-800 text-white border-white'
-                        : 'bg-black text-neutral-400 border-neutral-900 hover:border-neutral-700'
-                    }`}
-                  >
-                    <span className="block font-bold truncate text-white">{conv.educator?.name}</span>
-                    <span className="block text-[8px] text-neutral-500 truncate mt-0.5">{conv.course?.title}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </aside>
-
-        {/* Right Side: Active Student Insights, Privacy Gates, and Exporter */}
-        <main className="lg:col-span-9 space-y-8">
-          
-          {activeStudent ? (
-            <div className="space-y-8">
-              
-              {/* Header card with metadata and PDF Exporter */}
-              <div className="bg-neutral-950 border border-neutral-800 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-bold tracking-tight uppercase">
-                    Student: {activeStudent.name}
-                  </h2>
-                  <p className="text-xs uppercase text-neutral-400 tracking-wider font-mono">
-                    Email: {activeStudent.email} | Linked Context
-                  </p>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3 self-start md:self-auto">
-                  <button
-                    onClick={() => navigate(`/parent/analytics/${activeStudent._id}`)}
-                    className="border border-white text-white hover:bg-white hover:text-black transition-colors px-4 py-3 text-xs uppercase font-bold tracking-widest cursor-pointer"
-                  >
-                    [VIEW COHORT ANALYTICS]
-                  </button>
-                  <button
-                    onClick={handleExportPDF}
-                    className="bg-white text-black hover:bg-neutral-200 transition-colors px-4 py-3 text-xs uppercase font-bold tracking-widest cursor-pointer"
-                  >
-                    [DOWNLOAD B&W PDF REPORT]
-                  </button>
-                </div>
-              </div>
-
-              {/* Grid: Watch Progress and Attendance Summary */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                
-                {/* Course Completion / Watch Progress */}
-                <section className="bg-neutral-950 border border-neutral-800 p-6 space-y-4">
-                  <h3 className="text-xs uppercase tracking-widest text-neutral-400 font-bold border-b border-neutral-900 pb-2">
-                    Course Watch Progress
-                  </h3>
-
-                  {progressBlocked ? (
-                    <div className="border border-neutral-900 p-8 text-center text-xs text-neutral-500 uppercase tracking-widest">
-                      [DATA PRIVACY GATED BY STUDENT]
-                    </div>
-                  ) : !activeStudent.enrolledCourses || activeStudent.enrolledCourses.length === 0 ? (
-                    <p className="text-xs text-neutral-500 uppercase">No active courses enrolled yet.</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {activeStudent.enrolledCourses.map((course) => {
-                        const p = studentProgress.find((record) => record.course && record.course._id === course._id);
-                        const total = course.lectures?.length || 1;
-                        const completed = p ? (p.completedLectures?.length || 0) : 0;
-                        const rate = Math.round((completed / total) * 100);
-                        return (
-                          <div key={course._id} className="space-y-1">
-                            <div className="flex justify-between text-xs uppercase tracking-wider">
-                              <span className="font-semibold truncate pr-2">{course.title}</span>
-                              <span className="font-mono">{rate}%</span>
-                            </div>
-                            {/* B&W Custom progress bar */}
-                            <div className="w-full h-3 bg-black border border-neutral-800 rounded-none overflow-hidden">
-                              <div
-                                className="h-full bg-white transition-all duration-500"
-                                style={{ width: `${rate}%` }}
-                              />
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </section>
-
-                {/* Attendance Summary Panel */}
-                <section className="bg-neutral-950 border border-neutral-800 p-6 space-y-4">
-                  <h3 className="text-xs uppercase tracking-widest text-neutral-400 font-bold border-b border-neutral-900 pb-2">
-                    Lecture Attendance Rates
-                  </h3>
-
-                  {attendanceBlocked ? (
-                    <div className="border border-neutral-900 p-8 text-center text-xs text-neutral-500 uppercase tracking-widest">
-                      [DATA PRIVACY GATED BY STUDENT]
-                    </div>
-                  ) : attendanceSummary.length === 0 ? (
-                    <p className="text-xs text-neutral-500 uppercase">No attendance history logs recorded.</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {attendanceSummary.map((s) => (
-                        <div key={s.courseId} className="space-y-2">
-                          <div className="flex justify-between text-xs uppercase tracking-wider">
-                            <span className="font-semibold truncate pr-2">{s.courseTitle}</span>
-                            <span className="font-mono">{s.attendanceRate}%</span>
-                          </div>
-                          {/* High Contrast B&W Grid Indicator */}
-                          <div className="flex gap-1 h-4 bg-black border border-neutral-900 p-0.5">
-                            {Array.from({ length: 10 }).map((_, idx) => (
-                              <div
-                                key={idx}
-                                className={`flex-grow h-full ${
-                                  idx < Math.round(s.attendanceRate / 10) ? 'bg-white' : 'bg-neutral-950'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="block text-[9px] text-neutral-500 uppercase tracking-wider">
-                            Attended: {s.presentCount} of {s.totalSessions} sessions
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </section>
-              </div>
-
-              {/* Row 2: Grades & Assignments */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                
-                {/* Published Grades */}
-                <section className="bg-neutral-950 border border-neutral-800 p-6 space-y-4">
-                  <h3 className="text-xs uppercase tracking-widest text-neutral-400 font-bold border-b border-neutral-900 pb-2">
-                    Evaluated Quiz / Submission Grades
-                  </h3>
-
-                  {gradesBlocked ? (
-                    <div className="border border-neutral-900 p-8 text-center text-xs text-neutral-500 uppercase tracking-widest">
-                      [DATA PRIVACY GATED BY STUDENT]
-                    </div>
-                  ) : studentGrades.length === 0 ? (
-                    <p className="text-xs text-neutral-500 uppercase">No grades evaluations published yet.</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {studentGrades.map((grade) => (
-                        <div key={grade._id} className="p-3 bg-black border border-neutral-900 space-y-1">
-                          <span className="block text-xs uppercase font-bold tracking-wider text-white">
-                            {grade.submission?.assignment?.title || 'Course Evaluation Task'}
-                          </span>
-                          <div className="flex justify-between text-[10px] text-neutral-400 font-mono uppercase">
-                            <span>Score: {grade.marks || 0}</span>
-                            <span>Grade: {grade.grade || 'N/A'}</span>
-                          </div>
-                          {grade.remarks && (
-                            <p className="text-[10px] text-neutral-500 uppercase border-t border-neutral-950 pt-1 mt-1 font-mono">
-                              * {grade.remarks}
-                            </p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </section>
-
-                {/* Upcoming Assignments deadlines */}
-                <section className="bg-neutral-950 border border-neutral-800 p-6 space-y-4">
-                  <h3 className="text-xs uppercase tracking-widest text-neutral-400 font-bold border-b border-neutral-900 pb-2">
-                    Upcoming Course Tasks
-                  </h3>
-
-                  {assignmentsBlocked ? (
-                    <div className="border border-neutral-900 p-8 text-center text-xs text-neutral-500 uppercase tracking-widest">
-                      [DATA PRIVACY GATED BY STUDENT]
-                    </div>
-                  ) : studentAssignments.length === 0 ? (
-                    <p className="text-xs text-neutral-500 uppercase">No upcoming task deadlines found.</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {studentAssignments.map((assign) => (
-                        <div key={assign._id} className="p-3 bg-black border border-neutral-900 flex justify-between items-center">
-                          <div>
-                            <span className="block text-xs uppercase font-bold text-white tracking-wider">
-                              {assign.title}
-                            </span>
-                            <span className="block text-[8px] text-neutral-500 uppercase tracking-widest">
-                              Course: {assign.course?.title}
-                            </span>
-                          </div>
-                          <div className="text-right">
-                            <span className="block text-[10px] text-neutral-300 font-mono">
-                              {new Date(assign.deadline).toLocaleDateString()}
-                            </span>
-                            <span className="block text-[8px] uppercase tracking-widest text-neutral-500 font-bold">
-                              DEADLINE
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </section>
-              </div>
-
-              {/* Billing Order Histories */}
-              <section className="bg-neutral-950 border border-neutral-800 p-6 space-y-4">
-                <h3 className="text-xs uppercase tracking-widest text-neutral-400 font-bold border-b border-neutral-900 pb-2">
-                  Invoice & Order History
-                </h3>
-                {studentOrders.length === 0 ? (
-                  <p className="text-xs text-neutral-500 uppercase">No payment invoice logs reported.</p>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse text-xs">
-                      <thead>
-                        <tr className="border-b border-neutral-800 text-neutral-500 uppercase">
-                          <th className="py-2">Course Title</th>
-                          <th className="py-2">Price Paid</th>
-                          <th className="py-2">Date Purchased</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {studentOrders.map((order) => (
-                          <tr key={order._id} className="border-b border-neutral-900 uppercase">
-                            <td className="py-3 font-semibold text-white">{order.course?.title || 'Standard Course'}</td>
-                            <td className="py-3 font-mono">INR {order.course?.price || 0}</td>
-                            <td className="py-3 text-neutral-400 font-mono">{new Date(order.createdAt).toLocaleDateString()}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+        ) : (
+          <div className="space-y-10">
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-transform duration-300">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="bg-black p-3 rounded-none">
+                    <FaUserGraduate className="text-white text-xl" />
                   </div>
-                )}
-              </section>
+                  <span className="text-xs font-black uppercase tracking-widest text-gray-500">Linked Students</span>
+                </div>
+                <p className="text-5xl font-black text-black tracking-tighter">{dashboard?.childrenCount || 0}</p>
+              </div>
 
-              {/* Chat Window Box overlay inside Dashboard */}
-              {(activeConv || composingMessage) && (
-                <section className="bg-neutral-950 border border-neutral-800 p-6 space-y-4">
-                  <div className="flex justify-between items-center border-b border-neutral-900 pb-3">
-                    <div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-white">
-                        {activeConv ? `Messaging: ${activeConv.educator?.name}` : 'Initiate Conversation'}
-                      </h4>
-                      <p className="text-[9px] uppercase tracking-widest text-neutral-500 font-mono">
-                        {activeConv ? `Course Thread: ${activeConv.course?.title}` : 'Choose Educator & Send message'}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setActiveConv(null);
-                        setComposingMessage(false);
-                      }}
-                      className="text-xs text-neutral-400 hover:text-white underline"
+              <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-transform duration-300">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="bg-black p-3 rounded-none">
+                    <FaChartLine className="text-white text-xl" />
+                  </div>
+                  <span className="text-xs font-black uppercase tracking-widest text-gray-500">Active Enrollments</span>
+                </div>
+                <p className="text-5xl font-black text-black tracking-tighter">{dashboard?.activeCourses || 0}</p>
+              </div>
+
+              <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-transform duration-300">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="bg-black p-3 rounded-none relative">
+                    <FaBell className="text-white text-xl" />
+                    {(dashboard?.notifications?.length || 0) > 0 && (
+                      <span className="absolute -top-2 -right-2 w-4 h-4 bg-red-600 rounded-full animate-pulse border-2 border-white"></span>
+                    )}
+                  </div>
+                  <span className="text-xs font-black uppercase tracking-widest text-gray-500">Notifications</span>
+                </div>
+                <p className="text-5xl font-black text-black tracking-tighter">{dashboard?.notifications?.length || 0}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Linked Children Column */}
+              <div className="lg:col-span-2">
+                <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                  <div className="bg-black px-8 py-5 border-b-4 border-black flex justify-between items-center">
+                    <h2 className="text-white font-black uppercase tracking-widest text-sm">Linked Children Profile</h2>
+                    <span className="text-gray-400 text-xs font-bold uppercase">{dashboard?.children?.length || 0} Total</span>
+                  </div>
+
+                  {/* Link Student Form */}
+                  <form onSubmit={handleLinkStudent} className="p-6 border-b-4 border-black bg-gray-50 flex flex-col sm:flex-row gap-4 items-center">
+                    <input 
+                      type="email" 
+                      placeholder="Enter student email to link..." 
+                      value={linkingEmail}
+                      onChange={(e) => setLinkingEmail(e.target.value)}
+                      className="flex-1 w-full border-2 border-black p-3 text-sm font-bold focus:outline-none"
+                    />
+                    <button 
+                      type="submit" 
+                      disabled={isLinking || !linkingEmail.trim()}
+                      className="w-full sm:w-auto whitespace-nowrap bg-black text-white px-6 py-3 font-black uppercase text-xs hover:bg-gray-800 disabled:opacity-50 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all"
                     >
-                      [CLOSE CHAT]
+                      {isLinking ? 'Linking...' : 'Link Student'}
                     </button>
-                  </div>
-
-                  {/* Form to Select Educator course and Compose message */}
-                  {composingMessage && (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-[10px] uppercase text-neutral-500 mb-1">
-                          Select Enrolled Course
-                        </label>
-                        <select
-                          value={newChatCourseId}
-                          onChange={(e) => setNewChatCourseId(e.target.value)}
-                          className="bg-black border border-neutral-800 text-xs px-3 py-2 text-white focus:outline-none focus:border-white w-full rounded-none"
-                        >
-                          <option value="">-- CHOOSE A COURSE --</option>
-                          {studentProgress.map((p) => {
-                            if (!p.course) return null;
-                            return (
-                              <option key={p.course._id} value={p.course._id}>
-                                {p.course.title.toUpperCase()}
-                              </option>
-                            );
-                          })}
-                        </select>
+                  </form>
+                  
+                  {(!dashboard?.children || dashboard.children.length === 0) ? (
+                    <div className="p-12 text-center bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
+                      <div className="w-20 h-20 bg-white border-4 border-black flex items-center justify-center mx-auto mb-4 rotate-12">
+                        <FaUserGraduate className="text-3xl text-gray-300" />
                       </div>
+                      <p className="text-black font-black text-xl uppercase tracking-wider">No Profiles Linked</p>
+                      <p className="text-gray-500 text-sm mt-2 font-bold max-w-md mx-auto">Your child needs to link your email address from their Parent Settings dashboard.</p>
                     </div>
-                  )}
-
-                  {/* Existing Messages list log */}
-                  {activeConv && (
-                    <div className="bg-black border border-neutral-900 p-4 h-64 overflow-y-auto space-y-3">
-                      {chatMessages.length === 0 ? (
-                        <p className="text-[10px] text-neutral-600 uppercase text-center py-12">No messages in this chat yet.</p>
-                      ) : (
-                        chatMessages.map((msg) => {
-                          const isParent = msg.senderRole === 'parent';
-                          return (
-                            <div key={msg._id} className={`flex flex-col ${isParent ? 'items-end' : 'items-start'}`}>
-                              <span className="text-[8px] text-neutral-500 uppercase tracking-widest font-mono mb-0.5">
-                                {isParent ? 'YOU' : 'EDUCATOR'}
-                              </span>
-                              <div
-                                className={`px-3 py-2 text-xs ${
-                                  isParent ? 'bg-white text-black' : 'bg-neutral-850 text-white'
-                                } max-w-xs`}
-                              >
-                                {msg.message}
-                              </div>
+                  ) : (
+                    <div className="divide-y-4 divide-black">
+                      {dashboard.children.map((child) => (
+                        <div key={child._id} className="p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-gray-50 transition-colors group">
+                          <div className="flex items-center gap-6">
+                            <div className="w-16 h-16 bg-black border-2 border-black flex items-center justify-center text-white font-black text-2xl group-hover:scale-110 transition-transform shadow-[4px_4px_0px_0px_rgba(209,213,219,1)]">
+                              {child.name?.charAt(0).toUpperCase() || '?'}
                             </div>
-                          );
-                        })
-                      )}
-                      <div ref={messageEndRef} />
+                            <div>
+                              <p className="font-black text-black text-xl uppercase tracking-wider">{child.name}</p>
+                              <p className="text-gray-500 text-sm font-bold tracking-wide">{child.email}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-col items-end gap-3">
+                            <span className={`px-4 py-1 text-[10px] font-black uppercase tracking-widest border-2 ${
+                              child.status === 'active'
+                                ? 'bg-[#C6F6D5] border-[#22543D] text-[#22543D]'
+                                : 'bg-gray-200 border-gray-500 text-gray-600'
+                            }`}>
+                              {child.status || 'Active'} Profile
+                            </span>
+                            <Link to={`/parent/analytics`} className="text-xs font-black uppercase text-blue-600 hover:text-blue-800 hover:underline underline-offset-4">
+                              View Analytics →
+                            </Link>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
+                </div>
+              </div>
 
-                  {/* Send chat message bar */}
-                  {(activeConv || (composingMessage && newChatCourseId)) && (
-                    <form onSubmit={handleSendMessage} className="flex gap-2">
-                      <input
-                        type="text"
-                        value={newMessageText}
-                        onChange={(e) => setNewMessageText(e.target.value)}
-                        placeholder="Enter message..."
-                        className="flex-grow bg-black border border-neutral-800 text-xs px-4 py-2.5 text-white focus:outline-none focus:border-white rounded-none"
-                        required
-                      />
-                      <button
-                        type="submit"
-                        disabled={sendingMsg}
-                        className="bg-white text-black hover:bg-neutral-200 transition-colors px-6 text-xs uppercase font-bold tracking-widest cursor-pointer disabled:opacity-50"
-                      >
-                        [SEND]
-                      </button>
-                    </form>
+              {/* Activity Feed Column */}
+              <div className="lg:col-span-1">
+                <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-full">
+                  <div className="bg-black px-6 py-5 border-b-4 border-black">
+                    <h2 className="text-white font-black uppercase tracking-widest text-sm">Live Activity Feed</h2>
+                  </div>
+                  
+                  {dashboard?.recentActivity && dashboard.recentActivity.length > 0 ? (
+                    <div className="divide-y-2 divide-gray-200 p-4">
+                      {dashboard.recentActivity.map((activity, index) => (
+                        <div key={index} className="py-4 px-2 group">
+                          <div className="flex items-start gap-3">
+                            <div className="mt-1 w-2 h-2 rounded-full bg-black group-hover:scale-150 transition-transform"></div>
+                            <div>
+                              <p className="font-bold text-black text-sm leading-snug">{activity.description}</p>
+                              <p className="text-gray-500 text-[10px] font-black uppercase tracking-wider mt-2">
+                                {activity.childName} • {new Date(activity.time || activity.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-10 text-center flex flex-col items-center justify-center h-full min-h-[300px]">
+                      <div className="w-16 h-16 bg-gray-100 border-4 border-gray-300 flex items-center justify-center mb-4 rotate-12">
+                         <span className="text-2xl text-gray-400">🕒</span>
+                      </div>
+                      <p className="text-gray-500 font-black uppercase text-sm tracking-wider">No Recent Activity</p>
+                      <p className="text-gray-400 text-xs font-bold mt-2 max-w-[200px] mx-auto">Activities like course progress or new assignments will appear here.</p>
+                    </div>
                   )}
-                </section>
-              )}
-
-            </div>
-          ) : (
-            <div className="bg-neutral-950 border border-neutral-800 p-12 text-center space-y-6">
-              <div>
-                <h2 className="text-xl font-bold uppercase tracking-tight">Welcome to Parent Portal</h2>
-                <p className="text-xs text-neutral-500 uppercase tracking-wider mt-2">
-                  No active student profile connections selected.
-                </p>
-              </div>
-              <div className="max-w-xs mx-auto border border-dashed border-neutral-850 p-6 text-xs uppercase text-neutral-400">
-                To link a student profile, enter their JAGT-STU linking code in the connecting segment in the left panel.
+                </div>
               </div>
             </div>
-          )}
-
-        </main>
-
+          </div>
+        )}
       </div>
 
-      {/* Footer */}
-      <footer className="border-t border-neutral-800 py-6 px-8 text-center text-xs text-neutral-600 uppercase tracking-widest bg-neutral-950">
-        &copy; {new Date().getFullYear()} JAGAT ACADEMY. HIGH-CONTRAST SECURE FRAME.
-      </footer>
+      <Footer />
     </div>
   );
-}
+};
 
 export default ParentDashboard;

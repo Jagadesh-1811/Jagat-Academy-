@@ -186,36 +186,34 @@ function Dashboard() {
     }, 0) || 0;
 
     return (
-        <div className="flex min-h-screen bg-gray-100">
-            <ArrowBackLongIcon className=' w-[22px] absolute top-[10%]
-      left-[10%] h-[22px] cursor-pointer' onClick={() => navigate("/")} />
-            <div className="w-full px-6 py-10   bg-gray-50 space-y-10">
+        <div className="flex min-h-screen bg-white">
+            <div className="w-full px-6 py-10 bg-white space-y-10">
                 {/* Welcome Section */}
-                <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-md p-6 flex flex-col md:flex-row items-center gap-6">
+                <div className="max-w-5xl mx-auto bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 flex flex-col md:flex-row items-center gap-6">
                     <img
                         src={userData?.photoUrl || img}
                         alt="Educator"
-                        className="w-28 h-28 rounded-full object-cover border-4 border-black shadow-md"
+                        className="w-28 h-28 object-cover border-4 border-black"
                     />
                     <div className="text-center md:text-left space-y-1">
-                        <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                        <h1 className="text-2xl font-black text-black flex items-center gap-2">
                             Welcome, {userData?.name || "Educator"} <AutoAwesomeIcon className="text-black" />
                         </h1>
                         <h1 className='text-xl font-semibold text-gray-800'>Total Earning : <span className='font-light text-gray-900'>₹{totalEarnings.toLocaleString()}</span>  </h1>
                         <p className="text-gray-600 text-sm">
                             {userData?.description || "Start creating amazing courses for your students!"}
                         </p>
-                        <h1 className='px-[10px] text-center  py-[10px] border-2  bg-black border-black text-white  rounded-[10px] text-[15px] font-light flex items-center justify-center gap-2 cursor-pointer' onClick={() => navigate("/courses")}>Create Courses</h1>
-                        <h1 className='px-[10px] text-center  py-[10px] border-2  bg-black border-black text-white  rounded-[10px] text-[15px] font-light flex items-center justify-center gap-2 cursor-pointer mt-2 transition-colors' onClick={() => navigate("/admin/feedback-manager")}>View Feedback & Issues</h1>
-                        <h1 className='px-[10px] text-center  py-[10px] border-2  bg-black border-black text-white  rounded-[10px] text-[15px] font-light flex items-center justify-center gap-2 cursor-pointer mt-2 transition-colors' onClick={() => navigate("/teacher/analytics")}>Learning & Course Analytics</h1>
+                        <h1 className='px-4 text-center py-3 border-2 bg-black border-2 border-black text-white text-sm font-black flex items-center justify-center gap-2 cursor-pointer hover:bg-white hover:text-black transition-none' onClick={() => navigate("/courses")}>Create Courses</h1>
+                        <h1 className='px-4 text-center py-3 border-2 bg-black border-2 border-black text-white text-sm font-black flex items-center justify-center gap-2 cursor-pointer mt-2 hover:bg-white hover:text-black transition-none' onClick={() => navigate("/admin/feedback-manager")}>View Feedback & Issues</h1>
+                        <h1 className='px-4 text-center py-3 border-2 bg-black border-2 border-black text-white text-sm font-black flex items-center justify-center gap-2 cursor-pointer mt-2 hover:bg-white hover:text-black transition-none' onClick={() => navigate("/teacher/analytics")}>Learning & Course Analytics</h1>
                     </div>
                 </div>
 
                 {/* Graphs Section */}
                 <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Course Progress Chart */}
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                        <h2 className="text-lg font-semibold mb-4">Course Progress (Lectures)</h2>
+                    <div className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-6">
+                        <h2 className="text-lg font-black uppercase tracking-tight mb-4">Course Progress (Lectures)</h2>
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={courseProgressData}>
                                 <CartesianGrid strokeDasharray="3 3" />
@@ -228,8 +226,8 @@ function Dashboard() {
                     </div>
 
                     {/* Enrolled Students Chart */}
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                        <h2 className="text-lg font-semibold mb-4">Student Enrollment</h2>
+                    <div className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-6">
+                        <h2 className="text-lg font-black uppercase tracking-tight mb-4">Student Enrollment</h2>
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={enrollData}>
                                 <CartesianGrid strokeDasharray="3 3" />
@@ -242,8 +240,8 @@ function Dashboard() {
                     </div>
                 </div>
 
-                <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-md p-6 mt-8">
-                    <h2 className="text-xl font-bold mb-4">Assignment Submissions</h2>
+                <div className="max-w-6xl mx-auto bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 mt-8">
+                    <h2 className="text-xl font-black uppercase tracking-tight mb-4">Assignment Submissions</h2>
                     {loadingSubmissions ? (
                         <div className="flex justify-center items-center h-40">
                             <ClipLoader size={30} color={'#000'} />
@@ -252,13 +250,13 @@ function Dashboard() {
                         <>
                             {creatorCourseData?.map((course) => (
                                 <div key={course._id} className="mb-8">
-                                    <h3 className="text-lg font-semibold mb-2">{course.title}</h3>
+                                    <h3 className="text-lg font-black mb-2">{course.title}</h3>
                                     {course.assignments?.filter(a => !deletedAssignments.includes(a._id)).map((assignment) => (
-                                        <div key={assignment._id} className="border p-4 rounded-lg mb-4">
+                                        <div key={assignment._id} className="border-2 border-black p-4 mb-4 bg-gray-50">
                                             <div className="flex items-center justify-between mb-2">
                                                 <h4 className="text-md font-semibold">{assignment.title}</h4>
                                                 <button
-                                                    className="bg-gray-200 text-white px-3 py-1 rounded-md hover:bg-gray-200 flex items-center gap-1 text-sm"
+                                                    className="bg-black text-white px-3 py-2 border-2 border-black text-xs font-black hover:bg-white hover:text-black transition-none flex items-center gap-1"
                                                     onClick={() => handleDeleteAssignment(assignment._id)}
                                                 >
                                                     <FaTrash /> Remove
@@ -291,10 +289,10 @@ function Dashboard() {
                                                                 )
                                                             ) : (
                                                                 <div className="mt-2 p-2 bg-gray-200 rounded-md">
-                                                                    <h5 className="font-semibold mb-1">Assign Grade</h5>
+                                                                    <h5 className="font-bold text-sm mb-2 uppercase">Assign Grade</h5>
                                                                     <div className="flex flex-col sm:flex-row gap-2">
                                                                         <select
-                                                                            className="w-full sm:w-1/3 border px-3 py-2 rounded-md bg-white"
+                                                                            className="w-full sm:w-1/3 border-2 border-black px-3 py-2 bg-white"
                                                                             value={grades[submission._id] || ''}
                                                                             onChange={(e) => handleGradeChange(submission._id, e.target.value)}
                                                                         >
@@ -305,21 +303,21 @@ function Dashboard() {
                                                                             <option value="D">D</option>
                                                                         </select>
                                                                         <textarea
-                                                                            className="w-full sm:flex-1 border px-2 py-1 rounded-md resize-none text-sm"
+                                                                            className="w-full sm:flex-1 border-2 border-black px-2 py-1 resize-none text-sm"
                                                                             placeholder="Add feedback (optional)"
                                                                             value={feedback[submission._id] || ''}
                                                                             onChange={(e) => handleFeedbackChange(submission._id, e.target.value)}
                                                                             rows="1"
                                                                         ></textarea>
                                                                         <button
-                                                                            className="bg-black text-white px-3 py-1 rounded-md hover:bg-gray-700 w-full sm:w-auto text-sm"
+                                                                            className="bg-black text-white px-4 py-2 border-2 border-black hover:bg-white hover:text-black transition-none w-full sm:w-auto text-sm font-bold"
                                                                             onClick={() => assignGrade(submission._id, assignment._id)}
                                                                             disabled={submittingGrade}
                                                                         >
                                                                             {submittingGrade ? <ClipLoader size={15} color={'white'} /> : 'Grade'}
                                                                         </button>
                                                                         <button
-                                                                            className="bg-black text-white px-3 py-1 rounded-md hover:bg-gray-800 w-full sm:w-auto text-sm border border-black"
+                                                                            className="bg-white text-black px-4 py-2 border-2 border-black hover:bg-black hover:text-white transition-none w-full sm:w-auto text-sm font-bold"
                                                                             onClick={() => rejectSubmission(submission._id, assignment._id)}
                                                                             disabled={submittingGrade}
                                                                         >

@@ -6,7 +6,8 @@ import {
   getStudentHistory,
   getCourseHistory,
   manualBulkMark,
-  getActiveSessions
+  getActiveSessions,
+  getMyAttendance
 } from '../controllers/attendanceController.js';
 import isAuth from '../middlewares/isAuth.js';
 
@@ -23,6 +24,9 @@ router.get('/session-info/:token', isAuth, getSessionInfo);
 
 // Mark attendance (Student / Auto watch trigger)
 router.post('/mark', isAuth, markAttendance);
+
+// Retrieve all attendance history for current student globally
+router.get('/my-attendance', isAuth, getMyAttendance);
 
 // Retrieve student history for a specific course
 router.get('/student/:courseId', isAuth, getStudentHistory);

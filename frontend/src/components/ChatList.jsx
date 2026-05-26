@@ -15,9 +15,7 @@ const ChatList = () => {
     const [selectedConversation, setSelectedConversation] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
 
-    // Debug: Check if component mounts
     console.log('ChatList mounted, token:', token ? 'exists' : 'missing');
-
 
     useEffect(() => {
         if (isOpen) {
@@ -60,33 +58,31 @@ const ChatList = () => {
 
     if (selectedConversation) {
         return (
-            <div className="fixed bottom-4 right-4 w-96 h-[500px] bg-white rounded-2xl shadow-2xl flex flex-col z-50 border border-gray-200 overflow-hidden"
-                style={{ animation: 'adminFadeIn 0.3s ease-out' }}>
-
+            <div className="fixed bottom-4 right-4 w-96 h-[500px] bg-white border-4 border-black flex flex-col z-50 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
                 {/* Header */}
-                <div className="bg-black text-white p-4 flex items-center justify-between">
+                <div className="bg-black text-white px-4 py-3 flex items-center justify-between border-b-4 border-black">
                     <div className="flex items-center gap-3">
                         {selectedConversation.otherUser?.photoUrl ? (
                             <img
                                 src={selectedConversation.otherUser.photoUrl}
                                 alt=""
-                                className="w-10 h-10 rounded-full object-cover"
+                                className="w-10 h-10 border-2 border-white object-cover"
                             />
                         ) : (
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center text-white font-bold text-lg">
+                            <div className="w-10 h-10 bg-white/20 border-2 border-white flex items-center justify-center text-white font-black text-lg">
                                 {selectedConversation.otherUser?.name?.charAt(0)?.toUpperCase() || 'U'}
                             </div>
                         )}
                         <div>
-                            <h3 className="font-semibold text-sm">{selectedConversation.otherUser?.name}</h3>
-                            <p className="text-xs text-gray-300">{selectedConversation.course?.title}</p>
+                            <h3 className="font-black text-sm uppercase tracking-tight">{selectedConversation.otherUser?.name}</h3>
+                            <p className="text-xs font-bold text-gray-300">{selectedConversation.course?.title}</p>
                         </div>
                     </div>
                     <button
                         onClick={() => setSelectedConversation(null)}
-                        className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                        className="p-1 border-2 border-white hover:bg-white/20 transition-none"
                     >
-                        <CloseIcon className="w-5 h-5" />
+                        <CloseIcon className="w-4 h-4" />
                     </button>
                 </div>
 
@@ -102,38 +98,36 @@ const ChatList = () => {
 
     return (
         <>
-            {/* Floating Button - Always visible */}
+            {/* Floating Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="fixed bottom-6 right-6 w-16 h-16 bg-black text-white rounded-full shadow-2xl hover:bg-gray-800 transition-all duration-300 flex items-center justify-center hover:scale-110"
+                className="fixed bottom-6 right-6 w-16 h-16 bg-black border-4 border-black text-white flex items-center justify-center shadow-[8px_8px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:translate-x-[4px] hover:translate-y-[4px] transition-all"
                 style={{ zIndex: 9999 }}
             >
                 <ChatBubbleOutlineIcon className="w-7 h-7" />
                 {totalUnread > 0 && (
-                    <span className="absolute -top-1 -right-1 w-6 h-6 bg-black text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 w-6 h-6 bg-white text-black text-xs font-black border-2 border-black flex items-center justify-center">
                         {totalUnread > 9 ? '9+' : totalUnread}
                     </span>
                 )}
             </button>
 
-
             {/* Chat List Panel */}
             {isOpen && (
                 <div
-                    className="fixed bottom-24 right-6 w-80 bg-white rounded-2xl shadow-2xl z-40 overflow-hidden border border-gray-200"
-                    style={{ animation: 'adminFadeIn 0.3s ease-out' }}
+                    className="fixed bottom-24 right-6 w-80 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] z-40 overflow-hidden"
                 >
-                    <div className="bg-black text-white p-4 flex items-center justify-between">
-                        <h3 className="font-semibold">Student Messages</h3>
+                    <div className="bg-black text-white px-4 py-3 flex items-center justify-between border-b-4 border-black">
+                        <h3 className="font-black uppercase text-sm tracking-wider">Student Messages</h3>
                         <button
                             onClick={() => setIsOpen(false)}
-                            className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                            className="p-1 border-2 border-white hover:bg-white/20 transition-none"
                         >
                             <CloseIcon className="w-4 h-4" />
                         </button>
                     </div>
 
-                    <div className="max-h-96 overflow-y-auto">
+                    <div className="max-h-96 overflow-y-auto bg-white">
                         {loading ? (
                             <div className="flex justify-center items-center h-32">
                                 <ClipLoader size={30} color="#000" />
@@ -141,39 +135,39 @@ const ChatList = () => {
                         ) : conversations.length === 0 ? (
                             <div className="text-center py-10">
                                 <ChatBubbleOutlineIcon className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-                                <p className="text-gray-500 text-sm">No messages yet</p>
+                                <p className="text-gray-500 font-bold text-sm">No messages yet</p>
                             </div>
                         ) : (
                             conversations.map(conv => (
                                 <div
                                     key={conv._id}
                                     onClick={() => setSelectedConversation(conv)}
-                                    className="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors flex items-center gap-3"
+                                    className="p-4 border-b-2 border-black hover:bg-gray-100 cursor-pointer transition-none flex items-center gap-3"
                                 >
                                     {conv.otherUser?.photoUrl ? (
                                         <img
                                             src={conv.otherUser.photoUrl}
                                             alt=""
-                                            className="w-12 h-12 rounded-full object-cover"
+                                            className="w-12 h-12 border-2 border-black object-cover"
                                             onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
                                         />
                                     ) : null}
                                     <div
-                                        className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-700 to-black flex items-center justify-center text-white font-bold text-lg"
+                                        className="w-12 h-12 bg-black border-2 border-black flex items-center justify-center text-white font-black text-lg"
                                         style={{ display: conv.otherUser?.photoUrl ? 'none' : 'flex' }}
                                     >
                                         {conv.otherUser?.name?.charAt(0)?.toUpperCase() || 'U'}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between">
-                                            <h4 className="font-semibold text-sm truncate">{conv.otherUser?.name}</h4>
-                                            <span className="text-xs text-gray-400">{formatTime(conv.lastMessageAt)}</span>
+                                            <h4 className="font-black text-sm uppercase tracking-tight truncate">{conv.otherUser?.name}</h4>
+                                            <span className="text-xs font-bold text-gray-400">{formatTime(conv.lastMessageAt)}</span>
                                         </div>
-                                        <p className="text-xs text-gray-500 truncate">{conv.course?.title}</p>
-                                        <p className="text-sm text-gray-600 truncate">{conv.lastMessage}</p>
+                                        <p className="text-xs font-bold text-gray-500 truncate">{conv.course?.title}</p>
+                                        <p className="text-sm font-medium text-gray-600 truncate">{conv.lastMessage}</p>
                                     </div>
                                     {conv.unreadCount > 0 && (
-                                        <span className="w-5 h-5 bg-black text-white text-xs font-bold rounded-full flex items-center justify-center">
+                                        <span className="w-5 h-5 bg-black text-white text-xs font-black border-2 border-black flex items-center justify-center">
                                             {conv.unreadCount}
                                         </span>
                                     )}
@@ -181,15 +175,9 @@ const ChatList = () => {
                             ))
                         )}
                     </div>
-                </div >
+                </div>
             )}
 
-            <style>{`
-                @keyframes adminFadeIn {
-                    from { opacity: 0; transform: translateY(10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-            `}</style>
         </>
     );
 };
@@ -253,17 +241,18 @@ const EducatorChatMessages = ({ conversation, token, userData }) => {
 
     return (
         <>
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 border-b-2 border-black">
                 {messages.map(msg => {
                     const isMe = msg.sender._id === userData._id;
                     return (
                         <div key={msg._id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[75%] ${isMe
-                                ? 'bg-black text-white rounded-2xl rounded-br-md'
-                                : 'bg-white text-gray-800 rounded-2xl rounded-bl-md border border-gray-200'
-                                } px-4 py-2.5 shadow-sm`}>
-                                <p className="text-sm">{msg.message}</p>
-                                <p className="text-[10px] mt-1 text-gray-400">{formatTime(msg.createdAt)}</p>
+                            <div className={`max-w-[75%] border-2 border-black px-4 py-2.5 ${
+                                isMe
+                                    ? 'bg-black text-white'
+                                    : 'bg-white text-gray-800'
+                            }`}>
+                                <p className="text-sm font-bold">{msg.message}</p>
+                                <p className="text-[10px] mt-1 font-bold text-gray-400">{formatTime(msg.createdAt)}</p>
                             </div>
                         </div>
                     );
@@ -271,28 +260,25 @@ const EducatorChatMessages = ({ conversation, token, userData }) => {
                 <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={sendMessage} className="p-3 bg-white border-t border-gray-100">
-                <div className="flex items-center gap-2">
-                    <input
-                        type="text"
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Type your reply..."
-                        className="flex-1 px-4 py-3 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-black/20"
-                        disabled={sending}
-                    />
-                    <button
-                        type="submit"
-                        disabled={!newMessage.trim() || sending}
-                        className="w-11 h-11 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 disabled:opacity-50"
-                    >
-                        {sending ? <ClipLoader size={16} color="white" /> : '→'}
-                    </button>
-                </div>
+            <form onSubmit={sendMessage} className="p-3 bg-white border-t-2 border-black flex gap-2">
+                <input
+                    type="text"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Type your reply..."
+                    className="flex-1 px-4 py-3 border-2 border-black text-sm font-bold focus:outline-none focus:ring-2 focus:ring-black"
+                    disabled={sending}
+                />
+                <button
+                    type="submit"
+                    disabled={!newMessage.trim() || sending}
+                    className="w-11 h-11 bg-black border-2 border-black text-white flex items-center justify-center font-black hover:bg-gray-800 disabled:opacity-50 transition-none"
+                >
+                    {sending ? <ClipLoader size={16} color="white" /> : '→'}
+                </button>
             </form>
         </>
     );
 };
 
 export default ChatList;
-

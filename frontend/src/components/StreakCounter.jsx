@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import WhatshotIcon from '@mui/icons-material/Whatshot'; // Flame icon for streak
+import WhatshotIcon from '@mui/icons-material/Whatshot';
 
 const StreakCounter = ({
   iconColor = '#f97316',
@@ -35,7 +35,6 @@ const StreakCounter = ({
           localStorage.setItem('streakCount', currentStreak.toString());
           localStorage.setItem('lastVisitDate', today.toISOString());
         }
-        // If diffDays === 0, it's the same day, don't update
       } else {
         currentStreak = 1;
         localStorage.setItem('streakCount', currentStreak.toString());
@@ -60,7 +59,7 @@ const StreakCounter = ({
 
   return (
     <div
-      className={`flex items-center space-x-2 p-2 rounded-md bg-gray-100 ${className}`}
+      className={`flex items-center gap-2 px-3 py-2 border-2 border-black bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] ${className}`}
       title={
         streak > 0
           ? `You have a ${streak}-day streak!`
@@ -68,14 +67,13 @@ const StreakCounter = ({
       }
     >
       <WhatshotIcon style={{ fontSize: iconSize, color: iconColor }} />
-      <span style={{ color: textColor, fontSize: textSize }} className="font-semibold">
+      <span style={{ color: textColor, fontSize: textSize }} className="font-black">
         {streak}
       </span>
     </div>
   );
 };
 
-// Export a helper function to clear streak on logout
 export const clearStreak = () => {
   localStorage.removeItem('streakCount');
   localStorage.removeItem('lastVisitDate');
