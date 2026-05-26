@@ -26,7 +26,7 @@ const MonthlyQuiz = () => {
             const month = today.getMonth(); // 0-indexed
             const lastDay = new Date(year, month + 1, 0).getDate(); // Get last day of current month
 
-            if (today.getDate() === lastDay && month !== 1) { // month 1 is February
+            if (today.getDate() === lastDay) {
                 setIsLastDayOfMonth(true);
 
                 if (Array.isArray(userData?.enrolledCourses) && userData.enrolledCourses.length > 0) {
@@ -197,4 +197,3 @@ const MonthlyQuiz = () => {
 };
 
 export default MonthlyQuiz;
-
