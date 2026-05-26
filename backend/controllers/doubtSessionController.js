@@ -53,3 +53,33 @@ export const getAllDoubtSessions = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// Delete a doubt session
+export const deleteDoubtSession = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const doubtSession = await DoubtSession.findById(id).populate('course');
+        if (!doubtSession) {
+            return res.status(404).json({ message: 'Doubt session not found' });
+        }
+        
+        // Authorization check: User must be creator of the course or an admin
+        const course = doubtSession.course;
+        if (course && course.creator.toString() !== req.userId && req.userRole !== 'superadmin' && req.userRole !== 'admin') {
+            return res.status(403).json({ message: 'You are not authorized to delete this doubt session' });
+        }
+
+        await DoubtSession.findByIdAndDelete(id);
+
+        // Remove from course's doubtSessions array
+        if (course) {
+            await Course.findByIdAndUpdate(course._id, {
+                $pull: { doubtSessions: id }
+            });
+        }
+
+        res.status(200).json({ message: 'Doubt session deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

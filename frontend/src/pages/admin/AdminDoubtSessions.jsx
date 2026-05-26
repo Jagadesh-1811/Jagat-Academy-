@@ -36,6 +36,20 @@ const AdminDoubtSessions = () => {
         setRefreshing(false);
     };
 
+    const handleDelete = async (sessionId) => {
+        if (!window.confirm("Are you sure you want to delete this doubt session?")) return;
+        const token = localStorage.getItem('adminToken');
+        try {
+            await axios.delete(`${serverUrl}/api/doubt-session/doubt-session/${sessionId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            toast.success("Doubt session deleted successfully");
+            fetchDoubtSessions();
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to delete session");
+        }
+    };
+
     const formatDate = (date) => {
         return new Date(date).toLocaleDateString('en-US', {
             month: 'short', day: 'numeric', year: 'numeric',
@@ -128,10 +142,16 @@ const AdminDoubtSessions = () => {
                                             </td>
                                             <td className="p-3 text-gray-500 font-bold text-xs">{formatDate(session.createdAt)}</td>
                                             <td className="p-3">
-                                                <a href={session.meetingLink} target="_blank" rel="noopener noreferrer"
-                                                    className="bg-black text-white px-3 py-1.5 text-[10px] font-black uppercase border-2 border-black hover:bg-gray-800 transition-none">
-                                                    Join Session
-                                                </a>
+                                                <div className="flex items-center gap-2">
+                                                    <a href={session.meetingLink} target="_blank" rel="noopener noreferrer"
+                                                        className="bg-black text-white px-3 py-1.5 text-[10px] font-black uppercase border-2 border-black hover:bg-gray-800 transition-none">
+                                                        Join Session
+                                                    </a>
+                                                    <button onClick={() => handleDelete(session._id)}
+                                                        className="bg-red-500 text-white px-3 py-1.5 text-[10px] font-black uppercase border-2 border-black hover:bg-red-600 transition-none">
+                                                        Delete
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
