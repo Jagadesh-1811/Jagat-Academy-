@@ -36,7 +36,7 @@ function Courses() {
       <div className="w-[100%] min-h-screen p-4 sm:p-6   bg-gray-100">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3 ">
           <div className='flex items-center justify-center gap-3'>
-            <ArrowBackLongIcon className=' w-[22px] h-[22px] cursor-pointer' onClick={() => navigate("/dashboard")} />
+            <ArrowBackLongIcon className=' w-[22px] h-[22px] cursor-pointer' onClick={() => navigate("/teacher/dashboard")} />
             <h1 className="text-xl font-semibold">Courses</h1>
           </div>
 
@@ -69,7 +69,7 @@ function Courses() {
                   </td>
                   {course?.price ? <td className="py-3 px-4">₹{course?.price}</td> : <td className="py-3 px-4">₹ NA</td>}
                   <td className="py-3 px-4">
-                    <span className={`px-3 py-1 rounded-full text-xs ${course?.isPublished ? "text-gray-700 bg-gray-800" : "text-gray-500 bg-gray-200"}`}>
+                    <span className={`px-3 py-1 rounded-full text-xs ${course?.isPublished ? "text-white bg-black" : "text-black bg-gray-200"}`}>
                       {course?.isPublished ? "Published" : "Draft"}
                     </span>
                   </td>
@@ -77,6 +77,7 @@ function Courses() {
                     <div className="flex items-center gap-2">
                       <EditIcon className="text-gray-600 hover:text-black cursor-pointer" onClick={() => navigate(`/addcourses/${course?._id}`)} />
                       <button onClick={() => navigate(`/admin/create-doubt-session/${course?._id}`)} className="bg-black text-white px-2 py-1 rounded text-xs">Create Doubt Session</button>
+                      <button onClick={() => navigate(`/teacher/attendance/${course?._id}`)} className="bg-black text-white px-2 py-1 rounded text-xs">Attendance</button>
                     </div>
                   </td>
                 </tr>
@@ -108,9 +109,12 @@ function Courses() {
                 </div>
                 <EditIcon className="text-gray-600 hover:text-black cursor-pointer" onClick={() => navigate(`/addcourses/${course?._id}`)} />
               </div>
-              <span className={`w-fit px-3 py-1 text-xs rounded-full  ${course?.isPublished ? "text-gray-700 bg-gray-800" : "text-gray-500 bg-gray-200"}`}>
-                {course?.isPublished ? "Published" : "Draft"}
-              </span>
+              <div className="flex items-center justify-between mt-2">
+                <span className={`w-fit px-3 py-1 text-xs rounded-full  ${course?.isPublished ? "text-white bg-black" : "text-black bg-gray-200"}`}>
+                  {course?.isPublished ? "Published" : "Draft"}
+                </span>
+                <button onClick={() => navigate(`/teacher/attendance/${course?._id}`)} className="bg-black text-white px-2 py-1 rounded text-xs">Manage Attendance</button>
+              </div>
             </div>
           ))}
           <p className="text-center text-sm text-gray-400 mt-4 pl-[80px]">

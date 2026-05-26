@@ -188,13 +188,33 @@ export const logOut = async (req, res) => {
 
 export const googleSignup = async (req, res) => {
     try {
-        const { name, email, role } = req.body
-        let user = await User.findOne({ email })
+        const { name, email, role, firebaseUid } = req.body
+        let user = await User.findOne({
+            $or: [
+                ...(firebaseUid ? [{ firebaseUid }] : []),
+                { email: email.toLowerCase() }
+            ]
+        })
+
         if (!user) {
             user = await User.create({
-                name, email, role
+                name,
+                email: email.toLowerCase(),
+                role: role || 'student',
+                firebaseUid,
+                emailVerified: true
             })
+            console.log(`📝 Created new user via Google Sign-In: ${user.email}`);
+        } else {
+            // Update firebaseUid if not already linked
+            if (!user.firebaseUid && firebaseUid) {
+                user.firebaseUid = firebaseUid;
+                user.emailVerified = true;
+                await user.save();
+                console.log(`🔄 Linked firebaseUid to existing user via Google Sign-In: ${user.email}`);
+            }
         }
+
         let token = await genToken(user._id)
         return res.status(200).json({ user, token })
 
@@ -362,3 +382,89 @@ export const getEducatorStatus = async (req, res) => {
         return res.status(500).json({ message: `Error checking status: ${error.message}` })
     }
 }
+
+// Send 6-digit numeric verification code to educator email
+export const sendEducatorVerificationCode = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
+
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) {
+            return res.status(404).json({ message: "No educator account found with this email" });
+        }
+
+        // Generate verification token (link)
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        user.verificationToken = verificationToken;
+        user.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+        await user.save();
+
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        await sendVerificationEmail(user.email, verificationToken, frontendUrl, 'educator');
+
+        return res.status(200).json({
+            success: true,
+            message: "Verification email sent to educator successfully!"
+        });
+    } catch (error) {
+        console.error("sendEducatorVerificationCode error:", error);
+        return res.status(500).json({ message: `Failed to send verification code: ${error.message}` });
+    }
+};
+
+// Verify 6-digit educator code and activate emailVerified status
+export const verifyEducatorCode = async (req, res) => {
+    try {
+        // Accept either token (from link) or legacy numeric code for compatibility
+        const { email, token, code } = req.body;
+
+        if (!email || (!token && !code)) {
+            return res.status(400).json({ message: "Email and verification token/code are required" });
+        }
+
+        const query = {
+            email: email.toLowerCase(),
+            verificationTokenExpires: { $gt: Date.now() }
+        };
+
+        query.verificationToken = token || code;
+
+        const user = await User.findOne(query);
+
+        if (!user) {
+            return res.status(400).json({ message: "Invalid or expired verification token/code" });
+        }
+
+        user.emailVerified = true;
+        user.verificationToken = undefined;
+        user.verificationTokenExpires = undefined;
+        await user.save();
+
+        // Also update Firebase emailVerified if firebaseUid exists
+        if (user.firebaseUid) {
+            try {
+                const admin = (await import("../utils/firebaseAdmin.js")).default;
+                if (admin) {
+                    await admin.auth().updateUser(user.firebaseUid, {
+                        emailVerified: true
+                    });
+                    console.log(`✅ Firebase user emailVerified set to true for educator: ${user.email}`);
+                }
+            } catch (fbError) {
+                console.error("❌ Failed to update Firebase emailVerified status:", fbError);
+            }
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Email verified successfully!"
+        });
+    } catch (error) {
+        console.error("verifyEducatorCode error:", error);
+        return res.status(500).json({ message: `Verification error: ${error.message}` });
+    }
+};

@@ -38,9 +38,9 @@ export const syncFirebaseUser = async (req, res) => {
                 role: userRole,
                 approvalStatus: userApprovalStatus, // Explicitly set this
                 firebaseUid,
-                emailVerified: true, // Firebase handles verification
+                emailVerified: userRole === 'educator' ? false : true, // Firebase verification for students, custom 6-digit code for educators
             });
-            console.log('✅ New MongoDB user created:', { id: user._id, role: user.role, approvalStatus: user.approvalStatus });
+            console.log('✅ New MongoDB user created:', { id: user._id, role: user.role, approvalStatus: user.approvalStatus, emailVerified: user.emailVerified });
         } else {
             // User exists
             let needsSave = false;
@@ -49,7 +49,7 @@ export const syncFirebaseUser = async (req, res) => {
             if (!user.firebaseUid) {
                 console.log('📝 Updating existing user with Firebase UID');
                 user.firebaseUid = firebaseUid;
-                user.emailVerified = true;
+                user.emailVerified = user.role === 'educator' ? false : true;
                 needsSave = true;
 
                 // If role is explicitly 'educator' and user is currently 'student', update
@@ -57,6 +57,7 @@ export const syncFirebaseUser = async (req, res) => {
                     console.log('📝 Upgrading user role from', user.role, 'to educator');
                     user.role = 'educator';
                     user.approvalStatus = 'pending';
+                    user.emailVerified = false; // Force verification for upgraded educators
                 }
             }
 

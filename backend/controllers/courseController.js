@@ -3,6 +3,7 @@ import Course from "../models/courseModel.js"
 import Lecture from "../models/lectureModel.js"
 import User from "../models/userModel.js"
 import uploadOnCloudinary from "../configs/cloudinary.js"
+import redisWrapper from "../configs/redis.js"
 
 // create Courses
 export const createCourse = async (req, res) => {
@@ -18,6 +19,9 @@ export const createCourse = async (req, res) => {
             creator: req.userId
         })
 
+        // Invalidate cache
+        await redisWrapper.del("published_courses");
+
         return res.status(201).json(course)
     } catch (error) {
         return res.status(500).json({ message: `Failed to create course ${error}` })
@@ -27,11 +31,21 @@ export const createCourse = async (req, res) => {
 
 export const getPublishedCourses = async (req, res) => {
     try {
-        const courses = await Course.find({ isPublished: true }).populate("lectures reviews assignments")
+        const cacheKey = "published_courses";
+        const cached = await redisWrapper.get(cacheKey);
+        if (cached) {
+            return res.status(200).json(JSON.parse(cached));
+        }
+
+        const courses = await Course.find({ isPublished: true })
+            .populate("lectures reviews assignments")
+            .lean();
+            
         if (!courses) {
             return res.status(404).json({ message: "Course not found" })
         }
 
+        await redisWrapper.set(cacheKey, JSON.stringify(courses), "EX", 300); // cache for 5 mins
         return res.status(200).json(courses)
 
     } catch (error) {
@@ -75,6 +89,7 @@ export const editCourse = async (req, res) => {
         const updateData = { title, subTitle, description, category, level, price, isPublished, thumbnail }
 
         course = await Course.findByIdAndUpdate(courseId, updateData, { new: true })
+        await redisWrapper.del("published_courses");
         return res.status(201).json(course)
     } catch (error) {
         return res.status(500).json({ message: `Failed to update course ${error}` })
@@ -105,6 +120,7 @@ export const removeCourse = async (req, res) => {
         }
 
         await course.deleteOne();
+        await redisWrapper.del("published_courses");
         return res.status(200).json({ message: "Course Removed Successfully" });
     } catch (error) {
         console.error(error);

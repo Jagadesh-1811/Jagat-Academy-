@@ -77,7 +77,7 @@ function EducatorLogin() {
             dispatch(setUserData(response.data.user))
             dispatch(setToken(idToken))
             localStorage.setItem("token", idToken)
-            navigate("/dashboard")
+            navigate("/teacher/dashboard")
             toast.success("Educator Login Successful!")
         } catch (error) {
             console.error("Google Auth Error:", error)
@@ -159,7 +159,7 @@ function EducatorLogin() {
             dispatch(setToken(idToken))
             localStorage.setItem("token", idToken)
 
-            navigate("/dashboard")
+            navigate("/teacher/dashboard")
             toast.success("Educator Login Successful!")
         } catch (error) {
             console.error("Login Error:", error)
@@ -411,7 +411,15 @@ function EducatorLogin() {
                                 Sign up here
                             </span>
                         </p>
-
+                        <p className='text-center text-sm text-gray-600'>
+                            Are you a student?{' '}
+                            <span
+                                className='text-black font-semibold underline cursor-pointer hover:text-gray-700'
+                                onClick={() => navigate("/login")}
+                            >
+                                Student Login here
+                            </span>
+                        </p>
                     </div>
                 </div>
 

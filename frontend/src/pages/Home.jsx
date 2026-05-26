@@ -1,109 +1,155 @@
-import React from 'react'
-import home from "../assets/home12.png"
-import logo from "../assets/logo.jpg"
-import Nav from '../components/Nav'
-import PlayCircleOutlinedIcon from '@mui/icons-material/PlayCircleOutlined';
+import React from 'react';
+import Nav from '../components/Nav';
+import logo from '../assets/logo.jpg';
+import CursorGlobe from '../components/CursorGlobe';
 import Logos from '../components/Logos';
 import Cardspage from '../components/Cardspage';
 import ExploreCourses from '../components/ExploreCourses';
 import About from '../components/About';
-import ai from '../assets/ai.png'
-import ai1 from '../assets/SearchAi.png'
 import ReviewPage from '../components/ReviewPage';
 import Footer from '../components/Footer';
 import { useNavigate } from 'react-router-dom';
+import { SiOpenaccess } from 'react-icons/si';
+import { FaSackDollar } from 'react-icons/fa6';
+import { BiSupport } from 'react-icons/bi';
+import { FaUsers } from 'react-icons/fa';
+
+const stats = [
+  { value: '40+', label: 'Curated courses' },
+  { value: '24/7', label: 'Learning support' },
+  { value: '1 path', label: 'Skill journey' },
+];
 
 function Home() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return (
-
-
-
-    <div className='w-[100%] overflow-hidden'>
-
-      {/* Hero Section */}
-      <div className='w-full min-h-[100vh] bg-black relative flex flex-col justify-center pt-20 overflow-hidden'>
+    <div className="w-full overflow-hidden bg-white text-black">
+      <section className="relative min-h-screen overflow-hidden bg-black text-white">
         <Nav />
 
-        <div className='max-w-7xl mx-auto w-full px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center relative z-10 py-12'>
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.16),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(255,255,255,0.10),_transparent_28%),linear-gradient(180deg,_#0a0a0a_0%,_#000_100%)]" />
+          <div className="absolute inset-0 opacity-[0.28] [background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:64px_64px] [mask-image:radial-gradient(circle_at_center,black,transparent_72%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06),transparent_40%)]" />
+        </div>
 
-          {/* Left Column: Text & Actions */}
-          <div className='flex flex-col items-start text-left space-y-8'>
+        <div className="relative z-10 mx-auto grid min-h-screen max-w-7xl items-center gap-14 px-6 pb-16 pt-28 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+          <div className="max-w-2xl">
+            <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-3 py-2 text-xs font-medium uppercase tracking-[0.28em] text-white/70 backdrop-blur">
+              <img src={logo} alt="Jagat Academy Logo" className="h-6 w-6 rounded-sm object-cover" />
+              <span className="h-2 w-2 rounded-full bg-white" />
+              <span className="whitespace-nowrap">Monochrome 3D learning experience</span>
+            </div>
 
-            {/* Headline */}
-            <h1 className='text-5xl md:text-7xl font-bold text-white tracking-tight leading-[1.1] animate-fade-in-up' style={{ animationDelay: '0.1s' }}>
-              Unlocking Knowledge <br />
-              <span className='text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-500'>
-                At The Speed of Thought
+            <h1 className="max-w-xl text-5xl font-black uppercase leading-[0.92] tracking-[-0.06em] text-white md:text-7xl lg:text-[5.5rem]">
+              Learn in a
+              <span className="block text-transparent bg-clip-text bg-gradient-to-b from-white to-white/55">
+                skill galaxy.
               </span>
             </h1>
 
-            {/* Subheadline */}
-            <p className='text-lg md:text-xl text-gray-400 max-w-xl animate-fade-in-up' style={{ animationDelay: '0.2s' }}>
-              Join the world's most advanced integrated e-learning platform.
-              Master new skills with expert-led courses and AI-driven personalized learning paths.
+            <p className="mt-6 max-w-xl text-base leading-7 text-white/65 md:text-lg">
+              Jagat Academy turns courses into a cinematic learning journey — immersive, focused, and built to help students grow faster.
             </p>
 
-            {/* Search with AI Bar */}
-            <div
-              className='w-full max-w-xl px-6 py-5 bg-[#111] border border-gray-800 rounded-xl text-white hover:border-white transition-colors cursor-pointer flex items-center gap-4 animate-fade-in-up'
-              style={{ animationDelay: '0.3s' }}
-              onClick={() => navigate("/searchwithai")}
-            >
-              <img src={ai} className='w-6 h-6 flex-shrink-0' alt="" />
-              <span className='text-lg text-gray-400 flex-1'>What do you want to learn today?</span>
-              <span className='text-sm font-semibold text-white bg-white/10 px-4 py-2 rounded-lg'>Search with AI</span>
+            <div className="mt-4 flex items-center gap-3 text-sm text-white/85 lg:hidden">
+              <img src={logo} alt="JA icon" className="h-6 w-6 rounded-sm object-cover" />
+              <span>Here you can learn skills</span>
             </div>
 
-            {/* CTAs */}
-            <div className='flex flex-wrap items-center gap-6 animate-fade-in-up' style={{ animationDelay: '0.4s' }}>
+            <div className="mt-8 flex flex-wrap items-center gap-4">
               <button
-                className='px-8 py-3 bg-white text-black rounded-lg font-medium hover:bg-gray-200 transition-colors'
-                onClick={() => navigate("/allcourses")}
+                className="rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-black transition-transform duration-300 hover:-translate-y-0.5 hover:bg-gray-200"
+                onClick={() => navigate('/allcourses')}
               >
-                Explore All Courses
+                Explore Courses
+              </button>
+              <button
+                className="rounded-full border border-white/20 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur transition-all duration-300 hover:border-white/40 hover:bg-white/10"
+                onClick={() => navigate('/searchwithai')}
+              >
+                Search with AI
               </button>
             </div>
-          </div>
 
-          {/* Right Column: Visual */}
-          <div className='hidden lg:flex items-center justify-center relative animate-fade-in' style={{ animationDelay: '0.5s' }}>
-            {/* Visual Container */}
-            <div className='relative w-[500px] h-[500px] flex items-center justify-center'>
-              {/* Decorative Circles */}
-              <div className='absolute inset-0 border border-gray-800 rounded-full animate-[spin_10s_linear_infinite] opacity-30'></div>
-              <div className='absolute inset-4 border border-gray-800 rounded-full animate-[spin_15s_linear_infinite_reverse] opacity-20'></div>
-              <div className='absolute inset-16 border border-gray-800 rounded-full animate-[pulse_4s_ease-in-out_infinite] opacity-10'></div>
+            {/* Hero logos / badges (dark) */}
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-3 rounded-full bg-white/6 border border-white/10 px-4 py-2">
+                <SiOpenaccess className="w-5 h-5 text-white/90" />
+                <span className="text-sm text-white/90">Lifetime Access</span>
+              </div>
+              <div className="flex items-center gap-3 rounded-full bg-white/6 border border-white/10 px-4 py-2">
+                <FaSackDollar className="w-5 h-5 text-white/90" />
+                <span className="text-sm text-white/90">Value For Money</span>
+              </div>
+              <div className="flex items-center gap-3 rounded-full bg-white/6 border border-white/10 px-4 py-2">
+                <BiSupport className="w-5 h-5 text-white/90" />
+                <span className="text-sm text-white/90">Lifetime Support</span>
+              </div>
+              <div className="flex items-center gap-3 rounded-full bg-white/6 border border-white/10 px-4 py-2">
+                <FaUsers className="w-5 h-5 text-white/90" />
+                <span className="text-sm text-white/90">Community</span>
+              </div>
+            </div>
 
-              {/* Main Logo */}
-              <img
-                src={logo}
-                alt="Jagat Academy Logo"
-                className='w-[350px] h-[350px] object-cover rounded-full grayscale opacity-80 shadow-[0_0_50px_rgba(255,255,255,0.1)]'
-              />
+            <div className="mt-10 grid gap-3 sm:grid-cols-3">
+              {stats.map((stat) => (
+                <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
+                  <div className="text-2xl font-black tracking-tight text-white">{stat.value}</div>
+                  <div className="mt-1 text-xs uppercase tracking-[0.18em] text-white/50">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
 
+          <div className="pointer-events-none absolute left-1/2 lg:left-[66%] top-[38%] z-0 h-[460px] w-[460px] -translate-x-1/2 -translate-y-1/2 lg:h-[520px] lg:w-[520px]">
+            <div className="relative h-full w-full">
+              <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_58%)] blur-2xl" />
+              <div className="absolute inset-[7%] rounded-full border border-white/8 bg-white/[0.015]" />
+              <CursorGlobe className="relative z-10" />
+            </div>
+          </div>
+
+          {/* Floating JA badge beside globe on large screens */}
+          <div className="hidden lg:flex pointer-events-auto absolute left-[72%] top-[36%] z-20 -translate-y-1/2 items-center gap-3 rounded-full bg-white/6 border border-white/10 px-3 py-2">
+            <img src={logo} alt="JA icon" className="h-10 w-10 rounded-sm object-cover" />
+            <div className="flex flex-col leading-tight">
+              <span className="text-sm font-semibold text-white">Jagat Academy</span>
+              <span className="text-xs text-white/70">Here you can learn skills</span>
+            </div>
+          </div>
+
+          
         </div>
 
-        {/* Background Gradients */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none" />
-      </div>
+        <style>{`
+          @keyframes heroFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(1deg); }
+          }
+          .hero-card { animation: heroFloat 8s ease-in-out infinite; }
+          .hero-card-delayed { animation: heroFloat 9s ease-in-out infinite; animation-delay: 1s; }
+          @keyframes orbit {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          .animate-orbit { animation: orbit 18s linear infinite; transform-origin: 0 0; }
+        `}</style>
+      </section>
+
       <Logos />
       <ExploreCourses />
       <Cardspage />
-      <About />
+      <section className="bg-black text-white">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <About dark />
+        </div>
+      </section>
       <ReviewPage />
       <Footer />
-
-      {/* AI Chatbot - Only on Home Page */}
-
-
     </div>
-
-  )
+  );
 }
 
-export default Home
-
+export default Home;

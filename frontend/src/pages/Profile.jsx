@@ -7,11 +7,26 @@ import { serverUrl } from '../App'
 import { setUserData, setToken } from '../redux/userSlice'
 import UserFeedbackList from '../components/UserFeedbackList'
 import StreakCounter from '../components/StreakCounter';
+import { getBadgeIcon } from '../utils/gamificationHelpers';
 
 function Profile() {
   let { userData, token } = useSelector(state => state.user)
   let dispatch = useDispatch()
   let navigate = useNavigate()
+
+  const [gameProfile, setGameProfile] = React.useState(null);
+
+  React.useEffect(() => {
+    if (!userData?._id || !token) return;
+    axios.get(`${serverUrl}/api/gamification/profile/${userData._id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(res => {
+      if (res.data.success) {
+        setGameProfile(res.data.profile);
+      }
+    }).catch(err => console.error(err));
+  }, [userData?._id, token]);
+
   const handleDelete = async () => {
     const ok = window.confirm('Are you sure you want to delete your account? This action cannot be undone.')
     if (!ok) return
@@ -39,7 +54,7 @@ function Profile() {
         <StreakCounter />
       </div>
 
-      <div className="bg-white shadow-lg rounded-2xl p-8 max-w-xl w-full relative">
+      <div className="bg-white shadow-lg rounded-2xl p-8 max-w-xl w-full relative border-4 border-black">
         <ArrowBackLongIcon className='absolute top-[8%] left-[5%] w-[22px] h-[22px] cursor-pointer' onClick={() => navigate("/")} />
         {/* Profile Header */}
         <div className="flex flex-col items-center text-center">
@@ -50,8 +65,8 @@ function Profile() {
           /> : <div className='w-24 h-24 rounded-full text-white flex items-center justify-center text-[30px] border-2 bg-black  border-white cursor-pointer'>
             {userData?.name ? userData.name.slice(0, 1).toUpperCase() : ''}
           </div>}
-          <h2 className="text-2xl font-bold mt-4 text-gray-800">{userData?.name || ''}</h2>
-          <p className="text-sm text-gray-500">{userData?.role || ''}</p>
+          <h2 className="text-2xl font-bold mt-4 text-gray-800 uppercase">{userData?.name || ''}</h2>
+          <p className="text-xs text-gray-500 font-bold uppercase">{userData?.role || ''}</p>
         </div>
 
         {/* Profile Info */}
@@ -66,32 +81,74 @@ function Profile() {
             <span>{userData.description}</span>
           </div>
 
-
-
           <div className="text-sm">
             <span className="font-semibold text-gray-700">Enrolled Courses: </span>
             <span>{userData?.enrolledCourses ? userData.enrolledCourses.length : 0}</span>
           </div>
+
+          {/* Gamification Accolades Block */}
+          {userData?.role === 'student' && gameProfile && (
+            <div className="mt-6 border-4 border-black p-4 bg-gray-50 space-y-4">
+              <div className="flex justify-between items-center border-b border-black pb-2">
+                <span className="text-xs font-black uppercase tracking-widest text-gray-400">ACADEMY RANK ACCUMULATOR</span>
+                <span className="bg-black text-white font-mono text-xs font-black px-2 py-0.5">LVL {gameProfile.level}</span>
+              </div>
+              
+              <div className="space-y-1">
+                <div className="flex justify-between text-[10px] font-black uppercase text-gray-400 font-mono">
+                  <span>⚡ {gameProfile.xp} XP Accum</span>
+                  <span>🪙 {gameProfile.coins} Jagat Coins</span>
+                </div>
+                <div className="w-full bg-gray-200 h-3 border-2 border-black">
+                  <div className="bg-black h-full" style={{ width: '65%' }} />
+                </div>
+              </div>
+
+              {gameProfile.showcaseBadges?.length > 0 && (
+                <div className="space-y-1.5">
+                  <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block">FEATURED CABINET</span>
+                  <div className="flex flex-wrap gap-2">
+                    {gameProfile.showcaseBadges.map((badge) => (
+                      <div 
+                        key={badge._id} 
+                        className="w-10 h-10 border-2 border-black bg-white flex items-center justify-center text-black"
+                        title={badge.name}
+                      >
+                        {getBadgeIcon(badge.icon, 'w-6 h-6 text-black')}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <button 
+                onClick={() => navigate('/gamification')}
+                className="w-full py-2 bg-black hover:bg-gray-800 text-white font-black text-xs uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_#000] cursor-pointer"
+              >
+                ENTER GAMIFICATION HUB
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Actions */}
-        <div className="mt-6 flex justify-center gap-4">
-          <button className="px-5 py-2 rounded bg-[black] text-white cursor-pointer transition-none" onClick={() => navigate("/editprofile")}>
+        <div className="mt-6 flex justify-center gap-4 border-t border-gray-200 pt-4">
+          <button className="px-5 py-2 border-2 border-black bg-black text-white hover:bg-white hover:text-black cursor-pointer font-bold uppercase text-xs" onClick={() => navigate("/editprofile")}>
             Edit Profile
           </button>
-          <button className="px-5 py-2 rounded bg-black text-white cursor-pointer transition-none" onClick={handleDelete}>
+          <button className="px-5 py-2 border-2 border-red-600 bg-white text-red-600 hover:bg-red-600 hover:text-white cursor-pointer font-bold uppercase text-xs" onClick={handleDelete}>
             Delete Account
           </button>
         </div>
       </div>
 
       {/* User Feedback Section */}
-      <div className="bg-white shadow-lg rounded-2xl p-6 max-w-xl w-full">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">My Feedback & Issues</h3>
+      <div className="bg-white border-4 border-black p-6 max-w-xl w-full">
+        <h3 className="text-lg font-black text-gray-800 mb-4 uppercase">My Feedback & Issues</h3>
         <UserFeedbackList userEmail={userData?.email} />
         <button
           onClick={() => navigate('/feedback')}
-          className="mt-4 w-full py-2 bg-black text-white rounded-lg transition-none text-sm font-medium"
+          className="mt-4 w-full py-2 bg-black hover:bg-gray-800 text-white border-2 border-black font-black uppercase text-xs tracking-widest cursor-pointer"
         >
           Submit New Feedback
         </button>

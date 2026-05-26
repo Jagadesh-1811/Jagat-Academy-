@@ -80,6 +80,16 @@ function Nav() {
             <div className='absolute top-[90px] right-[20px] lg:right-[calc((100vw-1280px)/2+20px)] w-[200px] bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden flex flex-col py-2 animate-fade-in'>
               <span className='px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-black cursor-pointer transition-colors' onClick={() => { navigate("/profile"); setShowPro(false); }}>My Profile</span>
               <span className='px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-black cursor-pointer transition-colors' onClick={() => { navigate("/enrolledcourses"); setShowPro(false); }}>My Courses</span>
+              {userData?.role === 'student' && (
+                <>
+                  <span className='px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-black cursor-pointer transition-colors' onClick={() => { navigate("/ai-courses"); setShowPro(false); }}>AI Courses</span>
+                  <span className='px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-black cursor-pointer transition-colors' onClick={() => { navigate("/gamification"); setShowPro(false); }}>Gamification Hub</span>
+                  <span className='px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-black cursor-pointer transition-colors' onClick={() => { navigate("/student/parent-settings"); setShowPro(false); }}>Parent Settings</span>
+                </>
+              )}
+              {userData?.role === 'educator' && (
+                <span className='px-6 py-3 text-gray-700 hover:bg-gray-100 hover:text-black cursor-pointer transition-colors' onClick={() => { navigate("/ai-courses-review"); setShowPro(false); }}>Review AI Courses</span>
+              )}
             </div>
           )}
 
@@ -112,6 +122,16 @@ function Nav() {
         {/* Mobile Links */}
         <span className='text-2xl text-black font-medium hover:text-gray-600 cursor-pointer' onClick={() => { navigate("/profile"); setShowHam(false); }}>My Profile</span>
         <span className='text-2xl text-black font-medium hover:text-gray-600 cursor-pointer' onClick={() => { navigate("/enrolledcourses"); setShowHam(false); }}>My Courses</span>
+        {userData?.role === 'student' && (
+          <>
+            <span className='text-2xl text-black font-medium hover:text-gray-600 cursor-pointer' onClick={() => { navigate("/ai-courses"); setShowHam(false); }}>AI Courses</span>
+            <span className='text-2xl text-black font-medium hover:text-gray-600 cursor-pointer' onClick={() => { navigate("/gamification"); setShowHam(false); }}>Gamification Hub</span>
+            <span className='text-2xl text-black font-medium hover:text-gray-600 cursor-pointer' onClick={() => { navigate("/student/parent-settings"); setShowHam(false); }}>Parent Settings</span>
+          </>
+        )}
+        {userData?.role === 'educator' && (
+          <span className='text-2xl text-black font-medium hover:text-gray-600 cursor-pointer' onClick={() => { navigate("/ai-courses-review"); setShowHam(false); }}>Review AI Courses</span>
+        )}
 
         {userData ? (
           <>

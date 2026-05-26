@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { queryGemini } from "../utils/aiHelper.js";
 import dotenv from "dotenv";
 import Course from "../models/courseModel.js";
 dotenv.config();
@@ -11,9 +11,6 @@ export const searchWithAi = async (req, res) => {
     if (!input) {
       return res.status(400).json({ message: "Search query is required" });
     }
-
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
     const prompt = `You are an intelligent assistant for an LMS platform. A user will type any query about what they want to learn. Your task is to understand the intent and return one **most relevant keyword** from the following list of course categories and levels:
 
@@ -33,11 +30,10 @@ export const searchWithAi = async (req, res) => {
 Only reply with one single keyword from the list above that best matches the query. Do not explain anything. No extra text.
 
 Query: ${input}
-`
+`;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const keyword = response.text().trim();
+    const text = await queryGemini(prompt);
+    const keyword = text ? text.trim() : "Others";
 
 
 

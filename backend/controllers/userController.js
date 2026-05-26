@@ -69,12 +69,25 @@ export const getGrades = async (req, res) => {
 };
 
 
+import { updateLoginStreak } from "../services/gamificationService.js";
+
+
 export const getCurrentUser = async (req, res) => {
     try {
         const user = await User.findById(req.userId).select("-password").populate("enrolledCourses")
         if (!user) {
             return res.status(400).json({ message: "user does not found" })
         }
+        
+        // Auto-update student streak and login XP
+        if (user.role === 'student') {
+            try {
+                await updateLoginStreak(user._id.toString());
+            } catch (streakErr) {
+                console.error('⚠️ Streak update failed inside getCurrentUser:', streakErr.message);
+            }
+        }
+
         return res.status(200).json(user)
     } catch (error) {
         console.log(error);

@@ -24,6 +24,17 @@ import voiceRoomRouter from "./routes/voiceRoomRoute.js"
 import progressRouter from "./routes/progressRoute.js"
 import moduleRouter from "./routes/moduleRoute.js"
 import chatRouter from "./routes/chatRoute.js"
+import courseDiscussionRouter from "./routes/courseDiscussionRoute.js"
+import attendanceRouter from "./routes/attendanceRoute.js"
+import parentRouter from "./routes/parentRoute.js"
+import studentPortalRouter from "./routes/studentPortalRoute.js"
+import analyticsRouter from "./routes/analyticsRoute.js"
+import bookmarkRouter from "./routes/bookmarkRoute.js"
+
+// Gamification System Imports
+import { initSocket } from "./configs/socket.js"
+import { seedBadges } from "./utils/badgeSeeder.js"
+import gamificationRouter from "./routes/gamificationRoute.js"
 
 dotenv.config()
 let port = process.env.PORT
@@ -38,6 +49,7 @@ app.use(cors({
     ],
     credentials: true
 }))
+app.use("/public", express.static("public"))
 app.use("/api/auth", authRouter)
 app.use("/api/user", userRouter)
 app.use("/api/course", courseRouter)
@@ -65,17 +77,29 @@ app.use("/api/voice-room", voiceRoomRouter)
 app.use("/api/progress", progressRouter)
 app.use("/api/module", moduleRouter)
 app.use("/api/chat", chatRouter)
+app.use("/api/course-discussion", courseDiscussionRouter)
+app.use("/api/attendance", attendanceRouter)
+app.use("/api/parent", parentRouter)
+app.use("/api/student", studentPortalRouter)
+app.use("/api/analytics", analyticsRouter)
+app.use("/api/bookmark", bookmarkRouter)
 
-
-
+// Gamification Router Mount
+app.use("/api/gamification", gamificationRouter)
 
 app.get("/", (req, res) => {
     res.send("Hello From Server")
 })
 
 connectDb().then(() => {
-    app.listen(port, () => {
+    const server = app.listen(port, () => {
         console.log("Server Started on port", port);
+
+        // Initialize Socket.io server
+        initSocket(server);
+
+        // Seed 50 badges
+        seedBadges();
 
         // Check ZegoCloud credentials
         const zegoAppId = process.env.ZEGO_APP_ID;
@@ -98,4 +122,5 @@ connectDb().then(() => {
     console.error("Failed to connect to DB:", err);
     process.exit(1);
 });
+
 

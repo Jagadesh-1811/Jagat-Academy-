@@ -3,6 +3,7 @@ import Submission from "../models/submissionModel.js";
 import { Assignment } from "../models/assignmentModel.js";
 import Course from "../models/courseModel.js";
 import User from "../models/userModel.js";
+import { awardXP, awardCoins, checkAndAwardBadges } from "../services/gamificationService.js";
 
 export const assignGrade = async (req, res) => {
     try {
@@ -76,6 +77,31 @@ export const assignGrade = async (req, res) => {
         // 6. Update the Submission document to reference the new Grade
         submission.grade = newGrade._id;
         await submission.save();
+
+        // 7. LMS Gamification Hook
+        if (newGrade.status === 'graded') {
+            const xpRewardMap = { 'A': 200, 'B': 150, 'C': 100, 'D': 50 };
+            const xpReward = xpRewardMap[newGrade.grade] || 50;
+
+            try {
+                // Award XP
+                await awardXP(submission.student.toString(), xpReward, `Assignment Graded: Received Grade ${newGrade.grade}`);
+                
+                // Award Jagat Coins
+                const coinMap = { 'A': 50, 'B': 25 };
+                const coinReward = coinMap[newGrade.grade] || 0;
+                if (coinReward > 0) {
+                    await awardCoins(submission.student.toString(), coinReward, `Awarded for Grade ${newGrade.grade}`);
+                }
+
+                // Check performance achievements
+                await checkAndAwardBadges(submission.student.toString(), 'Performance', {
+                    isPerfectQuiz: newGrade.grade === 'A'
+                });
+            } catch (gamificationErr) {
+                console.error('⚠️ Gamification grade hooks failed:', gamificationErr.message);
+            }
+        }
 
         const message = isRejection ? "Submission rejected successfully." : "Grade assigned successfully.";
         return res.status(201).json({ message, grade: newGrade });

@@ -30,7 +30,20 @@ const isAuth = async (req, res, next) => {
       }
 
       // Find user by Firebase UID
-      const user = await User.findOne({ firebaseUid: firebaseResult.uid });
+      let user = await User.findOne({ firebaseUid: firebaseResult.uid });
+
+      if (!user && firebaseResult.email) {
+        user = await User.findOne({ email: firebaseResult.email.toLowerCase() });
+        if (user) {
+          // Sync firebaseUid on the fly
+          user.firebaseUid = firebaseResult.uid;
+          if (user.role !== 'educator') {
+            user.emailVerified = true; // Auto-verify students
+          }
+          await user.save();
+          console.log(`🔄 On-the-fly synced firebaseUid in isAuth for user: ${user.email}`);
+        }
+      }
 
       if (!user) {
         // Allow firebase-sync endpoint to proceed even if user doesn't exist yet
@@ -46,7 +59,7 @@ const isAuth = async (req, res, next) => {
         });
       }
 
-      req.userId = user._id;
+      req.userId = user._id.toString();
       req.firebaseUid = firebaseResult.uid;
       req.userEmail = firebaseResult.email;
       next();
@@ -72,7 +85,7 @@ const isAuth = async (req, res, next) => {
           return res.status(400).json({ message: "Invalid token" });
         }
 
-        req.userId = verifiedToken.userId;
+        req.userId = String(verifiedToken.userId);
         // console.log('✅ JWT token verified (legacy)');
         next();
       } catch (jwtError) {

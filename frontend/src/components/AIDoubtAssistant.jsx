@@ -14,7 +14,7 @@ import { ClipLoader } from 'react-spinners';
 import ParticleSystem from './ParticleSystem';
 import audioAnalyzer from './AudioAnalyzer';
 
-const AIDoubtAssistant = ({ courseName, onClose }) => {
+const AIDoubtAssistant = ({ courseName, onClose, initialQuestion, bookmark }) => {
     const { token } = useSelector(state => state.user);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
@@ -142,6 +142,36 @@ const AIDoubtAssistant = ({ courseName, onClose }) => {
 
         return () => clearTimeout(speakTimeout);
     }, [courseName]);
+
+    // If an initial question is provided (e.g., from a bookmark 'Ask Doubt'), auto-send it
+    useEffect(() => {
+        if (!initialQuestion) return;
+        const autoSend = async () => {
+            if (isLoading) return;
+            setIsLoading(true);
+            const userMessage = {
+                role: 'user',
+                content: initialQuestion,
+                timestamp: new Date()
+            };
+            setMessages(prev => [...prev, userMessage]);
+            try {
+                const body = { message: initialQuestion };
+                if (bookmark) body.bookmark = bookmark;
+                const { data } = await axios.post(`${serverUrl}/api/ai-chat/chat`, body, { headers: { Authorization: `Bearer ${token}` } });
+                const cleanedResponse = cleanResponse(data.response);
+                const assistantMessage = { role: 'assistant', content: cleanedResponse, timestamp: new Date() };
+                setMessages(prev => [...prev, assistantMessage]);
+                setCurrentCaption(cleanedResponse);
+                speakText(cleanedResponse, () => { setCurrentCaption(''); setMode('ready'); });
+            } catch (err) {
+                console.error('AI assistant initial question error', err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        autoSend();
+    }, [initialQuestion]);
 
     // Auto scroll to bottom
     useEffect(() => {

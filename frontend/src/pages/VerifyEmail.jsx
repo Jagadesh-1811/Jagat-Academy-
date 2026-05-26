@@ -28,9 +28,13 @@ function VerifyEmail() {
                     setMessage('Email verified successfully!')
                     toast.success('Email verified! Welcome to Jagat Academy!')
 
-                    // Redirect to home after 2 seconds
+                    // Redirect to home or dashboard depending on role after 2 seconds
                     setTimeout(() => {
-                        navigate('/')
+                        if (response.data.user.role === 'educator') {
+                            navigate('/teacher/dashboard')
+                        } else {
+                            navigate('/')
+                        }
                     }, 2000)
                 }
             } catch (error) {

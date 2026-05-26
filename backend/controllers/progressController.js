@@ -1,5 +1,8 @@
 import Progress from '../models/progressModel.js';
 import Course from '../models/courseModel.js';
+import { awardXP, trackVideoWatchTime } from '../services/gamificationService.js';
+import { autoIssueCertificateIfEligible } from './certificationController.js';
+
 
 // Get progress for a specific course
 export const getCourseProgress = async (req, res) => {
@@ -71,9 +74,33 @@ export const markLectureCompleted = async (req, res) => {
                 const totalLectures = course.lectures.length;
                 const completedCount = progress.completedLectures.length;
                 progress.progressPercentage = Math.round((completedCount / totalLectures) * 100);
+                
+                // Track video watched progress (estimate 10 minutes (600s) watched per lecture completed)
+                try {
+                    await trackVideoWatchTime(studentId, 600);
+                    
+                    // Check if 100% completed
+                    if (progress.progressPercentage === 100) {
+                        await awardXP(studentId, 500, `Completed Course: ${course.title}`);
+                    }
+                } catch (gamificationErr) {
+                    console.error('⚠️ Gamification progress hooks failed:', gamificationErr.message);
+                }
             }
 
             await progress.save();
+
+            // Check and trigger certificate auto-issuance (requires progress >= 80% and attendance > 75%)
+            try {
+                const protocol = req.protocol || 'http';
+                const host = req.get ? req.get("host") : 'localhost:8000';
+                const autoCertResult = await autoIssueCertificateIfEligible(studentId, courseId, protocol, host);
+                if (autoCertResult.success) {
+                    console.log(`🎓 Certificate successfully auto-generated for student ${studentId} in course ${courseId}`);
+                }
+            } catch (certErr) {
+                console.error('⚠️ Certificate auto-generation check failed:', certErr.message);
+            }
         }
 
         res.status(200).json({

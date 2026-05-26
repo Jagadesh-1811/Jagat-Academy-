@@ -102,7 +102,7 @@ const FeedbackManager = () => {
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <button
-                            onClick={() => navigate('/dashboard')}
+                            onClick={() => navigate('/teacher/dashboard')}
                             className="p-2 rounded-lg transition-colors"
                         >
                             <FaArrowLeft className="w-5 h-5" />

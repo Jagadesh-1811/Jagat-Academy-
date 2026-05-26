@@ -61,7 +61,7 @@ const messageSchema = new mongoose.Schema({
     },
     senderRole: {
         type: String,
-        enum: ["student", "educator"],
+        enum: ["student", "educator", "parent"],
         required: true
     },
     message: {

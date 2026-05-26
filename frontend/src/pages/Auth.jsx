@@ -22,7 +22,6 @@ function Auth() {
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    // Role is now fixed to 'student' - educators use /educator/signup
     const role = "student"
     const [agreeToTerms, setAgreeToTerms] = useState(false)
 
@@ -45,9 +44,21 @@ function Auth() {
             const response = await axios.post(serverUrl + "/api/auth/googlesignup", {
                 name: user.displayName,
                 email: user.email,
-                role: role || "user"
+                role: role || "user",
+                firebaseUid: user.uid
             })
-            dispatch(setUserData(response.data.user))
+
+            const syncedUser = response.data.user;
+
+            // Educators are strictly banned from logging in here
+            if (syncedUser.role === 'educator') {
+                toast.error("Educators are not permitted to log in here. Please use the Educator Portal.");
+                await signOut(auth);
+                setGoogleLoading(false);
+                return;
+            }
+
+            dispatch(setUserData(syncedUser))
             dispatch(setToken(response.data.token))
             navigate("/")
             toast.success(mode === "login" ? "Login Successfully with Google" : "Sign Up Successfully with Google")
@@ -104,8 +115,18 @@ function Auth() {
                 { headers: { Authorization: `Bearer ${idToken}` } }
             )
 
+            const syncedUser = response.data.user;
+
+            // Educators are strictly banned from logging in here
+            if (syncedUser.role === 'educator') {
+                toast.error("Educators are not permitted to log in here. Please use the Educator Portal.");
+                await signOut(auth);
+                setLoading(false);
+                return;
+            }
+
             // 5. Store token and user data
-            dispatch(setUserData(response.data.user))
+            dispatch(setUserData(syncedUser))
             dispatch(setToken(idToken)) // Store Firebase ID token
             localStorage.setItem("token", idToken)
 
@@ -237,10 +258,10 @@ function Auth() {
                     {/* Header */}
                     <div>
                         <h1 className='font-semibold text-[black] text-2xl text-center'>
-                            {mode === 'login' ? 'Welcome back' : "Let's get Started"}
+                            {mode === 'login' ? 'Student Login' : "Student Sign Up"}
                         </h1>
                         <h2 className='text-[#999797] text-[18px] text-center'>
-                            {mode === 'login' ? 'Login to your account' : 'Create your account'}
+                            {mode === 'login' ? 'Login to your student account' : 'Create your student account'}
                         </h2>
                     </div>
 
@@ -345,6 +366,8 @@ function Auth() {
                             Forgot your password?
                         </span>
                     )}
+
+
 
 
 

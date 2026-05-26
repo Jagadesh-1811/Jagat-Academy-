@@ -6,23 +6,23 @@ import { BiSupport } from "react-icons/bi";
 import { FaUsers } from "react-icons/fa";
 function Logos() {
     return (
-        <div className='w-[100vw] min-h-[90px]  flex items-center justify-center flex-wrap gap-4 md:mb-[50px] '>
+        <div className='w-full max-w-7xl mx-auto min-h-[90px] flex items-center justify-center flex-wrap gap-4 md:mb-[50px] px-6'>
 
-            <div className='flex items-center justify-center gap-2  px-5 py-3   rounded-3xl bg-gray-200 cursor-pointer'>
-                <SiOpenaccess className='w-[30px] h-[30px] fill-[#03394b]' />
-                <span className='text-[#03394b]'>Lifetime Access</span>
+            <div className='flex items-center justify-center gap-2 px-5 py-3 rounded-3xl bg-gray-200 border border-gray-300 cursor-pointer'>
+                <SiOpenaccess className='w-[30px] h-[30px] fill-black' />
+                <span className='text-black'>Lifetime Access</span>
             </div>
-            <div className='flex items-center justify-center gap-2  px-5 py-3   rounded-3xl bg-gray-200 cursor-pointer'>
-                <FaSackDollar className='w-[30px] h-[30px] fill-[#03394b]' />
-                <span className='text-[#03394b]'>Value For Money</span>
+            <div className='flex items-center justify-center gap-2 px-5 py-3 rounded-3xl bg-gray-200 border border-gray-300 cursor-pointer'>
+                <FaSackDollar className='w-[30px] h-[30px] fill-black' />
+                <span className='text-black'>Value For Money</span>
             </div>
-            <div className='flex items-center justify-center gap-2  px-5 py-3  rounded-3xl bg-gray-200 cursor-pointer'>
-                <BiSupport className='w-[35px] h-[35px] fill-[#03394b]' />
-                <span className='text-[#03394b]'>Lifetime Support</span>
+            <div className='flex items-center justify-center gap-2 px-5 py-3 rounded-3xl bg-gray-200 border border-gray-300 cursor-pointer'>
+                <BiSupport className='w-[35px] h-[35px] fill-black' />
+                <span className='text-black'>Lifetime Support</span>
             </div>
-            <div className='flex items-center justify-center gap-2  px-5 py-3   rounded-3xl bg-gray-200 cursor-pointer'>
-                <FaUsers className='w-[35px] h-[35px] fill-[#03394b]' />
-                <span className='text-[#03394b]'>Community Support</span>
+            <div className='flex items-center justify-center gap-2 px-5 py-3 rounded-3xl bg-gray-200 border border-gray-300 cursor-pointer'>
+                <FaUsers className='w-[35px] h-[35px] fill-black' />
+                <span className='text-black'>Community Support</span>
             </div>
 
         </div>

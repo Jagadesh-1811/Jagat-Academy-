@@ -207,6 +207,7 @@ function Dashboard() {
                         </p>
                         <h1 className='px-[10px] text-center  py-[10px] border-2  bg-black border-black text-white  rounded-[10px] text-[15px] font-light flex items-center justify-center gap-2 cursor-pointer' onClick={() => navigate("/courses")}>Create Courses</h1>
                         <h1 className='px-[10px] text-center  py-[10px] border-2  bg-black border-black text-white  rounded-[10px] text-[15px] font-light flex items-center justify-center gap-2 cursor-pointer mt-2 transition-colors' onClick={() => navigate("/admin/feedback-manager")}>View Feedback & Issues</h1>
+                        <h1 className='px-[10px] text-center  py-[10px] border-2  bg-black border-black text-white  rounded-[10px] text-[15px] font-light flex items-center justify-center gap-2 cursor-pointer mt-2 transition-colors' onClick={() => navigate("/teacher/analytics")}>Learning & Course Analytics</h1>
                     </div>
                 </div>
 

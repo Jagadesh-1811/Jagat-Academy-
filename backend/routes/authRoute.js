@@ -1,5 +1,5 @@
 import express from "express"
-import { googleSignup, login, logOut, signUp, deleteAccount, emailLinkSignup, supabaseSync, supabaseLogin, signupWithVerification, verifyEmail, getEducatorStatus } from "../controllers/authController.js"
+import { googleSignup, login, logOut, signUp, deleteAccount, emailLinkSignup, supabaseSync, supabaseLogin, signupWithVerification, verifyEmail, getEducatorStatus, sendEducatorVerificationCode, verifyEducatorCode } from "../controllers/authController.js"
 import { syncFirebaseUser } from "../controllers/firebaseAuthController.js"
 import isAuth from "../middlewares/isAuth.js"
 
@@ -19,6 +19,10 @@ authRouter.post("/firebase-sync", isAuth, syncFirebaseUser)
 
 // Educator status check (no auth required)
 authRouter.get("/educator-status", getEducatorStatus)
+
+// Educator email verification routes
+authRouter.post("/educator/send-code", sendEducatorVerificationCode)
+authRouter.post("/educator/verify-code", verifyEducatorCode)
 
 // Supabase authentication routes
 authRouter.post("/supabase-sync", supabaseSync)

@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 function ExploreCourses() {
   const navigate = useNavigate()
   return (
-    <div className='w-[100vw] min-h-[50vh] lg:h-[50vh] flex flex-col lg:flex-row items-center justify-center gap-4 px-[30px]'>
+    <div className='w-full max-w-7xl mx-auto min-h-[50vh] lg:h-[50vh] flex flex-col lg:flex-row items-center justify-center gap-4 px-[30px] overflow-hidden'>
       <div className='w-[100%] lg:w-[350px] lg:h-[100%] h-[400px]  flex flex-col items-start justify-center gap-1 md:px-[40px]  px-[20px]'>
         <span className='text-[35px] font-semibold'>Explore</span>
         <span className='text-[35px] font-semibold'>Our Courses</span>

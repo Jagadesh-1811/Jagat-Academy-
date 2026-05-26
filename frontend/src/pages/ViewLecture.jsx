@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -12,6 +12,10 @@ import axios from 'axios';
 import { serverUrl } from '../App';
 import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners';
+import { auth } from '../../utils/Firebase';
+import { useDispatch } from 'react-redux';
+import { setToken } from '../redux/userSlice';
+import AIDoubtAssistant from '../components/AIDoubtAssistant';
 
 function ViewLecture() {
   const { courseId } = useParams();
@@ -24,8 +28,32 @@ function ViewLecture() {
   const [completedLectures, setCompletedLectures] = useState([]);
   const [modules, setModules] = useState([]);
   const [loadingModules, setLoadingModules] = useState(true);
+  const [bookmarks, setBookmarks] = useState([]);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [aiInitialQuestion, setAiInitialQuestion] = useState('');
+  const [aiBookmarkContext, setAiBookmarkContext] = useState(null);
   const navigate = useNavigate();
+  const videoRef = useRef(null);
   const courseCreator = userData?._id === selectedCourse?.creator ? userData : null;
+  const autoMarkedRef = useRef({});
+  const loggedMilestonesRef = useRef({});
+
+  // Reset logged progress milestones and send lecture_start event
+  useEffect(() => {
+    loggedMilestonesRef.current = {};
+    if (selectedLecture && token) {
+      axios.post(
+        `${serverUrl}/api/analytics/log`,
+        {
+          action: 'lecture_start',
+          courseId,
+          lectureId: selectedLecture._id,
+          duration: 0
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      ).catch(() => {});
+    }
+  }, [selectedLecture, courseId, token]);
 
   // Fetch actual modules from backend
   useEffect(() => {
@@ -123,6 +151,60 @@ function ViewLecture() {
     }
   };
 
+  // Automatic watch progress tracker
+  const handleVideoProgress = async (e) => {
+    if (!selectedLecture) return;
+
+    const { currentTime, duration } = e.target;
+    if (!duration || duration <= 0) return;
+
+    const watchedPercentage = currentTime / duration;
+
+    // Log progress milestones to analytics (20%, 40%, 60%, 80%, 100%)
+    const milestones = [20, 40, 60, 80, 100];
+    const currentPercent = Math.round(watchedPercentage * 100);
+
+    for (const milestone of milestones) {
+      if (currentPercent >= milestone && !loggedMilestonesRef.current[milestone]) {
+        loggedMilestonesRef.current[milestone] = true;
+        
+        axios.post(`${serverUrl}/api/analytics/log`, {
+          action: 'lecture_progress',
+          courseId,
+          lectureId: selectedLecture._id,
+          duration: Math.round(duration * (milestone / 100)),
+          metadata: { videoProgressPercent: milestone }
+        }, { headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
+      }
+    }
+
+    // Auto-mark lecture as completed (progress) AND attendance at 80% watch
+    if (watchedPercentage > 0.8 && !completedLectures.includes(selectedLecture._id)) {
+      if (autoMarkedRef.current[selectedLecture._id]) return;
+      autoMarkedRef.current[selectedLecture._id] = true;
+
+      // 1. Mark progress in DB (this updates progressPercentage for certificate eligibility)
+      try {
+        await axios.post(
+          `${serverUrl}/api/progress/complete`,
+          { courseId, lectureId: selectedLecture._id },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setCompletedLectures((prev) => [...prev, selectedLecture._id]);
+        toast.success("Lecture completed! Progress updated.");
+      } catch (error) {
+        console.error("Progress update failed:", error);
+      }
+
+      // 2. Also mark attendance (fire-and-forget, don't block on failure)
+      axios.post(
+        `${serverUrl}/api/attendance/mark`,
+        { courseId, lectureId: selectedLecture._id, checkInMethod: 'auto' },
+        { headers: { Authorization: `Bearer ${token}` } }
+      ).catch(() => {});
+    }
+  };
+
   // Calculate total course duration and progress
   const calculateModuleDuration = (lectures) => {
     // This is placeholder - you should calculate from actual lecture durations
@@ -137,7 +219,128 @@ function ViewLecture() {
     return `${mins}m ${secs}s`;
   };
 
+  const formatTime = (seconds) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    return `${m}:${String(s).padStart(2, '0')}`;
+  };
+
+  // Load bookmarks for selected lecture from backend
+  useEffect(() => {
+    const loadBookmarks = async () => {
+      if (!selectedLecture || !token) {
+        setBookmarks([]);
+        return;
+      }
+      try {
+        const res = await axios.get(`${serverUrl}/api/bookmark/lecture/${selectedLecture._id}`, { headers: { Authorization: `Bearer ${token}` } });
+        setBookmarks(res.data || []);
+      } catch (err) {
+        // fallback to localStorage for offline or unauthenticated
+        const key = `bookmarks:${selectedLecture._id}`;
+        const existing = JSON.parse(localStorage.getItem(key) || '[]');
+        setBookmarks(existing);
+      }
+    };
+    loadBookmarks();
+  }, [selectedLecture, token]);
+
+  const addBookmark = async () => {
+    if (!selectedLecture) return toast.error('Select a lecture first');
+    const currentTime = Math.floor((videoRef.current?.currentTime) || 0);
+    const note = window.prompt('Optional note for this bookmark (leave empty for none)') || '';
+
+    if (!token) {
+      // save to localStorage for anonymous users
+      const key = `bookmarks:${selectedLecture._id}`;
+      const existing = JSON.parse(localStorage.getItem(key) || '[]');
+      const newBm = { _id: `local-${Date.now()}`, lecture: selectedLecture._id, timestamp: currentTime, note, createdAt: new Date().toISOString() };
+      localStorage.setItem(key, JSON.stringify([newBm, ...existing]));
+      setBookmarks(prev => [newBm, ...prev]);
+      return toast.success('Bookmark saved locally');
+    }
+
+    try {
+      const res = await axios.post(`${serverUrl}/api/bookmark`, { lectureId: selectedLecture._id, courseId, timestamp: currentTime, note }, { headers: { Authorization: `Bearer ${token}` } });
+      setBookmarks(prev => [res.data, ...prev]);
+      toast.success('Bookmark saved');
+    } catch (err) {
+      console.error('Error saving bookmark', err);
+      toast.error(err.response?.data?.message || 'Failed to save bookmark');
+    }
+  };
+
+  const dispatch = useDispatch();
+
+  const askDoubt = async (bookmark) => {
+    const question = window.prompt('Enter your question about this point in the video:');
+    if (!question) return;
+
+    // Require login to post doubts
+    if (!token) {
+      toast.error('Please login to ask a doubt');
+      navigate('/signup');
+      return;
+    }
+
+    try {
+      let serverBookmark = bookmark;
+
+      // If this bookmark is local (not persisted), create it first
+      if (String(bookmark._id || '').startsWith('local-')) {
+        const payload = { lectureId: bookmark.lecture || selectedLecture?._id, courseId: courseId, timestamp: bookmark.timestamp || 0, note: bookmark.note || '' };
+        const createRes = await axios.post(`${serverUrl}/api/bookmark`, payload, { headers: { Authorization: `Bearer ${token}` } });
+        serverBookmark = createRes.data;
+
+        // replace local bookmark in UI
+        setBookmarks(prev => prev.map(b => b._id === bookmark._id ? serverBookmark : b));
+      }
+
+      // create doubt linked to the persisted bookmark
+      const res = await axios.post(`${serverUrl}/api/bookmark/${serverBookmark._id}/doubt`, { question }, { headers: { Authorization: `Bearer ${token}` } });
+
+      setBookmarks(prev => prev.map(b => b._id === serverBookmark._id ? { ...b, linkedDoubt: res.data._id } : b));
+      toast.success('Doubt submitted. Opening assistant...');
+
+      // Open AI assistant with initial question and bookmark context
+      setAiInitialQuestion(question);
+      setAiBookmarkContext({ bookmarkId: serverBookmark._id, lectureId: serverBookmark.lecture, timestamp: serverBookmark.timestamp, doubtId: res.data._id });
+      setShowAIAssistant(true);
+    } catch (err) {
+      console.error('Error creating doubt', err);
+      const status = err?.response?.status;
+      if (status === 401 || status === 403) {
+        // Try refreshing Firebase token if available, then retry once
+        try {
+          if (auth && auth.currentUser) {
+            const refreshed = await auth.currentUser.getIdToken(true);
+            dispatch(setToken(refreshed));
+            localStorage.setItem('token', refreshed);
+            // retry creating doubt
+            const retryRes = await axios.post(`${serverUrl}/api/bookmark/${bookmark._id}/doubt`, { question }, { headers: { Authorization: `Bearer ${refreshed}` } });
+            setBookmarks(prev => prev.map(b => b._id === bookmark._id ? { ...b, linkedDoubt: retryRes.data._id } : b));
+            toast.success('Doubt submitted after token refresh. Opening assistant...');
+            setAiInitialQuestion(question);
+            setAiBookmarkContext({ bookmarkId: bookmark._id, lectureId: bookmark.lecture, timestamp: bookmark.timestamp, doubtId: retryRes.data._id });
+            setShowAIAssistant(true);
+            return;
+          }
+        } catch (refreshErr) {
+          console.error('Token refresh or retry failed:', refreshErr);
+        }
+
+        toast.error('Not authorized — please login again');
+        navigate('/signup');
+        return;
+      }
+      toast.error(err.response?.data?.message || 'Failed to submit doubt');
+    }
+  };
+
   return (
+    <>
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-white border-b border-black sticky top-0 z-10">
@@ -167,20 +370,32 @@ function ViewLecture() {
           <div className="lg:w-2/3">
             <div className="bg-white border border-black rounded-lg overflow-hidden">
               {/* Video Player */}
-              <div className="aspect-video bg-black">
+              <div className="aspect-video bg-black relative">
                 {selectedLecture?.videoUrl ? (
                   <video
+                    ref={videoRef}
                     src={selectedLecture.videoUrl}
                     controls
                     controlsList="nodownload"
                     onContextMenu={(e) => e.preventDefault()}
                     className="w-full h-full object-cover"
                     crossOrigin="anonymous"
+                    onTimeUpdate={handleVideoProgress}
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full text-white text-center p-4">
                     <p>Select a lecture to start watching</p>
                   </div>
+                )}
+
+                {/* Add Bookmark button overlay */}
+                {selectedLecture?.videoUrl && (
+                  <button
+                    onClick={addBookmark}
+                    className="absolute right-4 top-4 bg-black text-white px-3 py-1 rounded opacity-90 hover:opacity-100"
+                  >
+                    Add Bookmark
+                  </button>
                 )}
               </div>
 
@@ -201,6 +416,36 @@ function ViewLecture() {
                     Mark as Completed
                   </button>
                 )}
+
+                {/* Bookmarks list */}
+                <div className="mt-4">
+                  <h3 className="text-sm font-semibold text-black mb-2">Bookmarks</h3>
+                  {bookmarks.length === 0 ? (
+                    <p className="text-xs text-gray-500">No bookmarks yet</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {bookmarks.map((bm) => (
+                        <li key={bm._id} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                          <div className="flex items-center gap-3">
+                            <button className="text-sm text-black font-medium" onClick={() => {
+                              // seek video to bookmark time
+                              if (videoRef.current) videoRef.current.currentTime = bm.timestamp;
+                            }}>
+                              {formatTime(bm.timestamp)}
+                            </button>
+                            <div className="text-xs text-gray-600">{bm.note}</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {!bm.linkedDoubt && (
+                              <button className="text-xs px-2 py-1 bg-black text-white rounded" onClick={() => askDoubt(bm)}>Ask Doubt</button>
+                            )}
+                            {bm.linkedDoubt && <span className="text-xs text-green-600">Doubt submitted</span>}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -338,6 +583,15 @@ function ViewLecture() {
         </div>
       </div>
     </div>
+      {showAIAssistant && (
+        <AIDoubtAssistant
+          courseName={selectedCourse?.title || ''}
+          onClose={() => { setShowAIAssistant(false); setAiInitialQuestion(''); setAiBookmarkContext(null); }}
+          initialQuestion={aiInitialQuestion}
+          bookmark={aiBookmarkContext}
+        />
+      )}
+    </>
   );
 }
 
