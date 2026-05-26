@@ -168,6 +168,7 @@ export const getLecturesByCourseId = async (req, res) => {
             return res.status(404).json({ message: "Course not found" })
         }
         await course.populate("lectures")
+        await course.populate("assignments")
         await course.save()
         return res.status(200).json(course)
     } catch (error) {

@@ -24,7 +24,10 @@ import {
   FaMicrophone,
   FaStar,
   FaComments,
-  FaUsers
+  FaUsers,
+  FaEye,
+  FaUpload,
+  FaCalendar
 } from 'react-icons/fa';
 
 const getGradeColor = (grade, isBackground = false) => {
@@ -69,6 +72,7 @@ function ViewCourse() {
   const [courseProgress, setCourseProgress] = useState(0);
   const [claimingCertificate, setClaimingCertificate] = useState(false);
   const [fullCourseData, setFullCourseData] = useState(null);
+  const [viewingAssignmentId, setViewingAssignmentId] = useState(null);
 
   const handleJoinVoiceRoom = async (roomId) => {
     if (!roomId) {
@@ -525,104 +529,107 @@ function ViewCourse() {
             {((fullCourseData?.assignments?.length > 0 ? fullCourseData.assignments : selectedCourseData?.assignments) || []).length === 0 ? (
               <p className="text-gray-500 font-bold border-2 border-dashed border-gray-300 p-4">No assignments have been posted for this course yet.</p>
             ) : (
-              ((fullCourseData?.assignments?.length > 0 ? fullCourseData.assignments : selectedCourseData?.assignments) || []).map((assignment) => {
-                if (!assignment) return null;
-                const studentGrade = studentSubmissionsWithGrades.find(
-                  (gradeEntry) => gradeEntry.submission?.assignment?._id === assignment._id
-                );
-                const existingSubmission = studentSubmissions.find(
-                  (sub) => sub.assignment === assignment._id || sub.assignment?._id === assignment._id
-                );
-                return (
-                  <div key={assignment._id} className="border-2 border-black p-4 mb-4 bg-gray-50">
-                    <h3 className="text-lg font-black">{assignment.title}</h3>
-                    {assignment.description && <p className="text-gray-600 font-bold text-sm">{assignment.description}</p>}
-                    <p className="text-xs font-bold text-gray-500">Deadline: {assignment.deadline && !isNaN(new Date(assignment.deadline).getTime()) ? new Date(assignment.deadline).toLocaleString() : "No Deadline"}</p>
-                    {assignment.referenceLink && (
-                      <a href={assignment.referenceLink} target="_blank" rel="noopener noreferrer" className="inline-block bg-black text-white px-4 py-2 border-2 border-black font-black uppercase text-xs tracking-wider mt-3 hover:bg-gray-800 transition-none">
-                        View
-                      </a>
-                    )}
-                    {studentGrade ? (
-                      studentGrade.status === 'rejected' ? (
-                        <div className="mt-4">
-                          <div className="p-3 border-2 border-red-300 mb-4">
-                            <p className="font-black text-gray-500 flex items-center gap-2"><FaTimesCircle /> Submission Rejected</p>
-                            <p className="text-gray-500 text-sm mt-1 font-bold">Feedback: {studentGrade.feedback}</p>
-                          </div>
-                          <p className="text-sm text-gray-600 font-bold mb-2">Resubmit your assignment:</p>
-                          <input type="text" placeholder="Enter your new submission link" className="w-full border-2 border-black p-2 font-bold" onChange={(e) => setSubmissionLinks(prev => ({ ...prev, [assignment._id]: e.target.value }))} />
-                          <button className="bg-black text-white mt-3 px-4 py-2 border-2 border-black font-black uppercase text-xs tracking-wider hover:bg-gray-800 transition-none" onClick={() => handleAssignmentSubmit(assignment._id)}>Resubmit</button>
-                        </div>
-                      ) : (
-                        <div className="mt-4 p-3 border-2 border-black" style={{ backgroundColor: getGradeColor(studentGrade.grade, true) }}>
-                          <p className="font-black">Your Grade: <span style={{ color: getGradeColor(studentGrade.grade) }}>{studentGrade.grade}</span></p>
-                          <p className="text-gray-700 font-bold">Feedback: {studentGrade.feedback}</p>
-                          {studentGrade.submission?.submissionLink && (
-                            <p className="text-xs text-gray-500 mt-2">
-                              Submitted Link:{' '}
-                              <a href={studentGrade.submission.submissionLink} target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-bold">
-                                {studentGrade.submission.submissionLink}
-                              </a>
-                            </p>
+              <>
+                {((fullCourseData?.assignments?.length > 0 ? fullCourseData.assignments : selectedCourseData?.assignments) || []).map((assignment) => {
+                  if (!assignment) return null;
+                  const isViewing = viewingAssignmentId === assignment._id;
+                  
+                  return (
+                    <div key={assignment._id} className="border-4 border-black p-6 mb-4 bg-gray-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
+                      {/* Assignment Header */}
+                      <div className="flex justify-between items-start gap-4 mb-4">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-black uppercase tracking-tight mb-1">{assignment.title}</h3>
+                          {assignment.description && (
+                            <p className="text-gray-700 font-bold text-sm mb-3">{assignment.description}</p>
                           )}
                         </div>
-                      )
-                    ) : existingSubmission ? (
-                      editingSubmissions[assignment._id] ? (
-                        <div className="mt-4">
-                          <p className="text-xs font-bold text-gray-500 mb-2">Change your submission link:</p>
+                      </div>
+
+                      {/* Assignment View Section */}
+                      {isViewing && assignment.referenceLink && (
+                        <div className="mb-4 p-4 bg-white border-3 border-black">
+                          <p className="text-xs font-black text-gray-600 uppercase tracking-wider mb-3">Assignment Details</p>
+                          <iframe 
+                            src={assignment.referenceLink}
+                            className="w-full border-2 border-black"
+                            style={{ height: '500px' }}
+                            title="Assignment Details"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'block';
+                            }}
+                          />
+                          <div style={{ display: 'none' }} className="p-4 bg-yellow-50 border-2 border-yellow-400">
+                            <p className="text-sm font-black text-gray-700 mb-2">Unable to preview this assignment. Open in new tab:</p>
+                            <a 
+                              href={assignment.referenceLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 font-black break-all underline text-sm"
+                            >
+                              {assignment.referenceLink}
+                            </a>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Deadline */}
+                      <div className="mb-4 p-3 bg-white border-2 border-gray-300 flex justify-between items-center">
+                        <div>
+                          <p className="text-xs font-black text-gray-600 uppercase tracking-wider">Deadline</p>
+                          <p className="text-sm font-black flex items-center gap-1 mt-1">
+                            <FaCalendar className="text-gray-700" />
+                            {assignment.deadline && !isNaN(new Date(assignment.deadline).getTime()) 
+                              ? new Date(assignment.deadline).toLocaleDateString() 
+                              : "No Deadline"}
+                          </p>
+                        </div>
+                        {assignment.referenceLink && (
+                          <button 
+                            onClick={() => setViewingAssignmentId(isViewing ? null : assignment._id)}
+                            className="flex items-center gap-2 bg-black text-white px-4 py-2.5 border-2 border-black font-black uppercase text-xs tracking-wider hover:bg-gray-800 transition-none whitespace-nowrap"
+                          >
+                            <FaEye /> {isViewing ? 'Hide' : 'View Assignment'}
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Submit Form */}
+                      <div className="bg-white border-2 border-black p-4">
+                        <div className="space-y-3">
+                          <label className="block text-xs font-black text-gray-700 uppercase tracking-wider">Submit Assignment Link</label>
                           <input 
                             type="text" 
-                            placeholder="Enter your new submission link" 
+                            placeholder="Enter your submission link (e.g., https://drive.google.com/...)" 
                             value={submissionLinks[assignment._id] || ""}
-                            className="w-full border-2 border-black p-2 font-bold focus:outline-none focus:ring-2 focus:ring-black bg-white" 
+                            className="w-full border-2 border-black p-3 font-bold focus:outline-none focus:ring-2 focus:ring-black" 
                             onChange={(e) => setSubmissionLinks(prev => ({ ...prev, [assignment._id]: e.target.value }))} 
                           />
-                          <div className="flex gap-2 mt-3">
+                          <div className="flex gap-2">
                             <button 
-                              className="bg-black text-white px-4 py-2 border-2 border-black font-black uppercase text-xs tracking-wider hover:bg-gray-800 transition-none" 
+                              className="flex items-center gap-2 bg-black text-white px-5 py-2.5 border-2 border-black font-black uppercase text-xs tracking-wider hover:bg-gray-800 transition-none flex-1 justify-center"
                               onClick={() => handleAssignmentSubmit(assignment._id)}
                             >
-                              Update Link
+                              <FaUpload /> Submit
                             </button>
-                            <button 
-                              className="bg-white text-black px-4 py-2 border-2 border-black font-black uppercase text-xs tracking-wider hover:bg-gray-100 transition-none" 
-                              onClick={() => setEditingSubmissions(prev => ({ ...prev, [assignment._id]: false }))}
-                            >
-                              Cancel
-                            </button>
+                            {submissionLinks[assignment._id] && (
+                              <a 
+                                href={submissionLinks[assignment._id]} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 bg-white text-black px-4 py-2.5 border-2 border-black font-black uppercase text-xs tracking-wider hover:bg-gray-100 transition-none"
+                              >
+                                <FaEye /> View
+                              </a>
+                            )}
                           </div>
                         </div>
-                      ) : (
-                        <div className="mt-4 p-3 border-2 border-black bg-yellow-50">
-                          <p className="font-black text-black">Status: <span className="text-yellow-600 font-black">Pending Review / Grading</span></p>
-                          <p className="text-gray-700 text-xs font-bold mt-1">
-                            Your Submitted Link:{' '}
-                            <a href={existingSubmission.submissionLink} target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-black break-all">
-                              {existingSubmission.submissionLink}
-                            </a>
-                          </p>
-                          {existingSubmission.submittedAt && (
-                            <p className="text-[10px] text-gray-400 mt-2 uppercase font-black">Submitted on: {new Date(existingSubmission.submittedAt).toLocaleString()}</p>
-                          )}
-                          <button 
-                            className="bg-black text-white mt-3 px-3 py-1.5 border-2 border-black font-black uppercase text-[10px] tracking-wider hover:bg-gray-800 transition-none block"
-                            onClick={() => setEditingSubmissions(prev => ({ ...prev, [assignment._id]: true }))}
-                          >
-                            Change Link / Resubmit
-                          </button>
-                        </div>
-                      )
-                    ) : (
-                      <div className="mt-4">
-                        <input type="text" placeholder="Enter your submission link" className="w-full border-2 border-black p-2 font-bold" onChange={(e) => setSubmissionLinks(prev => ({ ...prev, [assignment._id]: e.target.value }))} />
-                        <button className="bg-black text-white mt-3 px-4 py-2 border-2 border-black font-black uppercase text-xs tracking-wider hover:bg-gray-800 transition-none" onClick={() => handleAssignmentSubmit(assignment._id)}>Submit</button>
                       </div>
-                    )}
-                  </div>
-                );
-              })
+                    </div>
+                  );
+                })}
+              </>
             )}
 
             {/* Course Materials Section */}
