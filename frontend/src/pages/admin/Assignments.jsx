@@ -76,7 +76,7 @@ const Assignments = () => {
                                         {assignment.description && (
                                             <p className="text-gray-500 text-xs mt-1">{assignment.description}</p>
                                         )}
-                                        {assignment.deadline && (
+                                        {assignment.deadline && !isNaN(new Date(assignment.deadline).getTime()) && (
                                             <p className="text-[10px] font-bold text-gray-500 mt-2 uppercase">
                                                 Due: {new Date(assignment.deadline).toLocaleDateString()}
                                             </p>

@@ -517,7 +517,7 @@ function ViewCourse() {
                   <div key={assignment._id} className="border-2 border-black p-4 mb-4 bg-gray-50">
                     <h3 className="text-lg font-black">{assignment.title}</h3>
                     {assignment.description && <p className="text-gray-600 font-bold text-sm">{assignment.description}</p>}
-                    <p className="text-xs font-bold text-gray-500">Deadline: {new Date(assignment.deadline).toLocaleString()}</p>
+                    <p className="text-xs font-bold text-gray-500">Deadline: {assignment.deadline && !isNaN(new Date(assignment.deadline).getTime()) ? new Date(assignment.deadline).toLocaleString() : "No Deadline"}</p>
                     {assignment.referenceLink && (
                       <a href={assignment.referenceLink} target="_blank" rel="noopener noreferrer" className="inline-block bg-black text-white px-4 py-2 border-2 border-black font-black uppercase text-xs tracking-wider mt-3 hover:bg-gray-800 transition-none">
                         View

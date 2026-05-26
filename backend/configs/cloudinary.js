@@ -32,11 +32,11 @@ const uploadOnCloudinary = async (localFilePath) => {
         }
 
         //file has been uploaded successfully
-        console.log("✅ File uploaded to Cloudinary successfully:", response.url)
+        console.log("✅ File uploaded to Cloudinary successfully:", response.secure_url)
         console.log("📊 Upload details - Format:", response.format, "Size:", response.bytes, "bytes")
 
         fs.unlinkSync(localFilePath)
-        return response.url
+        return response.secure_url
 
     } catch (error) {
         console.error("❌ Cloudinary upload error:", error.message)
