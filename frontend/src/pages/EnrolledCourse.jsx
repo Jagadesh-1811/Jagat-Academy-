@@ -33,16 +33,8 @@ const EnrolledCourseCard = ({ course, token, navigate }) => {
   }, [course._id, token]);
 
   const handleApplyCertificate = async () => {
-    try {
-      const res = await axios.get(`${serverUrl}/api/certification/link`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setCertLink(res.data.link);
-      setShowCertModal(true);
-    } catch (err) {
-      console.error(err);
-      toast.info('No certification link has been set by the educator yet.');
-    }
+    // Route directly to the beautiful new React Generator for the demo!
+    navigate(`/certificate-generator?course=${encodeURIComponent(course.title)}`);
   };
 
   return (

@@ -137,7 +137,7 @@ export default function CertificateVerify() {
 
                   {cert.ipfsHash && (
                     <a
-                      href={`${serverUrl}${cert.ipfsHash}`}
+                      href={cert.ipfsHash.includes('cloudinary') || cert.ipfsHash.startsWith('https') ? cert.ipfsHash : `${serverUrl}${cert.ipfsHash}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 bg-black border-2 border-black text-white font-bold px-5 py-3 text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all"

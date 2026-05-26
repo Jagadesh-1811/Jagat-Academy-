@@ -24,6 +24,17 @@ const uploadOnCloudinary = async (localFilePath) => {
                  resource_type: "video",
                  chunk_size: 6000000
              });
+        } else if (localFilePath.match(/\.(pdf)$/i)) {
+             // Use raw resource type for PDFs to ensure proper viewing/download
+             response = await cloudinary.uploader.upload(localFilePath, {
+                 resource_type: "raw",
+                 type: "upload"
+             });
+             // Transform the URL to enable inline viewing instead of download
+             if (response.secure_url) {
+                 // Replace /upload/ with /upload/fl_attachment:inline/ for inline viewing
+                 response.secure_url = response.secure_url.replace('/upload/', '/upload/fl_attachment:inline/');
+             }
         } else {
              // Use regular upload for images/thumbnails
              response = await cloudinary.uploader.upload(localFilePath, {

@@ -44,14 +44,19 @@ const checkEligibility = async (studentId, courseId) => {
 /**
  * Auto-issue certificate helper called internally from progressController
  */
-export const autoIssueCertificateIfEligible = async (studentId, courseId, protocol, host) => {
+export const autoIssueCertificateIfEligible = async (studentId, courseId, protocol, host, forceRegenerate = false) => {
   try {
     const eligibility = await checkEligibility(studentId, courseId);
     if (!eligibility.eligible) return { success: false, reason: eligibility.reason };
 
     // Check if certificate already exists
-    const existingCert = await Certificate.findOne({ studentId, courseId, status: "active" });
-    if (existingCert) return { success: true, message: "Certificate already exists", certificate: existingCert };
+    if (!forceRegenerate) {
+      const existingCert = await Certificate.findOne({ studentId, courseId, status: "active" });
+      if (existingCert) return { success: true, message: "Certificate already exists", certificate: existingCert };
+    } else {
+      // Delete the old certificate from the database so a fresh one can be generated!
+      await Certificate.findOneAndDelete({ studentId, courseId, status: "active" });
+    }
 
     const student = await User.findById(studentId).populate("parents", "email name");
     const course = await Course.findById(courseId);
@@ -68,7 +73,9 @@ export const autoIssueCertificateIfEligible = async (studentId, courseId, protoc
 
     try {
       await generateCertificatePDF({
+        name: student.name,
         studentName: student.name,
+        course: course.title,
         courseTitle: course.title,
         certificateId,
         issueDate: new Date(),
@@ -86,7 +93,7 @@ export const autoIssueCertificateIfEligible = async (studentId, courseId, protoc
       }
     } catch (pdfError) {
       console.warn("PDF generation or upload failed, falling back to default image:", pdfError);
-      finalPdfPath = "https://placehold.co/800x600?text=Certificate+of+Completion";
+      finalPdfPath = `https://placehold.co/800x600?text=Certificate+of+Completion%0A${encodeURIComponent(student.name)}%0A${encodeURIComponent(course.title)}`;
       finalDownloadUrl = finalPdfPath;
     }
 
@@ -137,11 +144,16 @@ export const issueCertificate = async (req, res) => {
     // Check if certificate already exists
     const existingCert = await Certificate.findOne({ studentId, courseId, status: "active" });
     if (existingCert) {
-      return res.status(200).json({
-        success: true,
-        message: "Active certificate already exists for this course",
-        certificate: existingCert
-      });
+      if (force) {
+        // If admin/educator forces it, delete the old one
+        await Certificate.findByIdAndDelete(existingCert._id);
+      } else {
+        return res.status(200).json({
+          success: true,
+          message: "Active certificate already exists for this course",
+          certificate: existingCert
+        });
+      }
     }
 
     // Unless 'force' is passed by admin/educator, check progress and attendance requirements
@@ -172,7 +184,9 @@ export const issueCertificate = async (req, res) => {
 
     // Generate the PDF
     await generateCertificatePDF({
+      name: student.name,
       studentName: student.name,
+      course: course.title,
       courseTitle: course.title,
       certificateId,
       issueDate: new Date(),
@@ -187,8 +201,10 @@ export const issueCertificate = async (req, res) => {
     try {
       const cloudinaryUrl = await uploadOnCloudinary(absolutePdfPath);
       if (cloudinaryUrl) {
+        // Cloudinary URL is already properly formatted with inline viewing parameter
         finalPdfPath = cloudinaryUrl;
         finalDownloadUrl = cloudinaryUrl;
+        console.log("✅ PDF successfully uploaded to Cloudinary and configured for inline viewing:", finalDownloadUrl);
       }
     } catch (uploadError) {
       console.error("Cloudinary upload failed for manually issued certificate:", uploadError);
@@ -260,7 +276,7 @@ export const getCertificateById = async (req, res) => {
  */
 export const claimCertificate = async (req, res) => {
   try {
-    const { courseId } = req.body;
+    const { courseId, regenerate } = req.body;
     const studentId = req.userId; // From isAuth middleware
 
     if (!courseId) {
@@ -271,7 +287,7 @@ export const claimCertificate = async (req, res) => {
     const host = req.get("host");
 
     // Let the autoIssue helper handle eligibility check, creation, and emailing
-    const result = await autoIssueCertificateIfEligible(studentId, courseId, protocol, host);
+    const result = await autoIssueCertificateIfEligible(studentId, courseId, protocol, host, regenerate);
 
     if (!result.success) {
       // If the reason is eligibility related, return 400
@@ -345,7 +361,9 @@ export const getUserCertificates = async (req, res) => {
     const host = req.get("host");
     const formatted = certificates.map(c => ({
       ...c,
-      pdfUrl: `${protocol}://${host}${c.ipfsHash}`
+      pdfUrl: c.ipfsHash && c.ipfsHash.startsWith('https') 
+        ? c.ipfsHash 
+        : `${protocol}://${host}${c.ipfsHash}`
     }));
 
     res.status(200).json(formatted);

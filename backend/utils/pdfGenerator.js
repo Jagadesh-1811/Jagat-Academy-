@@ -18,8 +18,8 @@ export const generateCertificatePDF = (data, outputPath) => {
       // Generate QR Code
       const qrDataUrl = await QRCode.toDataURL(data.verificationUrl, {
         margin: 1,
-        width: 100,
-        color: { dark: "#000000", light: "#FFFFFF" },
+        width: 200,
+        color: { dark: "#1B365D", light: "#FFFFFF" },
       });
 
       // PDF: Landscape A4 (841.89 x 595.28 pts)
@@ -32,64 +32,167 @@ export const generateCertificatePDF = (data, outputPath) => {
       const ws = fs.createWriteStream(outputPath);
       doc.pipe(ws);
 
-      // Load Template
-      const templatePath = path.join(process.cwd(), "public", "certificate-template.png");
-      if (fs.existsSync(templatePath)) {
-        // Draw the full page template
-        doc.image(templatePath, 0, 0, { width: 841.89, height: 595.28 });
-        
-        // --- PATCH THE BAKED TEXT ---
-        // We draw rectangles using the approximate background color to cover the baked text.
-        // Color #E6E6E6 is a standard light grey that usually matches this type of gradient background.
-        const patchColor = "#E6E5E5";
-        
-        // 1. Patch over <<Name>>
-        doc.rect(80, 305, 450, 70).fill(patchColor);
-        
-        // 2. Patch over the paragraph containing <<COURSE>>
-        doc.rect(80, 400, 360, 50).fill(patchColor);
+      const pageWidth = 841.89;
+      const pageHeight = 595.28;
 
-        // Write the Student Name
-        doc.fillColor("#333333")
-           .font("Times-Bold")
-           .fontSize(42)
-           .text(data.studentName, 80, 315, { width: 450, align: "left" });
+      // === BACKGROUND - Gray ===
+      doc.fillColor("#e4e5e7")
+         .rect(0, 0, pageWidth, pageHeight)
+         .fill();
 
-        // Rewrite the entire paragraph with the dynamic course title
-        const bodyText = `AWARDED FOR THE SUCCESSFUL COMPLETION OF THE\n${data.courseTitle.toUpperCase()}, IN RECOGNITION OF OUTSTANDING\nPERFORMANCE AND COMMITMENT TO EXCELLENCE.`;
-        
-        doc.fillColor("#555555")
-           .font("Helvetica")
-           .fontSize(10)
-           .text(bodyText, 80, 405, { width: 360, align: "left", lineGap: 3 });
+      // === GRADIENT BLOBS (approximated with circles) ===
+      // Pink blob - top right
+      doc.fillOpacity(0.6)
+         .fillColor("#ff3b7c");
+      doc.circle(pageWidth + 50, pageHeight * -0.15, pageWidth * 0.225).fill();
+      
+      // Yellow blob - middle right
+      doc.fillOpacity(0.9)
+         .fillColor("#ffe34d");
+      doc.circle(pageWidth + 42, pageHeight * 0.2, pageWidth * 0.25).fill();
+      
+      // Purple blob - bottom right
+      doc.fillOpacity(0.75)
+         .fillColor("#8b7ff9");
+      doc.circle(pageWidth + 60, pageHeight * 1.2, pageWidth * 0.275).fill();
+      
+      // Orange blob - bottom center-right
+      doc.fillOpacity(0.6)
+         .fillColor("#ff9a76");
+      doc.circle(pageWidth * 0.625, pageHeight * 1.15, pageWidth * 0.225).fill();
+      
+      // Reset opacity
+      doc.fillOpacity(1.0);
 
-        // Draw the QR Code at the bottom right corner of the document
+      // === CONTENT AREA (with padding) ===
+      const padding = pageWidth * 0.08;
+      const contentWidth = pageWidth - (padding * 2);
+      
+      // Logo & "JAGAT ACADEMY" - top left
+      doc.fillColor("#1a1a1a")
+         .font("Helvetica-Bold")
+         .fontSize(10)
+         .text("JAGAT ACADEMY", padding + 35, padding + 5, { width: contentWidth - 35 });
+
+      // "Certificate Of Completion" - large title
+      doc.fillColor("#2c2c2c")
+         .font("Times-Roman")
+         .fontSize(52)
+         .text("Certificate", padding, padding + 70, { width: contentWidth, align: "left" });
+      
+      doc.fontSize(52)
+         .text("Of Completion", padding, doc.y, { width: contentWidth, align: "left" });
+
+      // "This certificate is awarded to" - small text
+      const awardedToY = doc.y + 20;
+      doc.fillColor("#333333")
+         .font("Helvetica")
+         .fontSize(9)
+         .text("THIS CERTIFICATE IS AWARDED TO", padding, awardedToY, { width: contentWidth });
+
+      // Student Name - very large
+      const nameY = doc.y + 15;
+      doc.fillColor("#1a1a1a")
+         .font("Times-Bold")
+         .fontSize(60)
+         .text((data.studentName || "<<Name>>").toUpperCase(), padding, nameY, { 
+           width: contentWidth,
+           align: "left"
+         });
+
+      // Course description paragraph
+      const descY = doc.y + 20;
+      doc.fillColor("#333333")
+         .font("Times-Roman")
+         .fontSize(10)
+         .text(
+           `Awarded for the successful completion of the ${(data.courseTitle || "<<COURSE>>").toUpperCase()}. In recognition of outstanding performance and commitment to excellence.`,
+           padding,
+           descY,
+           { width: contentWidth * 0.65, align: "left" }
+         );
+
+      // === SIGNATURE AREA (bottom) ===
+      const sigAreaY = pageHeight - padding - 60;
+      
+      // Signature text - use script/handwriting font if available
+      doc.fillColor("#2c2c2c");
+      
+      // Try to use custom font, fallback to Times-Roman
+      const fontPath = path.join(process.cwd(), "public", "fonts", "jagadeeshwarcv.ttf");
+      if (fs.existsSync(fontPath)) {
+        try {
+          doc.font(fontPath);
+          doc.fontSize(28)
+             .text("Jagadeeshwar", padding, sigAreaY - 25, { width: 140, align: "left" });
+        } catch (fontErr) {
+          console.warn("⚠️ Custom font failed, using fallback:", fontErr.message);
+          doc.font("Times-Italic")
+             .fontSize(14)
+             .text("Jagadeeshwar", padding, sigAreaY - 25, { width: 140, align: "left" });
+        }
+      } else {
+        // Fallback to Times-Italic (script-like)
+        doc.font("Times-Italic")
+           .fontSize(14)
+           .text("Jagadeeshwar", padding, sigAreaY - 25, { width: 140, align: "left" });
+      }
+      
+      // Signature line under name
+      doc.strokeColor("#2c2c2c")
+         .lineWidth(1)
+         .moveTo(padding, sigAreaY)
+         .lineTo(padding + 100, sigAreaY)
+         .stroke();
+      
+      // "ACADEMY CEO" text below signature
+      doc.fillColor("#1a1a1a")
+         .font("Times-Roman")
+         .fontSize(9)
+         .text("ACADEMY CEO", padding, sigAreaY + 8, { width: 100, align: "center" });
+
+      // Certificate ID & Date - bottom
+      doc.fillColor("#666666")
+         .font("Helvetica")
+         .fontSize(8);
+      
+      const issueDate = data.issueDate 
+        ? new Date(data.issueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) 
+        : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      
+      doc.text(`Certificate ID: ${data.certificateId} | Date: ${issueDate}`, padding, pageHeight - padding - 20, { 
+        width: contentWidth,
+        align: "left"
+      });
+
+      // === QR CODE - bottom right ===
+      try {
         const qrBuf = Buffer.from(qrDataUrl.replace(/^data:image\/png;base64,/, ""), "base64");
-        // Placing QR code in bottom right: page width is 841.89, height 595.28
-        doc.image(qrBuf, 720, 470, { width: 80 });
-
-        // Add verification link text below QR code
-        doc.fillColor("#555555")
+        doc.image(qrBuf, pageWidth - padding - 80, pageHeight - padding - 90, { width: 70 });
+        
+        doc.fillColor("#666666")
            .font("Helvetica")
            .fontSize(7)
-           .text("Scan to Verify", 720, 555, { width: 80, align: "center" });
-
-      } else {
-        // Fallback to basic if template is missing
-        doc.rect(0, 0, 841.89, 595.28).fill("#F3F4F6");
-        doc.fillColor("#000000").font("Helvetica-Bold").fontSize(32).text("CERTIFICATE OF COMPLETION", 0, 150, { align: "center" });
-        doc.font("Times-Bold").fontSize(48).text(data.studentName, 0, 250, { align: "center" });
-        doc.font("Helvetica").fontSize(14).text(`Completed: ${data.courseTitle}`, 0, 350, { align: "center" });
-        
-        const qrBuf = Buffer.from(qrDataUrl.replace(/^data:image\/png;base64,/, ""), "base64");
-        doc.image(qrBuf, 370, 450, { width: 100 });
+           .text("Scan to Verify", pageWidth - padding - 80, pageHeight - padding - 15, { 
+             width: 70, 
+             align: "center" 
+           });
+      } catch (qrError) {
+        console.warn("⚠️ QR code generation failed:", qrError.message);
       }
 
       doc.end();
 
-      ws.on("finish", () => resolve(outputPath));
-      ws.on("error", (err) => reject(err));
+      ws.on("finish", () => {
+        console.log(`✅ Certificate PDF generated successfully: ${outputPath}`);
+        resolve(outputPath);
+      });
+      ws.on("error", (err) => {
+        console.error("❌ Certificate PDF write stream error:", err);
+        reject(err);
+      });
     } catch (error) {
+      console.error("❌ Certificate PDF generation error:", error);
       reject(error);
     }
   });

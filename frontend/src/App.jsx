@@ -66,7 +66,7 @@ import ParentMessages from './pages/parent/ParentMessages';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import CourseDiscussion from './pages/CourseDiscussion';
 import ResumeGenerator from './pages/student/ResumeGenerator';
-
+import CertificateGenerator from './pages/student/CertificateGenerator';
 // Lazy loaded heavy components
 const GamificationHub = React.lazy(() => import('./pages/student/GamificationHub'));
 const AICoursesGenerator = React.lazy(() => import('./pages/AICoursesGenerator'));
@@ -88,6 +88,7 @@ const AdminProtectedRoute = ({ children }) => {
   }
   return children;
 };
+
 
 
 // Remove trailing slash from URL if present to avoid double slashes in routes
@@ -225,6 +226,7 @@ function App() {
           {/* Analytics & Reporting Routes */}
           <Route path='/student/analytics' element={userData?.role === "student" ? <StudentAnalytics /> : <Navigate to={"/signup"} />} />
           <Route path='/resume-generator' element={userData?.role === "student" ? <ResumeGenerator /> : <Navigate to={"/signup"} />} />
+          <Route path='/certificate-generator' element={userData?.role === "student" ? <CertificateGenerator /> : <Navigate to={"/signup"} />} />
           <Route path='/teacher/analytics' element={userData?.role === "educator" ? <EducatorAnalytics /> : <Navigate to={"/signup"} />} />
           <Route path='/parent/analytics' element={userData?.role === "parent" ? <ParentAnalytics /> : <Navigate to={"/parent/login"} />} />
           <Route path='/parent/messages' element={userData?.role === "parent" ? <ParentMessages /> : <Navigate to={"/parent/login"} />} />
