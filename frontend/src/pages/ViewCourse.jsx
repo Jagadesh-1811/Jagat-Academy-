@@ -363,25 +363,10 @@ function ViewCourse() {
       return;
     }
     try {
-      toast.info("Processing Sandbox Mock Enrollment...");
-      try {
-        const verifyRes = await axios.post(serverUrl + "/api/payment/verify-payment", {
-          razorpay_order_id: "mock_order",
-          razorpay_payment_id: "bypass",
-          razorpay_signature: "mock_sig",
-          courseId,
-          userId
-        }, { headers: { Authorization: `Bearer ${token}` } });
-        setIsEnrolled(true);
-        toast.success("Sandbox Enrollment Successful!");
-        const updatedUserResult = await axios.get(serverUrl + "/api/user/currentuser", { headers: { Authorization: `Bearer ${token}` } });
-        dispatch(setUserData(updatedUserResult.data));
-        return;
-      } catch (sandboxError) {
-        console.warn("Direct Sandbox bypass failed, falling back to Razorpay...", sandboxError);
-      }
+      toast.info("Initiating payment...");
       const orderData = await axios.post(serverUrl + "/api/payment/create-order", { courseId, userId }, { headers: { Authorization: `Bearer ${token}` } });
-      console.log(orderData)
+      console.log("Order created:", orderData.data);
+      
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: orderData.data.amount,
@@ -393,27 +378,34 @@ function ViewCourse() {
           console.log("Razorpay Response:", response);
           try {
             const verifyRes = await axios.post(serverUrl + "/api/payment/verify-payment", { ...response, courseId, userId }, { headers: { Authorization: `Bearer ${token}` } });
-            setIsEnrolled(true)
+            setIsEnrolled(true);
             toast.success(verifyRes.data.message);
-            const updatedUserResult = await axios.get(serverUrl + "/api/user/currentuser", { headers: { Authorization: `Bearer ${token}` } })
-            dispatch(setUserData(updatedUserResult.data))
+            const updatedUserResult = await axios.get(serverUrl + "/api/user/currentuser", { headers: { Authorization: `Bearer ${token}` } });
+            dispatch(setUserData(updatedUserResult.data));
           } catch (verifyError) {
             toast.error("Payment verification failed.");
             console.error("Verification Error:", verifyError);
           }
         },
+        prefill: {
+          name: userData?.name || "",
+          email: userData?.email || "",
+        },
+        theme: {
+          color: "#000000",
+        },
       };
-      
+
       const isLoaded = await loadRazorpayScript();
       if (!isLoaded) {
-        toast.error("Failed to load payment gateway.");
+        toast.error("Failed to load payment gateway. Please check your internet connection.");
         return;
       }
 
-      const rzp = new window.Razorpay(options)
-      rzp.open()
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (err) {
-      toast.error("Something went wrong while enrolling.");
+      toast.error("Something went wrong while initiating payment.");
       console.error("Enroll Error:", err);
     }
   };

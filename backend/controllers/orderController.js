@@ -43,42 +43,6 @@ export const verifyPayment = async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, courseId, userId } = req.body;
 
-    // Sandbox/Development Bypass for easy enrollment testing
-    if (razorpay_payment_id === "bypass" || process.env.NODE_ENV !== 'production' || !razorpay_signature) {
-      console.log(`⚠️ Sandbox direct enrollment triggered for user ${userId} in course ${courseId}`);
-      
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      // Ensure courseId is a string for comparison
-      if (!user.enrolledCourses.map(id => id.toString()).includes(courseId.toString())) {
-        user.enrolledCourses.push(courseId);
-        await user.save();
-      }
-
-      const course = await Course.findById(courseId).populate("lectures");
-      if (!course) {
-        return res.status(404).json({ message: "Course not found" });
-      }
-
-      if (!course.enrolledStudents.map(id => id.toString()).includes(userId.toString())) {
-        course.enrolledStudents.push(userId);
-        await course.save();
-      }
-
-      // Gamification: Award XP for first course enrollment
-      try {
-        await awardXP(userId, 25, 'Enrolled in a course');
-        await checkAndAwardBadges(userId, 'Onboarding');
-      } catch (gErr) {
-        console.error('⚠️ Gamification enrollment hook failed:', gErr.message);
-      }
-
-      return res.status(200).json({ message: "Enrollment successful (Sandbox Mode)" });
-    }
-
     // Validate required fields
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return res.status(400).json({ message: "Missing payment details" });

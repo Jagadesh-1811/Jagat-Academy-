@@ -16,46 +16,25 @@ export const chatWithAI = async (req, res) => {
       });
     }
 
-    const msg = message.toLowerCase();
-    
-    // Check if the user is asking "what is python" or related queries
-    if (msg.includes("what is python") || msg === "python" || msg.includes("explain python")) {
-      const pythonResponse = `🐍 **Python** is a high-level, interpreted programming language famous for its clear, clean syntax and readability! It is designed to be easy to learn and write.
-
-Here is what makes Python so popular:
-1. **Easy to Read & Write:** Uses clean indentation instead of complex braces, making it look almost like written English.
-2. **Extremely Versatile:** Used in **Web Development** (Django, Flask), **Data Science & Machine Learning** (Pandas, TensorFlow), **Automation Scripts**, and **Software Testing**.
-3. **Massive Ecosystem:** Millions of free libraries (packages) are available so you don't have to write code from scratch.
-
-**Example Python code:**
-\`\`\`python
-# Simple greeting in Python
-def greet_student(name):
-    return f"Welcome to Jagat Academy, {name}!"
-
-print(greet_student("Learner"))
-\`\`\`
-
-Would you like to learn about variables, loops, lists, or how to write your very first Python script? Let me know!`;
-
-      return res.status(200).json({
-        success: true,
-        response: pythonResponse,
-        customResponse: true
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({
+        success: false,
+        message: 'Gemini API key is not configured. Please set GEMINI_API_KEY in .env',
       });
     }
 
     // Create a context-aware prompt for educational assistance
-    const prompt = `Welcome to Jagat Academy! You are the official AI assistant for Jagat Academy. 
-Your role is to help students with their courses, assignments, and learning journey.
-Be helpful, encouraging, and provide clear explanations.
+    const prompt = `You are the official AI assistant for Jagat Academy, an online learning platform.
+Your role is to help students with their courses, coding doubts, assignments, and learning journey.
+Be helpful, encouraging, and provide clear, well-structured explanations.
+When explaining code, use code examples. Use bullet points and numbered lists for clarity.
 
 Student's question: ${message}
 
-Please provide a helpful and educational response:`;
+Provide a helpful and educational response:`;
 
     // Generate response using Gemini 2.0 Flash
-    const text = await queryGemini(prompt, '', 'gemini-2.0-flash');
+    const text = await queryGemini(prompt, 'You are a helpful AI tutor for Jagat Academy.', 'gemini-2.0-flash');
     const resultText = text || "I am the Jagat Academy AI assistant. I'm here to support your learning journey. Please try your question again or let me know how I can help!";
 
     return res.status(200).json({
@@ -66,7 +45,7 @@ Please provide a helpful and educational response:`;
     console.error('Error in chatWithAI, activating smart educational fallback:', error);
     
     // Generate a high-quality educational fallback response based on keywords
-    const msg = message.toLowerCase();
+    const msg = (req.body.message || '').toLowerCase();
     let fallbackText = "";
 
     if (msg.includes("hello") || msg.includes("hi") || msg.includes("hey") || msg.includes("greetings")) {
@@ -78,23 +57,7 @@ Please provide a helpful and educational response:`;
     } else if (msg.includes("html") || msg.includes("css")) {
       fallbackText = "HTML provides the structure of a webpage (like headings, paragraphs, and buttons), while CSS styles it (layout, colors, fonts, and responsiveness). Let me know if you need help with CSS Flexbox, Grid, semantic HTML, or positioning elements!";
     } else if (msg.includes("python")) {
-      fallbackText = `🐍 **Python** is a high-level, interpreted programming language famous for its clear, clean syntax and readability! It is designed to be easy to learn and write.
-
-Here is what makes Python so popular:
-1. **Easy to Read & Write:** Uses clean indentation instead of complex braces, making it look almost like written English.
-2. **Extremely Versatile:** Used in **Web Development** (Django, Flask), **Data Science & Machine Learning** (Pandas, TensorFlow), **Automation Scripts**, and **Software Testing**.
-3. **Massive Ecosystem:** Millions of free libraries (packages) are available so you don't have to write code from scratch.
-
-**Example Python code:**
-\`\`\`python
-# Simple greeting in Python
-def greet_student(name):
-    return f"Welcome to Jagat Academy, {name}!"
-
-print(greet_student("Learner"))
-\`\`\`
-
-Would you like to learn about variables, loops, lists, or how to write your very first Python script? Let me know!`;
+      fallbackText = "Python is a high-level, interpreted programming language famous for its clear, clean syntax and readability! It is used in Web Development (Django, Flask), Data Science & Machine Learning (Pandas, TensorFlow), Automation Scripts, and Software Testing. Would you like to learn about variables, loops, lists, or how to write your very first Python script?";
     } else if (msg.includes("db") || msg.includes("database") || msg.includes("sql") || msg.includes("mongodb")) {
       fallbackText = "Databases store and manage application data. SQL databases (like PostgreSQL or MySQL) are relational and use tables with schemas, while NoSQL databases (like MongoDB) are document-oriented and highly scalable. Let me know if you need help writing a query or structuring your database schema!";
     } else {
